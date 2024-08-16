@@ -81,3 +81,15 @@ footer a {
     margin: 20px 0;
   }
 }
+
+.testimonial {
+  margin: 20px 0;
+  font-style: italic;
+}
+
+.testimonial span {
+  display: block;
+  margin-top: 10px;
+  font-weight: 600;
+  color: #555;
+}
