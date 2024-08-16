@@ -1,61 +1,83 @@
+/* Resetear margen y padding */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* Estilos generales */
 body {
-  font-family: 'Arial', sans-serif;
-  line-height: 1.6;
+  font-family: 'Roboto', sans-serif;
   color: #333;
+  background-color: #f4f4f4;
 }
 
 header {
-  background-color: #f4f4f4;
-  padding: 20px;
+  background-color: #eaeaea;
+  padding: 40px;
   text-align: center;
 }
 
 h1 {
-  font-size: 2.5em;
+  font-family: 'Poppins', sans-serif;
+  font-size: 2.8em;
   margin-bottom: 10px;
 }
 
 p {
-  font-size: 1.1em;
+  font-size: 1.2em;
+  font-weight: 300;
 }
 
 main {
   padding: 20px;
   max-width: 900px;
-  margin: 0 auto;
+  margin: 20px auto;
 }
 
-section {
-  margin: 20px 0;
+.content-section {
+  margin: 40px 0;
+  text-align: center;
+}
+
+.alt-bg {
+  background-color: #f9f9f9;
+  padding: 40px;
+  border-radius: 10px;
+}
+
+h2 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2em;
+  margin-bottom: 20px;
 }
 
 footer {
   background-color: #333;
   color: white;
-  padding: 10px;
+  padding: 20px;
   text-align: center;
   position: fixed;
   width: 100%;
   bottom: 0;
 }
 
-a {
-  color: #fff;
+footer a {
+  color: #ffffff;
   text-decoration: none;
+  font-weight: 600;
 }
 
 @media (max-width: 768px) {
   h1 {
     font-size: 2em;
   }
-  
+
   main {
     padding: 10px;
+  }
+
+  .content-section {
+    margin: 20px 0;
   }
 }
