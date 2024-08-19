@@ -93,3 +93,17 @@ footer a {
   font-weight: 600;
   color: #555;
 }
+.button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: bold;
+  display: inline-block;
+  margin-top: 20px;
+}
+
+.button:hover {
+  background-color: #0056b3;
+}
