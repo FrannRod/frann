@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Alarmas</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>Calculadora de Alarmas</h1>
+  </header>
+
+  <main>
+    <section class="content-section">
+      <h2>Configuración de Alarmas</h2>
+
+      <label for="start-time">Hora de inicio:</label>
+      <input type="time" id="start-time" value="07:00">
+
+      <label for="end-time">Hora de fin:</label>
+      <input type="time" id="end-time" value="08:00" readonly>
+
+      <div id="activity-list">
+        <div>
+          <label for="alarma1">Alarma 1 (minutos):</label>
+          <input type="number" id="alarma1" value="10">
+          <span id="start-alarma1"></span>
+        </div>
+        <div>
+          <label for="alarma2">Alarma 2 (minutos):</label>
+          <input type="number" id="alarma2" value="5">
+          <span id="start-alarma2"></span>
+        </div>
+        <div>
+          <label for="alarma3">Alarma 3 (minutos):</label>
+          <input type="number" id="alarma3" value="3">
+          <span id="start-alarma3"></span>
+        </div>
+        <div>
+          <label for="despejarse">Despejarse (minutos):</label>
+          <input type="number" id="despejarse" value="15">
+          <span id="start-despejarse"></span>
+        </div>
+        <div>
+          <label for="bañarse">Bañarse (minutos):</label>
+          <input type="number" id="bañarse" value="20">
+          <span id="start-bañarse"></span>
+        </div>
+        <div>
+          <label for="lavar-pecho">Lavar Pecho (minutos):</label>
+          <input type="number" id="lavar-pecho" value="5">
+          <span id="start-lavar-pecho"></span>
+        </div>
+        <div>
+          <label for="afeitarse">Afeitarse (minutos):</label>
+          <input type="number" id="afeitarse" value="10">
+          <span id="start-afeitarse"></span>
+        </div>
+        <div>
+          <label for="cambiarse">Cambiarse (minutos):</label>
+          <input type="number" id="cambiarse" value="10">
+          <span id="start-cambiarse"></span>
+        </div>
+        <div>
+          <label for="viaje">Viaje (minutos):</label>
+          <input type="number" id="viaje" value="30">
+          <span id="start-viaje"></span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const startTimeInput = document.getElementById('start-time');
+    const endTimeInput = document.getElementById('end-time');
+    const activityInputs = document.querySelectorAll('#activity-list input');
+    const activityLabels = document.querySelectorAll('#activity-list span');
+
+    function calculateTimes() {
+      let startTime = startTimeInput.value.split(':');
+      let startHour = parseInt(startTime[0]);
+      let startMinute = parseInt(startTime[1]);
+      let currentTime = new Date(0, 0, 0, startHour, startMinute, 0);
+
+      activityInputs.forEach((input, index) => {
+        const duration = parseInt(input.value);
+        activityLabels[index].textContent = `Inicio: ${currentTime.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}`;
+        currentTime.setMinutes(currentTime.getMinutes() + duration);
+      });
+
+      endTimeInput.value = currentTime.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+    }
+
+    activityInputs.forEach(input => {
+      input.addEventListener('input', calculateTimes);
+    });
+
+    startTimeInput.addEventListener('input', calculateTimes);
+
+    // Inicialización
+    calculateTimes();
+  </script>
+</body>
+</html>
