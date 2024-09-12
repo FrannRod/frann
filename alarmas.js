@@ -77,5 +77,19 @@ startTimeInput.addEventListener('change', calculateTimesFromStart); // Para aseg
 endTimeInput.addEventListener('input', calculateStartTimeFromEnd);
 endTimeInput.addEventListener('change', calculateStartTimeFromEnd); // Para asegurar el cambio en móvil
 
+// Asignar eventos a los botones de eliminación (tachitos)
+const deleteButtons = document.querySelectorAll('.delete-btn');
+
+deleteButtons.forEach(button => {
+  button.addEventListener('click', function() {
+    const targetId = this.getAttribute('data-target');
+    const input = document.getElementById(targetId);
+    if (input) {
+      input.value = 0;  // Poner la duración en 0
+      calculateStartTimeFromEnd();  // Recalcular los tiempos
+    }
+  });
+});
+
 // Inicialización
 setInitialTimes();  // Asignar los valores iniciales a los inputs
