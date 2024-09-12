@@ -72,11 +72,12 @@ $(document).ready(function () {
     calculateStartTimeFromEnd();
   });
 
-  $startTimeInput.on('input change', function () {
+  // Manejo específico para dispositivos móviles para asegurarnos de capturar el cambio de hora correctamente
+  $startTimeInput.on('input change blur focusout', function () {
     calculateTimesFromStart();
   });
 
-  $endTimeInput.on('input change', function () {
+  $endTimeInput.on('input change blur focusout', function () {
     calculateStartTimeFromEnd();
   });
 
