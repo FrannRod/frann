@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Alarmas</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="alarmas.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+</head>
+<body>
+  <header>
+    <h1>Calculadora de Alarmas</h1>
+  </header>
+
+  <main>
+    <section class="content-section">
+      <h2>Configuración de Actividades</h2>
+
+      <div class="columns-container">
+        <!-- Columna de Inputs de Inicio y Fin -->
+        <div class="column input-section">
+          <div class="form-group">
+            <label for="start-time">Hora de inicio:</label>
+            <input type="time" id="start-time">
+          </div>
+
+          <div class="form-group">
+            <label for="total-duration">Duración total:</label>
+            <span id="total-duration">00:00</span>
+          </div>
+
+          <div class="form-group">
+            <label for="end-time">Hora de fin:</label>
+            <input type="time" id="end-time" value="09:30">
+          </div>
+        </div>
+
+        <!-- Columna izquierda: Tabla -->
+        <div class="column">
+          <table id="activity-table">
+            <thead>
+              <tr>
+                <th>Actividad</th>
+                <th>Inicio</th>
+                <th>Duración (min)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Alarma reloj</td>
+                <td id="start-alarma1">07:00</td>
+                <td><input type="number" id="alarma1" value="6"></td>
+              </tr>
+              <tr>
+                <td>Alarma tele</td>
+                <td id="start-alarma2"></td>
+                <td><input type="number" id="alarma2" value="7"></td>
+              </tr>
+              <tr>
+                <td>Alarma celular</td>
+                <td id="start-alarma3"></td>
+                <td><input type="number" id="alarma3" value="3"></td>
+              </tr>
+              <tr>
+                <td>Despejarse</td>
+                <td id="start-despejarse"></td>
+                <td><input type="number" id="despejarse" value="24"></td>
+              </tr>
+              <tr>
+                <td>Desayuno</td>
+                <td id="start-desayuno"></td>
+                <td><input type="number" id="desayuno" value="20"></td>
+              </tr>
+              <tr>
+                <td>Bañarse</td>
+                <td id="start-bañarse"></td>
+                <td><input type="number" id="bañarse" value="30"></td>
+              </tr>
+              <tr>
+                <td>Lavar herida</td>
+                <td id="start-lavar-herida"></td>
+                <td><input type="number" id="lavar-herida" value="6"></td>
+              </tr>
+              <tr>
+                <td>Afeitarse</td>
+                <td id="start-afeitarse"></td>
+                <td><input type="number" id="afeitarse" value="6"></td>
+              </tr>
+              <tr>
+                <td>Cambiarse</td>
+                <td id="start-cambiarse"></td>
+                <td><input type="number" id="cambiarse" value="15"></td>
+              </tr>
+              <tr>
+                <td>Viaje</td>
+                <td id="start-viaje"></td>
+                <td><input type="number" id="viaje" value="60"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      flatpickr('#start-time', { enableTime: true, noCalendar: true, dateFormat: "H:i" });
+      flatpickr('#end-time', { enableTime: true, noCalendar: true, dateFormat: "H:i" });
+    });
+  </script>
+
+  <script src="alarmas.js"></script>
+</body>
+</html>

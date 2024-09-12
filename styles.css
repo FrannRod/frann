@@ -10,6 +10,7 @@ body {
   font-family: 'Roboto', sans-serif;
   color: #333;
   background-color: #f4f4f4;
+  padding-bottom: 60px;
 }
 
 header {
@@ -93,6 +94,7 @@ footer a {
   font-weight: 600;
   color: #555;
 }
+
 .button {
   background-color: #007bff;
   color: white;
