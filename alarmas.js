@@ -8,14 +8,18 @@ const activityStartTimes = document.querySelectorAll('#activity-table td[id^="st
 function setInitialTimes() {
   startTimeInput.value = "07:00";  // Hora de inicio por defecto
   endTimeInput.value = "09:30";    // Hora de fin por defecto
-  calculateStartTimeFromEnd();     // Recalcular hora de inicio basado en la hora de fin
+  calculateStartTimeFromEnd();     // Calcular el inicio basado en la hora de fin
+  calculateTimesFromStart();       // Recalcular inicio al iniciar
 }
 
 // Función para calcular la duración total de las actividades
 function calculateTotalDuration() {
   let totalMinutes = 0;
   activityInputs.forEach(input => {
-    totalMinutes += parseInt(input.value, 10);
+    const value = parseInt(input.value, 10);
+    if (!isNaN(value)) {
+      totalMinutes += value;
+    }
   });
   let hours = Math.floor(totalMinutes / 60);
   let minutes = totalMinutes % 60;
@@ -32,11 +36,15 @@ function calculateTimesFromStart() {
 
   activityInputs.forEach((input, index) => {
     const duration = parseInt(input.value, 10);
-    activityStartTimes[index].textContent = currentTime.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
-    currentTime.setMinutes(currentTime.getMinutes() + duration);
+    if (!isNaN(duration)) {
+      activityStartTimes[index].textContent = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+      currentTime.setMinutes(currentTime.getMinutes() + duration);
+    } else {
+      activityStartTimes[index].textContent = 'NaN';
+    }
   });
 
-  endTimeInput.value = currentTime.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+  endTimeInput.value = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
   calculateTotalDuration();
 }
 
