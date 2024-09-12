@@ -67,11 +67,15 @@ function calculateStartTimeFromEnd() {
 
 // Asignar eventos a los inputs
 activityInputs.forEach(input => {
-  input.addEventListener('input', calculateStartTimeFromEnd);
+  input.addEventListener('input', calculateStartTimeFromEnd); // Para dispositivos que soportan 'input'
+  input.addEventListener('change', calculateStartTimeFromEnd); // Para asegurar que se registre el cambio en móvil
 });
 
 startTimeInput.addEventListener('input', calculateTimesFromStart);
+startTimeInput.addEventListener('change', calculateTimesFromStart); // Para asegurar el cambio en móvil
+
 endTimeInput.addEventListener('input', calculateStartTimeFromEnd);
+endTimeInput.addEventListener('change', calculateStartTimeFromEnd); // Para asegurar el cambio en móvil
 
 // Inicialización
 setInitialTimes();  // Asignar los valores iniciales a los inputs
