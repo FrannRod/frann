@@ -19,6 +19,24 @@
       <h2>Configuración de Actividades</h2>
 
       <div class="columns-container">
+        <!-- Columna de Inputs de Inicio y Fin -->
+        <div class="column input-section">
+          <div class="form-group">
+            <label for="start-time">Hora de inicio:</label>
+            <input type="time" id="start-time">
+          </div>
+
+          <div class="form-group">
+            <label for="total-duration">Duración total:</label>
+            <span id="total-duration">00:00</span>
+          </div>
+
+          <div class="form-group">
+            <label for="end-time">Hora de fin:</label>
+            <input type="time" id="end-time" value="09:30">
+          </div>
+        </div>
+
         <!-- Columna izquierda: Tabla -->
         <div class="column">
           <table id="activity-table">
@@ -31,60 +49,57 @@
             </thead>
             <tbody>
               <tr>
-                <td>Alarma 1</td>
+                <td>Alarma reloj</td>
                 <td id="start-alarma1">07:00</td>
-                <td><input type="number" id="alarma1" value="10"></td>
+                <td><input type="number" id="alarma1" value="6"></td>
               </tr>
               <tr>
-                <td>Alarma 2</td>
+                <td>Alarma tele</td>
                 <td id="start-alarma2"></td>
-                <td><input type="number" id="alarma2" value="5"></td>
+                <td><input type="number" id="alarma2" value="7"></td>
+              </tr>
+              <tr>
+                <td>Alarma celular</td>
+                <td id="start-alarma3"></td>
+                <td><input type="number" id="alarma3" value="3"></td>
               </tr>
               <tr>
                 <td>Despejarse</td>
                 <td id="start-despejarse"></td>
-                <td><input type="number" id="despejarse" value="15"></td>
+                <td><input type="number" id="despejarse" value="24"></td>
+              </tr>
+              <tr>
+                <td>Desayuno</td>
+                <td id="start-desayuno"></td>
+                <td><input type="number" id="desayuno" value="20"></td>
               </tr>
               <tr>
                 <td>Bañarse</td>
                 <td id="start-bañarse"></td>
-                <td><input type="number" id="bañarse" value="20"></td>
+                <td><input type="number" id="bañarse" value="30"></td>
+              </tr>
+              <tr>
+                <td>Lavar herida</td>
+                <td id="start-lavar-herida"></td>
+                <td><input type="number" id="lavar-herida" value="6"></td>
               </tr>
               <tr>
                 <td>Afeitarse</td>
                 <td id="start-afeitarse"></td>
-                <td><input type="number" id="afeitarse" value="10"></td>
+                <td><input type="number" id="afeitarse" value="6"></td>
               </tr>
               <tr>
                 <td>Cambiarse</td>
                 <td id="start-cambiarse"></td>
-                <td><input type="number" id="cambiarse" value="10"></td>
+                <td><input type="number" id="cambiarse" value="15"></td>
               </tr>
               <tr>
                 <td>Viaje</td>
                 <td id="start-viaje"></td>
-                <td><input type="number" id="viaje" value="30"></td>
+                <td><input type="number" id="viaje" value="60"></td>
               </tr>
             </tbody>
           </table>
-        </div>
-
-        <!-- Columna derecha: Inputs -->
-        <div class="column">
-          <div class="form-group">
-            <label for="start-time">Hora de inicio:</label>
-            <input type="time" id="start-time" value="07:00">
-          </div>
-
-          <div class="form-group">
-            <label for="total-duration">Duración total:</label>
-            <span id="total-duration">00:00</span>
-          </div>
-
-          <div class="form-group">
-            <label for="end-time">Hora de fin:</label>
-            <input type="time" id="end-time">
-          </div>
         </div>
       </div>
     </section>

@@ -38,6 +38,7 @@ input[type="time"], input[type="number"] {
 .columns-container {
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 .column {
@@ -45,12 +46,15 @@ input[type="time"], input[type="number"] {
   padding: 20px;
 }
 
-.column table {
-  width: 100%;
-}
-
 .column input {
   width: 100%;
   padding: 10px;
   font-size: 1em;
+}
+
+@media (max-width: 768px) {
+  .input-section {
+    width: 100%;
+    margin-bottom: 20px;
+  }
 }
