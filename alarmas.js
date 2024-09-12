@@ -71,17 +71,11 @@ activityInputs.forEach(input => {
   input.addEventListener('change', calculateStartTimeFromEnd); // Para asegurar que se registre el cambio en móvil
 });
 
-function handleTimeChange() {
-  setTimeout(() => {
-    calculateStartTimeFromEnd();
-  }, 0);  // Usar un setTimeout para asegurar que los cambios se capturen en móvil
-}
+startTimeInput.addEventListener('input', calculateTimesFromStart);
+startTimeInput.addEventListener('change', calculateTimesFromStart); // Para asegurar el cambio en móvil
 
-startTimeInput.addEventListener('input', handleTimeChange);
-startTimeInput.addEventListener('change', handleTimeChange);
-
-endTimeInput.addEventListener('input', handleTimeChange);
-endTimeInput.addEventListener('change', handleTimeChange);
+endTimeInput.addEventListener('input', calculateStartTimeFromEnd);
+endTimeInput.addEventListener('change', calculateStartTimeFromEnd); // Para asegurar el cambio en móvil
 
 // Asignar eventos a los botones de eliminación (tachitos)
 const deleteButtons = document.querySelectorAll('.delete-btn');
