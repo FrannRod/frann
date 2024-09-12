@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calculadora de Alarmas</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="alarmas.css">
 </head>
 <body>
   <header>
@@ -13,93 +14,67 @@
 
   <main>
     <section class="content-section">
-      <h2>Configuración de Alarmas</h2>
+      <h2>Configuración de Actividades</h2>
 
-      <label for="start-time">Hora de inicio:</label>
-      <input type="time" id="start-time" value="07:00">
+      <div class="form-group">
+        <label for="start-time">Hora de inicio:</label>
+        <input type="time" id="start-time" value="07:00">
+      </div>
 
-      <label for="end-time">Hora de fin:</label>
-      <input type="time" id="end-time" value="08:00" readonly>
+      <table id="activity-table">
+        <thead>
+          <tr>
+            <th>Actividad</th>
+            <th>Inicio</th>
+            <th>Duración (min)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Alarma 1</td>
+            <td id="start-alarma1">07:00</td>
+            <td><input type="number" id="alarma1" value="10"></td>
+          </tr>
+          <tr>
+            <td>Alarma 2</td>
+            <td id="start-alarma2"></td>
+            <td><input type="number" id="alarma2" value="5"></td>
+          </tr>
+          <tr>
+            <td>Despejarse</td>
+            <td id="start-despejarse"></td>
+            <td><input type="number" id="despejarse" value="15"></td>
+          </tr>
+          <tr>
+            <td>Bañarse</td>
+            <td id="start-bañarse"></td>
+            <td><input type="number" id="bañarse" value="20"></td>
+          </tr>
+          <tr>
+            <td>Afeitarse</td>
+            <td id="start-afeitarse"></td>
+            <td><input type="number" id="afeitarse" value="10"></td>
+          </tr>
+          <tr>
+            <td>Cambiarse</td>
+            <td id="start-cambiarse"></td>
+            <td><input type="number" id="cambiarse" value="10"></td>
+          </tr>
+          <tr>
+            <td>Viaje</td>
+            <td id="start-viaje"></td>
+            <td><input type="number" id="viaje" value="30"></td>
+          </tr>
+        </tbody>
+      </table>
 
-      <div id="activity-list">
-        <div>
-          <label for="alarma1">Alarma 1 (minutos):</label>
-          <input type="number" id="alarma1" value="10">
-          <span id="start-alarma1"></span>
-        </div>
-        <div>
-          <label for="alarma2">Alarma 2 (minutos):</label>
-          <input type="number" id="alarma2" value="5">
-          <span id="start-alarma2"></span>
-        </div>
-        <div>
-          <label for="alarma3">Alarma 3 (minutos):</label>
-          <input type="number" id="alarma3" value="3">
-          <span id="start-alarma3"></span>
-        </div>
-        <div>
-          <label for="despejarse">Despejarse (minutos):</label>
-          <input type="number" id="despejarse" value="15">
-          <span id="start-despejarse"></span>
-        </div>
-        <div>
-          <label for="bañarse">Bañarse (minutos):</label>
-          <input type="number" id="bañarse" value="20">
-          <span id="start-bañarse"></span>
-        </div>
-        <div>
-          <label for="lavar-pecho">Lavar Pecho (minutos):</label>
-          <input type="number" id="lavar-pecho" value="5">
-          <span id="start-lavar-pecho"></span>
-        </div>
-        <div>
-          <label for="afeitarse">Afeitarse (minutos):</label>
-          <input type="number" id="afeitarse" value="10">
-          <span id="start-afeitarse"></span>
-        </div>
-        <div>
-          <label for="cambiarse">Cambiarse (minutos):</label>
-          <input type="number" id="cambiarse" value="10">
-          <span id="start-cambiarse"></span>
-        </div>
-        <div>
-          <label for="viaje">Viaje (minutos):</label>
-          <input type="number" id="viaje" value="30">
-          <span id="start-viaje"></span>
-        </div>
+      <div class="form-group">
+        <label for="end-time">Hora de fin:</label>
+        <input type="time" id="end-time" readonly>
       </div>
     </section>
   </main>
 
-  <script>
-    const startTimeInput = document.getElementById('start-time');
-    const endTimeInput = document.getElementById('end-time');
-    const activityInputs = document.querySelectorAll('#activity-list input');
-    const activityLabels = document.querySelectorAll('#activity-list span');
-
-    function calculateTimes() {
-      let startTime = startTimeInput.value.split(':');
-      let startHour = parseInt(startTime[0]);
-      let startMinute = parseInt(startTime[1]);
-      let currentTime = new Date(0, 0, 0, startHour, startMinute, 0);
-
-      activityInputs.forEach((input, index) => {
-        const duration = parseInt(input.value);
-        activityLabels[index].textContent = `Inicio: ${currentTime.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}`;
-        currentTime.setMinutes(currentTime.getMinutes() + duration);
-      });
-
-      endTimeInput.value = currentTime.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
-    }
-
-    activityInputs.forEach(input => {
-      input.addEventListener('input', calculateTimes);
-    });
-
-    startTimeInput.addEventListener('input', calculateTimes);
-
-    // Inicialización
-    calculateTimes();
-  </script>
+  <script src="alarmas.js"></script>
 </body>
 </html>
