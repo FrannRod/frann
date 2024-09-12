@@ -6,6 +6,8 @@
   <title>Calculadora de Alarmas</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="alarmas.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
 <body>
   <header>
@@ -16,64 +18,84 @@
     <section class="content-section">
       <h2>Configuración de Actividades</h2>
 
-      <div class="form-group">
-        <label for="start-time">Hora de inicio:</label>
-        <input type="time" id="start-time" value="07:00">
-      </div>
+      <div class="columns-container">
+        <!-- Columna izquierda: Tabla -->
+        <div class="column">
+          <table id="activity-table">
+            <thead>
+              <tr>
+                <th>Actividad</th>
+                <th>Inicio</th>
+                <th>Duración (min)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Alarma 1</td>
+                <td id="start-alarma1">07:00</td>
+                <td><input type="number" id="alarma1" value="10"></td>
+              </tr>
+              <tr>
+                <td>Alarma 2</td>
+                <td id="start-alarma2"></td>
+                <td><input type="number" id="alarma2" value="5"></td>
+              </tr>
+              <tr>
+                <td>Despejarse</td>
+                <td id="start-despejarse"></td>
+                <td><input type="number" id="despejarse" value="15"></td>
+              </tr>
+              <tr>
+                <td>Bañarse</td>
+                <td id="start-bañarse"></td>
+                <td><input type="number" id="bañarse" value="20"></td>
+              </tr>
+              <tr>
+                <td>Afeitarse</td>
+                <td id="start-afeitarse"></td>
+                <td><input type="number" id="afeitarse" value="10"></td>
+              </tr>
+              <tr>
+                <td>Cambiarse</td>
+                <td id="start-cambiarse"></td>
+                <td><input type="number" id="cambiarse" value="10"></td>
+              </tr>
+              <tr>
+                <td>Viaje</td>
+                <td id="start-viaje"></td>
+                <td><input type="number" id="viaje" value="30"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-      <table id="activity-table">
-        <thead>
-          <tr>
-            <th>Actividad</th>
-            <th>Inicio</th>
-            <th>Duración (min)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Alarma 1</td>
-            <td id="start-alarma1">07:00</td>
-            <td><input type="number" id="alarma1" value="10"></td>
-          </tr>
-          <tr>
-            <td>Alarma 2</td>
-            <td id="start-alarma2"></td>
-            <td><input type="number" id="alarma2" value="5"></td>
-          </tr>
-          <tr>
-            <td>Despejarse</td>
-            <td id="start-despejarse"></td>
-            <td><input type="number" id="despejarse" value="15"></td>
-          </tr>
-          <tr>
-            <td>Bañarse</td>
-            <td id="start-bañarse"></td>
-            <td><input type="number" id="bañarse" value="20"></td>
-          </tr>
-          <tr>
-            <td>Afeitarse</td>
-            <td id="start-afeitarse"></td>
-            <td><input type="number" id="afeitarse" value="10"></td>
-          </tr>
-          <tr>
-            <td>Cambiarse</td>
-            <td id="start-cambiarse"></td>
-            <td><input type="number" id="cambiarse" value="10"></td>
-          </tr>
-          <tr>
-            <td>Viaje</td>
-            <td id="start-viaje"></td>
-            <td><input type="number" id="viaje" value="30"></td>
-          </tr>
-        </tbody>
-      </table>
+        <!-- Columna derecha: Inputs -->
+        <div class="column">
+          <div class="form-group">
+            <label for="start-time">Hora de inicio:</label>
+            <input type="time" id="start-time" value="07:00">
+          </div>
 
-      <div class="form-group">
-        <label for="end-time">Hora de fin:</label>
-        <input type="time" id="end-time" readonly>
+          <div class="form-group">
+            <label for="total-duration">Duración total:</label>
+            <span id="total-duration">00:00</span>
+          </div>
+
+          <div class="form-group">
+            <label for="end-time">Hora de fin:</label>
+            <input type="time" id="end-time">
+          </div>
+        </div>
       </div>
     </section>
   </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      flatpickr('#start-time', { enableTime: true, noCalendar: true, dateFormat: "H:i" });
+      flatpickr('#end-time', { enableTime: true, noCalendar: true, dateFormat: "H:i" });
+    });
+  </script>
 
   <script src="alarmas.js"></script>
 </body>

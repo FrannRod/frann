@@ -1,5 +1,3 @@
-
-
 .table {
   width: 100%;
   border-collapse: collapse;
@@ -33,6 +31,26 @@ table input[type="number"] {
 }
 
 input[type="time"], input[type="number"] {
+  padding: 10px;
+  font-size: 1em;
+}
+
+.columns-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.column {
+  flex: 1;
+  padding: 20px;
+}
+
+.column table {
+  width: 100%;
+}
+
+.column input {
+  width: 100%;
   padding: 10px;
   font-size: 1em;
 }
