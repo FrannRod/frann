@@ -10,7 +10,6 @@ $(document).ready(function () {
     $startTimeInput.val("07:00");  // Hora de inicio por defecto
     $endTimeInput.val("09:30");    // Hora de fin por defecto
     calculateStartTimeFromEnd();   // Calcular el inicio basado en la hora de fin
-    calculateTimesFromStart();     // Recalcular inicio al iniciar
   }
 
   // Función para calcular la duración total de las actividades
@@ -46,9 +45,10 @@ $(document).ready(function () {
       }
     });
 
+    // Actualizar la hora final después de calcular todas las actividades
     $endTimeInput.val(currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
-    calculateTotalDuration();
   }
+
 
   // Función para calcular la hora de inicio en base a la hora de fin y la duración total
   function calculateStartTimeFromEnd() {
@@ -64,21 +64,21 @@ $(document).ready(function () {
     const newStartMinute = endTimeDate.getMinutes().toString().padStart(2, '0');
     $startTimeInput.val(`${newStartHour}:${newStartMinute}`);
 
-    calculateTimesFromStart();
+    calculateTimesFromStart();  // Actualizamos los tiempos de las actividades en la tabla
   }
 
   // Asignar eventos a los inputs de actividad con jQuery
-  $activityInputs.on('input change', function () {
-    calculateStartTimeFromEnd();
+  $activityInputs.on('input change blur focusout', function () {
+    calculateStartTimeFromEnd();  // Recalcula la hora de inicio en base a la duración de las actividades
   });
 
   // Manejo específico para dispositivos móviles para asegurarnos de capturar el cambio de hora correctamente
   $startTimeInput.on('input change blur focusout', function () {
-    calculateTimesFromStart();
+    calculateTimesFromStart();  // Actualiza las horas de inicio de las actividades y la hora final
   });
 
   $endTimeInput.on('input change blur focusout', function () {
-    calculateStartTimeFromEnd();
+    calculateStartTimeFromEnd();  // Actualiza la hora de inicio en función de la hora de fin
   });
 
   // Asignar eventos a los botones de eliminación (tachitos) con jQuery
@@ -93,4 +93,23 @@ $(document).ready(function () {
 
   // Inicialización
   setInitialTimes();  // Asignar los valores iniciales a los inputs
+
+  // Integrar flatpickr con jQuery
+  $('#start-time').flatpickr({
+    enableTime: true,
+    noCalendar: true,
+    dateFormat: "H:i",
+    onChange: function () {
+      calculateTimesFromStart();  // Actualiza las horas de inicio de las actividades y la hora final al cambiar la hora de inicio
+    }
+  });
+
+  $('#end-time').flatpickr({
+    enableTime: true,
+    noCalendar: true,
+    dateFormat: "H:i",
+    onChange: function () {
+      calculateStartTimeFromEnd();  // Actualiza la hora de inicio en función de la hora de fin al cambiar la hora de fin
+    }
+  });
 });
