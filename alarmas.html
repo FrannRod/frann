@@ -151,7 +151,7 @@
             <td><i class="fas fa-lock"></i></td>
             <td>Hora de inicio</td>
             <td><input type="time" id="start-time"></td>
-            <td>0</td>
+            <td>-</td>
             <td></td>
           </tr>
           <tr>
@@ -228,7 +228,7 @@
             <td><i class="fas fa-lock"></i></td>
             <td>Hora de fin</td>
             <td><input type="time" id="end-time" value="09:30"></td>
-            <td>0</td>
+            <td>-</td>
             <td></td>
           </tr>
         </tbody>
@@ -330,9 +330,11 @@
             <td><input type="number" value="0"></td>
             <td><button class="delete-btn"><i class="fas fa-trash-alt"></i></button></td>
           </tr>`;
-        $activityTable.append(newRow);
-        calculateStartTimeFromEnd();
+        // Añadir la nueva actividad al principio del tbody antes de la Hora de fin.
+        $activityTable.find('tr.fixed').last().before(newRow);
+        calculateStartTimeFromEnd(); // Recalcular los tiempos desde el final.
       });
+
 
       setInitialTimes();
 
