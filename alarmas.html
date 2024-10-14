@@ -10,7 +10,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-    /* Estilos CSS */
+    
     body {
       font-family: Arial, sans-serif;
       background-color: #f4f4f4;
@@ -35,14 +35,17 @@
       border-radius: 10px;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
       text-align: center;
+      overflow-x: auto; 
     }
 
     table {
       width: 100%;
+      max-width: 100%; 
       border-collapse: collapse;
       margin-bottom: 30px;
       background-color: #ffffff;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      table-layout: auto; 
     }
 
     table th, table td {
@@ -124,6 +127,21 @@
       h1 {
         font-size: 2em;
       }
+
+      table th, table td {
+        font-size: 0.9em;
+        padding: 10px; 
+      }
+
+      table {
+        display: block;
+        overflow-x: auto; 
+        white-space: nowrap; 
+      }
+
+      .content-section {
+        padding: 20px; 
+      }
     }
   </style>
 </head>
@@ -136,35 +154,36 @@
     <section class="content-section">
       <h2>Configuración de Actividades</h2>
 
-      <table id="activity-table">
-        <thead>
-          <tr>
-            <th></th>
-            <th>Actividad</th>
-            <th>Inicio</th>
-            <th>Duración (min)</th>
-            <th>Eliminar</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="fixed">
-            <td><i class="fas fa-lock"></i></td>
-            <td>Hora de inicio</td>
-            <td><input type="time" id="start-time"></td>
-            <td>-</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td><i class="fas fa-bars drag-handle"></i></td>
-            <td contenteditable="true" class="editable">Alarma 1</td>
-            <td id="start-alarma1">07:00</td>
-            <td><input type="number" id="alarma1" value="6"></td>
-            <td><button class="delete-btn" data-target="alarma1"><i class="fas fa-trash-alt"></i></button></td>
-          </tr>
-          <tr>
-            <td><i class="fas fa-bars drag-handle"></i></td>
-            <td contenteditable="true" class="editable">Alarma 2</td>
-            <td id="start-alarma2"></td>
+      <div style="overflow-x: auto;">
+        <table id="activity-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Actividad</th>
+              <th>Inicio</th>
+              <th>Duración (min)</th>
+              <th>Eliminar</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="fixed">
+              <td><i class="fas fa-lock"></i></td>
+              <td>Hora de inicio</td>
+              <td><input type="time" id="start-time"></td>
+              <td>-</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td><i class="fas fa-bars drag-handle"></i></td>
+              <td contenteditable="true" class="editable">Alarma 1</td>
+              <td id="start-alarma1">07:00</td>
+              <td><input type="number" id="alarma1" value="6"></td>
+              <td><button class="delete-btn" data-target="alarma1"><i class="fas fa-trash-alt"></i></button></td>
+            </tr>
+            <tr>
+              <td><i class="fas fa-bars drag-handle"></i></td>
+              <td contenteditable="true" class="editable">Alarma 2</td>
+              <td id="start-alarma2"></td>
             <td><input type="number" id="alarma2" value="7"></td>
             <td><button class="delete-btn" data-target="alarma2"><i class="fas fa-trash-alt"></i></button></td>
           </tr>
@@ -227,12 +246,13 @@
           <tr class="fixed">
             <td><i class="fas fa-lock"></i></td>
             <td>Hora de fin</td>
-            <td><input type="time" id="end-time" value="09:30"></td>
-            <td>-</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+              <td><input type="time" id="end-time" value="09:30"></td>
+              <td>-</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
       <button class="add-btn" id="add-activity">Agregar Nueva Actividad</button>
       <div class="form-group">
         <label for="total-duration">Duración total:</label>
@@ -330,11 +350,9 @@
             <td><input type="number" value="0"></td>
             <td><button class="delete-btn"><i class="fas fa-trash-alt"></i></button></td>
           </tr>`;
-        // Añadir la nueva actividad al principio del tbody antes de la Hora de fin.
         $activityTable.find('tr.fixed').last().before(newRow);
-        calculateStartTimeFromEnd(); // Recalcular los tiempos desde el final.
+        calculateStartTimeFromEnd();
       });
-
 
       setInitialTimes();
 
@@ -356,7 +374,6 @@
         }
       });
 
-      // Habilitar la funcionalidad de arrastrar y soltar
       $('#activity-table tbody').sortable({
         handle: '.drag-handle',
         items: 'tr:not(.fixed)',
