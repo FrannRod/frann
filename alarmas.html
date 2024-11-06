@@ -42,12 +42,12 @@
       border-collapse: collapse;
       margin-bottom: 30px;
       background-color: #ffffff;
-      table-layout: fixed;
+      table-layout: auto;
     }
 
     table th, table td {
       border: 1px solid #ddd;
-      padding: 10px;
+      padding: 8px;
       text-align: center;
       word-wrap: break-word;
       position: relative;
@@ -119,7 +119,7 @@
       }
 
       input[type="number"] {
-        width: 60px;
+        width: 50px;
       }
 
       h1 {
@@ -128,7 +128,7 @@
 
       table th, table td {
         font-size: 0.8em;
-        padding: 8px;
+        padding: 6px;
       }
 
       table {
@@ -188,7 +188,6 @@
               <td><input type="number" id="alarma2" value="7"></td>
               <td><button class="delete-btn" data-target="alarma2"><i class="fas fa-trash-alt"></i></button></td>
             </tr>
-            <!-- Repite para las demás actividades -->
             <tr class="activity-row">
               <td class="activity-cell">
                 <div contenteditable="true" class="activity-name editable">Alarma 3</div>
@@ -198,7 +197,6 @@
               <td><input type="number" id="alarma3" value="5"></td>
               <td><button class="delete-btn" data-target="alarma3"><i class="fas fa-trash-alt"></i></button></td>
             </tr>
-            <!-- Agrega más actividades según sea necesario -->
             <tr class="activity-row">
               <td class="activity-cell">
                 <div contenteditable="true" class="activity-name editable">Despejarse</div>
@@ -208,7 +206,6 @@
               <td><input type="number" id="despejarse" value="20"></td>
               <td><button class="delete-btn" data-target="despejarse"><i class="fas fa-trash-alt"></i></button></td>
             </tr>
-            <!-- Continúa con las demás actividades... -->
             <tr class="activity-row">
               <td class="activity-cell">
                 <div contenteditable="true" class="activity-name editable">Bañarse</div>
@@ -245,7 +242,6 @@
               <td><input type="number" id="viaje" value="45"></td>
               <td><button class="delete-btn" data-target="viaje"><i class="fas fa-trash-alt"></i></button></td>
             </tr>
-            <!-- Última actividad con botón '+' -->
             <tr class="activity-row">
               <td class="activity-cell">
                 <div contenteditable="true" class="activity-name editable">Comprar café</div>
@@ -255,7 +251,6 @@
               <td><input type="number" id="cafe" value="15"></td>
               <td><button class="delete-btn" data-target="cafe"><i class="fas fa-trash-alt"></i></button></td>
             </tr>
-            <!-- Botón '+' antes de 'Hora de fin' -->
             <tr class="fixed">
               <td>Hora de fin</td>
               <td><input type="time" id="end-time" value="09:30"></td>
@@ -270,6 +265,14 @@
         <span id="total-duration">00:00</span>
       </div>
     </section>
+
+    <!-- Card con la explicación "Como usar?" -->
+    <div class="content-section" style="margin-top: 30px; padding: 20px; background-color: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+      <h3 style="text-align: center;">¿Cómo usar?</h3>
+      <p style="text-align: justify; font-size: 1em; line-height: 1.5;">
+        Esta herramienta está pensada para maximizar tus horas de sueño y organizar tus mañanas de forma eficiente. Seleccioná las actividades que hacés habitualmente por la mañana y asignales el tiempo (aproximado) que te llevan, como se ve en los ejemplos. Podés agregar nuevas actividades o eliminar las existentes tocando el ícono del tachito. Luego, configurá la hora a la que querés terminar todo, y automáticamente se calculará la hora de inicio. Esto te ayudará a saber a qué hora programar tus alarmas para optimizar tu descanso. También podés fijar la hora de inicio y la herramienta calculará a qué hora terminarás todo.
+      </p>
+    </div>
   </main>
 
   <script>
@@ -366,10 +369,8 @@
             <td><button class="delete-btn"><i class="fas fa-trash-alt"></i></button></td>
           </tr>`;
         $currentRow.after(newRow);
-        // Enfocar automáticamente en el nombre de la nueva actividad
         const $newActivityName = $currentRow.next().find('.activity-name');
         $newActivityName.focus();
-        // Si el botón '+' estaba en la última actividad, no eliminarlo para mantener la consistencia
         calculateStartTimeFromEnd();
       });
 
