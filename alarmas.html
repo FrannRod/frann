@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+  <!-- Font Awesome para los iconos -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     body {
@@ -50,6 +50,7 @@
       padding: 10px;
       text-align: center;
       word-wrap: break-word;
+      position: relative;
     }
 
     table th {
@@ -78,33 +79,32 @@
       transform: scale(1.2);
     }
 
-    .add-btn {
-      background-color: #4CAF50;
-      color: white;
+    .activity-cell {
+      position: relative;
+    }
+
+    .add-btn-inline {
+      position: absolute;
+      bottom: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.05);
+      color: #4CAF50;
       border: none;
-      padding: 10px 20px;
-      border-radius: 50px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
       cursor: pointer;
-      margin-top: 20px;
-      font-size: 1em;
-      transition: background-color 0.3s;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .add-btn:hover {
-      background-color: #45a049;
-    }
-
-    .drag-handle {
-      cursor: move;
       font-size: 1.5em;
-      color: #777;
+      line-height: 30px;
+      text-align: center;
+      opacity: 0.7;
+      transition: background-color 0.3s, opacity 0.3s;
     }
 
-    .drag-handle:hover {
-      color: #333;
+    .add-btn-inline:hover {
+      background-color: rgba(0, 0, 0, 0.1);
+      opacity: 1;
     }
 
     .form-group {
@@ -156,7 +156,6 @@
         <table id="activity-table">
           <thead>
             <tr>
-              <th></th>
               <th>Actividad</th>
               <th>Inicio</th>
               <th>Duración (min)</th>
@@ -165,85 +164,109 @@
           </thead>
           <tbody>
             <tr class="fixed">
-              <td><i class="fas fa-lock"></i></td>
               <td>Hora de inicio</td>
               <td><input type="time" id="start-time"></td>
               <td>-</td>
               <td></td>
             </tr>
-            <tr>
-              <td><i class="fas fa-bars drag-handle"></i></td>
-              <td contenteditable="true" class="editable">Alarma 1</td>
+            <!-- Actividades iniciales -->
+            <tr class="activity-row">
+              <td class="activity-cell">
+                <div contenteditable="true" class="activity-name editable">Alarma 1</div>
+                <button class="add-btn-inline">+</button>
+              </td>
               <td id="start-alarma1">07:00</td>
               <td><input type="number" id="alarma1" value="10"></td>
               <td><button class="delete-btn" data-target="alarma1"><i class="fas fa-trash-alt"></i></button></td>
             </tr>
-            <tr>
-              <td><i class="fas fa-bars drag-handle"></i></td>
-              <td contenteditable="true" class="editable">Alarma 2</td>
+            <tr class="activity-row">
+              <td class="activity-cell">
+                <div contenteditable="true" class="activity-name editable">Alarma 2</div>
+                <button class="add-btn-inline">+</button>
+              </td>
               <td id="start-alarma2"></td>
-            <td><input type="number" id="alarma2" value="10"></td>
-            <td><button class="delete-btn" data-target="alarma2"><i class="fas fa-trash-alt"></i></button></td>
-          </tr>
-          <tr>
-            <td><i class="fas fa-bars drag-handle"></i></td>
-            <td contenteditable="true" class="editable">Alarma 3</td>
-            <td id="start-alarma3"></td>
-            <td><input type="number" id="alarma3" value="5"></td>
-            <td><button class="delete-btn" data-target="alarma3"><i class="fas fa-trash-alt"></i></button></td>
-          </tr>
-          <tr>
-            <td><i class="fas fa-bars drag-handle"></i></td>
-            <td contenteditable="true" class="editable">Despejarse</td>
-            <td id="start-despejarse"></td>
-            <td><input type="number" id="despejarse" value="20"></td>
-            <td><button class="delete-btn" data-target="despejarse"><i class="fas fa-trash-alt"></i></button></td>
-          </tr>
-          <tr>
-            <td><i class="fas fa-bars drag-handle"></i></td>
-            <td contenteditable="true" class="editable">Bañarse</td>
-            <td id="start-bañarse"></td>
-            <td><input type="number" id="bañarse" value="30"></td>
-            <td><button class="delete-btn" data-target="bañarse"><i class="fas fa-trash-alt"></i></button></td>
-          </tr>
-          <tr>
-            <td><i class="fas fa-bars drag-handle"></i></td>
-            <td contenteditable="true" class="editable">Aplicar crema</td>
-            <td id="start-poner-crema"></td>
-            <td><input type="number" id="poner-crema" value="5"></td>
-            <td><button class="delete-btn" data-target="poner-crema"><i class="fas fa-trash-alt"></i></button></td>
-          </tr>
-          <tr>
-            <td><i class="fas fa-bars drag-handle"></i></td>
-            <td contenteditable="true" class="editable">Afeitarse</td>
-            <td id="start-afeitarse"></td>
-            <td><input type="number" id="afeitarse" value="7"></td>
-            <td><button class="delete-btn" data-target="afeitarse"><i class="fas fa-trash-alt"></i></button></td>
-          </tr>
-          <tr>
-            <td><i class="fas fa-bars drag-handle"></i></td>
-            <td contenteditable="true" class="editable">Cambiarse</td>
-            <td id="start-cambiarse"></td>
-            <td><input type="number" id="cambiarse" value="15"></td>
-            <td><button class="delete-btn" data-target="cambiarse"><i class="fas fa-trash-alt"></i></button></td>
-          </tr>
-          <tr>
-            <td><i class="fas fa-bars drag-handle"></i></td>
-            <td contenteditable="true" class="editable">Viaje</td>
-            <td id="start-viaje"></td>
-            <td><input type="number" id="viaje" value="45"></td>
-            <td><button class="delete-btn" data-target="viaje"><i class="fas fa-trash-alt"></i></button></td>
-          </tr>
-          <tr>
-            <td><i class="fas fa-bars drag-handle"></i></td>
-            <td contenteditable="true" class="editable">Comprar café</td>
-            <td id="start-cafe"></td>
-            <td><input type="number" id="cafe" value="15"></td>
-            <td><button class="delete-btn" data-target="cafe"><i class="fas fa-trash-alt"></i></button></td>
-          </tr>
-          <tr class="fixed">
-            <td><i class="fas fa-lock"></i></td>
-            <td>Hora de fin</td>
+              <td><input type="number" id="alarma2" value="10"></td>
+              <td><button class="delete-btn" data-target="alarma2"><i class="fas fa-trash-alt"></i></button></td>
+            </tr>
+            <!-- Repite para las demás actividades -->
+            <tr class="activity-row">
+              <td class="activity-cell">
+                <div contenteditable="true" class="activity-name editable">Alarma 3</div>
+                <button class="add-btn-inline">+</button>
+              </td>
+              <td id="start-alarma3"></td>
+              <td><input type="number" id="alarma3" value="5"></td>
+              <td><button class="delete-btn" data-target="alarma3"><i class="fas fa-trash-alt"></i></button></td>
+            </tr>
+            <!-- Agrega más actividades según sea necesario -->
+            <tr class="activity-row">
+              <td class="activity-cell">
+                <div contenteditable="true" class="activity-name editable">Despejarse</div>
+                <button class="add-btn-inline">+</button>
+              </td>
+              <td id="start-despejarse"></td>
+              <td><input type="number" id="despejarse" value="20"></td>
+              <td><button class="delete-btn" data-target="despejarse"><i class="fas fa-trash-alt"></i></button></td>
+            </tr>
+            <!-- Continúa con las demás actividades... -->
+            <tr class="activity-row">
+              <td class="activity-cell">
+                <div contenteditable="true" class="activity-name editable">Bañarse</div>
+                <button class="add-btn-inline">+</button>
+              </td>
+              <td id="start-bañarse"></td>
+              <td><input type="number" id="bañarse" value="30"></td>
+              <td><button class="delete-btn" data-target="bañarse"><i class="fas fa-trash-alt"></i></button></td>
+            </tr>
+            <tr class="activity-row">
+              <td class="activity-cell">
+                <div contenteditable="true" class="activity-name editable">Aplicar crema</div>
+                <button class="add-btn-inline">+</button>
+              </td>
+              <td id="start-poner-crema"></td>
+              <td><input type="number" id="poner-crema" value="5"></td>
+              <td><button class="delete-btn" data-target="poner-crema"><i class="fas fa-trash-alt"></i></button></td>
+            </tr>
+            <tr class="activity-row">
+              <td class="activity-cell">
+                <div contenteditable="true" class="activity-name editable">Afeitarse</div>
+                <button class="add-btn-inline">+</button>
+              </td>
+              <td id="start-afeitarse"></td>
+              <td><input type="number" id="afeitarse" value="7"></td>
+              <td><button class="delete-btn" data-target="afeitarse"><i class="fas fa-trash-alt"></i></button></td>
+            </tr>
+            <tr class="activity-row">
+              <td class="activity-cell">
+                <div contenteditable="true" class="activity-name editable">Cambiarse</div>
+                <button class="add-btn-inline">+</button>
+              </td>
+              <td id="start-cambiarse"></td>
+              <td><input type="number" id="cambiarse" value="15"></td>
+              <td><button class="delete-btn" data-target="cambiarse"><i class="fas fa-trash-alt"></i></button></td>
+            </tr>
+            <tr class="activity-row">
+              <td class="activity-cell">
+                <div contenteditable="true" class="activity-name editable">Viaje</div>
+                <button class="add-btn-inline">+</button>
+              </td>
+              <td id="start-viaje"></td>
+              <td><input type="number" id="viaje" value="45"></td>
+              <td><button class="delete-btn" data-target="viaje"><i class="fas fa-trash-alt"></i></button></td>
+            </tr>
+            <!-- Última actividad con botón '+' -->
+            <tr class="activity-row">
+              <td class="activity-cell">
+                <div contenteditable="true" class="activity-name editable">Comprar café</div>
+                <button class="add-btn-inline">+</button>
+              </td>
+              <td id="start-cafe"></td>
+              <td><input type="number" id="cafe" value="15"></td>
+              <td><button class="delete-btn" data-target="cafe"><i class="fas fa-trash-alt"></i></button></td>
+            </tr>
+            <!-- Botón '+' antes de 'Hora de fin' -->
+            <tr class="fixed">
+              <td>Hora de fin</td>
               <td><input type="time" id="end-time" value="09:30"></td>
               <td>-</td>
               <td></td>
@@ -251,7 +274,6 @@
           </tbody>
         </table>
       </div>
-      <button class="add-btn" id="add-activity">Agregar Nueva Actividad</button>
       <div class="form-group">
         <label for="total-duration">Duración total:</label>
         <span id="total-duration">00:00</span>
@@ -274,7 +296,7 @@
 
       function calculateTotalDuration() {
         let totalMinutes = 0;
-        $activityTable.find('input[type="number"]').each(function () {
+        $activityTable.find('tr').not('.fixed').find('input[type="number"]').each(function () {
           const value = parseInt($(this).val(), 10);
           if (!isNaN(value)) {
             totalMinutes += value;
@@ -293,7 +315,7 @@
         let currentTime = new Date(0, 0, 0, startHour, startMinute, 0);
 
         $activityTable.find('tr').not('.fixed').each(function () {
-          const $activityStart = $(this).find('td').eq(2);
+          const $activityStart = $(this).find('td').eq(1);
           const duration = parseInt($(this).find('input[type="number"]').val(), 10);
           if (!isNaN(duration)) {
             $activityStart.text(currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
@@ -335,20 +357,28 @@
       });
 
       $(document).on('click', '.delete-btn', function () {
-        $(this).closest('tr').remove();
+        const $activityRow = $(this).closest('tr');
+        $activityRow.remove();
         calculateStartTimeFromEnd();
       });
 
-      $('#add-activity').on('click', function () {
+      $(document).on('click', '.add-btn-inline', function () {
+        const $currentRow = $(this).closest('tr');
         const newRow = `
-          <tr>
-            <td><i class="fas fa-bars drag-handle"></i></td>
-            <td contenteditable="true" class="editable">Nueva Actividad</td>
+          <tr class="activity-row">
+            <td class="activity-cell">
+              <div contenteditable="true" class="activity-name editable">Nueva Actividad</div>
+              <button class="add-btn-inline">+</button>
+            </td>
             <td></td>
             <td><input type="number" value="0"></td>
             <td><button class="delete-btn"><i class="fas fa-trash-alt"></i></button></td>
           </tr>`;
-        $activityTable.find('tr.fixed').last().before(newRow);
+        $currentRow.after(newRow);
+        // Enfocar automáticamente en el nombre de la nueva actividad
+        const $newActivityName = $currentRow.next().find('.activity-name');
+        $newActivityName.focus();
+        // Si el botón '+' estaba en la última actividad, no eliminarlo para mantener la consistencia
         calculateStartTimeFromEnd();
       });
 
@@ -369,14 +399,6 @@
         dateFormat: "H:i",
         onChange: function () {
           calculateStartTimeFromEnd();
-        }
-      });
-
-      $('#activity-table tbody').sortable({
-        handle: '.drag-handle',
-        items: 'tr:not(.fixed)',
-        update: function () {
-          calculateTimesFromStart();
         }
       });
     });
