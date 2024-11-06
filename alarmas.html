@@ -382,6 +382,21 @@
         calculateStartTimeFromEnd();
       });
 
+      $(document).on('focus', '.activity-name', function () {
+        const element = this;
+        setTimeout(() => {
+          const range = document.createRange();
+          range.selectNodeContents(element);
+          const selection = window.getSelection();
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }, 0);
+      });
+
+      $(document).on('focus', 'input[type="number"]', function () {
+        this.select();
+      });
+
       setInitialTimes();
 
       $('#start-time').flatpickr({
