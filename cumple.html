@@ -36,6 +36,7 @@
             text-decoration: none;
             border-radius: 8px;
             font-size: 1em;
+            box-sizing: border-box; /* Agregado */
         }
         .button:hover {
             background-color: #c0392b;
@@ -67,6 +68,7 @@
         @media (max-width: 600px) {
             .button {
                 width: 100%;
+                box-sizing: border-box; /* Aseguramos que también se aplique en mobile */
             }
         }
     </style>
