@@ -5,88 +5,114 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invitación a mi Cumpleaños</title>
     <style>
+        /* Importar fuente desde Google Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap');
+
         body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f7f7f7;
-            color: #333;
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
             margin: 0;
-            padding: 20px;
-        }
-        h1, h2, h3 {
-            text-align: center;
-            color: #2c3e50;
-        }
-        p {
-            text-align: center;
-            font-size: 1.1em;
-            line-height: 1.6;
+            padding: 0;
         }
         .container {
-            max-width: 600px;
-            margin: 0 auto;
+            max-width: 480px;
+            margin: auto;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.2em;
+            margin-bottom: 0.5em;
+            color: #f0f0f0;
+        }
+        p {
+            font-size: 1em;
+            line-height: 1.5em;
+            margin: 0.5em 0;
+            color: #e0e0e0;
+        }
+        .buttons {
+            margin: 20px 0;
         }
         .button {
-            display: block;
-            width: 80%;
-            margin: 15px auto;
-            padding: 15px;
-            background-color: #e74c3c;
+            display: inline-block;
+            margin: 5px;
+            padding: 10px 20px;
+            background-color: #ff6b6b;
             color: #fff;
-            text-align: center;
             text-decoration: none;
-            border-radius: 8px;
-            font-size: 1em;
-            box-sizing: border-box;
+            border-radius: 25px;
+            font-size: 0.9em;
+            transition: background 0.3s;
         }
         .button:hover {
-            background-color: #c0392b;
+            background-color: #ff4757;
         }
         .list {
             margin: 30px 0;
         }
         .list h3 {
-            text-align: left;
-            margin-bottom: 10px;
-            color: #e74c3c;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+            color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .list h3 .count {
+            font-size: 0.8em;
+            color: #ff6b6b;
+            margin-left: 8px;
         }
         .list ul {
-            list-style-type: none;
+            list-style: none;
             padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
         }
         .list li {
-            background-color: #fff;
-            margin: 5px 0;
-            padding: 12px;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            font-size: 1em;
-            color: #2c3e50;
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            color: #fff;
         }
         a {
-            color: #e74c3c;
+            color: inherit;
         }
-        @media (max-width: 600px) {
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2em;
+            }
             .button {
-                width: 100%;
-                box-sizing: border-box;
+                padding: 10px 15px;
+                font-size: 0.9em;
+            }
+            .list li {
+                font-size: 0.85em;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>¡Estás Invitado a Mi Cumple!</h1>
+        <h1>¡Estás Invitado a Mi Cumple! 🎉</h1>
         <p>El día es <strong>sábado 7 de diciembre de 2024</strong> a las <strong>21:30 hs</strong>.</p>
         <p>Tenemos reserva en <strong>Growlers</strong> - Av. Santa Fe 1430, Recoleta.</p>
         <p>Por mi cumple tenemos todos <strong>50% OFF</strong> en cervezas Clásicas, Gin Tonic Tirado, Tintillo de Verano, Fernet, Agua Mineral y Vaso de Gaseosa.</p>
-        <a href="https://maps.app.goo.gl/YwyfguKDhByogMug6" class="button">Ver en Maps</a>
-        <a href="https://www.google.com/calendar/render?action=TEMPLATE&text=Cumple+de+Franco&dates=20241208T003000Z/20241208T023000Z&details=Más+información+en+FrancoRodriguez.com.ar%2Fcumple&location=Av.+Santa+Fe+1430%2C+Recoleta" class="button">Agendar Evento</a>
+        <div class="buttons">
+            <a href="https://maps.app.goo.gl/YwyfguKDhByogMug6" class="button">Ver en Maps</a>
+            <a href="https://www.google.com/calendar/render?action=TEMPLATE&text=Cumple+de+Franco&dates=20241208T003000Z/20241208T023000Z&details=Más+información+en+FrancoRodriguez.com.ar%2Fcumple&location=Av.+Santa+Fe+1430%2C+Recoleta" class="button">Agendar Evento</a>
+        </div>
         <p>Si alguien necesita o prefiere venir más temprano, avísenme y pueden pasar un rato por casa. Si somos muchos, nos vamos a merendar a un Starbucks cercano o a una plaza linda que hay cerca.</p>
         
         <div class="list">
-            <h3>Confirmados (15):</h3>
+            <h3>Confirmados <span class="count">(16)</span></h3>
             <ul>
-                <li>Yo 👑</li>
+                <li>👑Fran</li>
                 <li>Nova</li>
                 <li>Juan Cruz</li>
                 <li>Rocío Velis</li>
@@ -99,6 +125,7 @@
                 <li>Antito</li>
                 <li>Ale</li>
                 <li>Anita</li>
+                <li>Cande</li>
                 <li>Tute</li>
                 <li>Nachito</li>
             </ul>
@@ -106,7 +133,7 @@
         </div>
         
         <div class="list">
-            <h3>No Asisten (5):</h3>
+            <h3>No Asisten <span class="count">(5)</span></h3>
             <ul>
                 <li>Pepi</li>
                 <li>Enzo</li>
@@ -118,12 +145,11 @@
         </div>
         
         <div class="list">
-            <h3>No contestaron (10):</h3>
+            <h3>No contestaron <span class="count">(9)</span></h3>
             <ul>
                 <li>Tobías</li>
                 <li>Nicole</li>
                 <li>Lucas Taylor</li>
-                <li>Candela</li>
                 <li>Alex</li>
                 <li>Viole</li>
                 <li>Ludmila</li>
