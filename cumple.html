@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invitación a mi Cumpleaños</title>
-    <!-- TimeCircles CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/TimeCircles/1.5.3/TimeCircles.min.css" integrity="sha512-nkZLTBo0uEogf7VHJHdboyIo8g0CINoYosZ/oLojP9uDQTvHv2vUArvAHyhuDDwpOzI/mLeY+zHIxAg2vYl6Xw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap');
 
@@ -21,11 +19,6 @@
             margin: auto;
             padding: 20px;
             text-align: center;
-        }
-        #countdown {
-            width: 100%;
-            max-width: 400px;
-            margin: 20px auto;
         }
         h1 {
             font-size: 2.2em;
@@ -44,15 +37,13 @@
         .button {
             display: inline-block;
             margin: 5px;
-            padding: 12px 25px;
+            padding: 10px 20px;
             background-color: #ff6b6b;
             color: #fff;
             text-decoration: none;
-            border-radius: 30px;
-            font-size: 1em;
+            border-radius: 25px;
+            font-size: 0.9em;
             transition: background 0.3s;
-            cursor: pointer;
-            border: none;
         }
         .button:hover {
             background-color: #ff4757;
@@ -88,50 +79,15 @@
             font-size: 0.9em;
             color: #fff;
         }
-        /* Modal Styles */
-        .modal {
-          display: none;
-          position: fixed;
-          z-index: 1;
-          padding-top: 100px;
-          left: 0;
-          top: 0;
-          width: 100%;
-          height: 100%;
-          overflow: auto;
-          background-color: rgba(0,0,0,0.8);
-        }
-        .modal-content {
-          background-color: #1e3c72;
-          margin: auto;
-          padding: 20px;
-          width: 80%;
-          max-width: 400px;
-          color: #fff;
-          border-radius: 10px;
-          position: relative;
-        }
-        .close {
-          color: #ff6b6b;
-          position: absolute;
-          top: 10px;
-          right: 20px;
-          font-size: 28px;
-          font-weight: bold;
-          cursor: pointer;
-        }
-        .close:hover,
-        .close:focus {
-          color: #ff4757;
-          text-decoration: none;
-          cursor: pointer;
+        a {
+            color: inherit;
         }
         @media (max-width: 480px) {
             h1 {
                 font-size: 2em;
             }
             .button {
-                padding: 10px 20px;
+                padding: 10px 15px;
                 font-size: 0.9em;
             }
             .list li {
@@ -142,19 +98,16 @@
 </head>
 <body>
     <div class="container">
-        <div id="countdown" data-date="2024-12-07 21:30:00"></div>
         <h1>¡Estás Invitado a Mi Cumple! 🎉</h1>
         <p>El día es <strong>sábado 7 de diciembre de 2024</strong> a las <strong>21:30 hs</strong>.</p>
         <p>Tenemos reserva en <strong>Growlers</strong> - Av. Santa Fe 1430, Recoleta.</p>
         <p>Por mi cumple tenemos todos <strong>50% OFF</strong> en cervezas Clásicas, Gin Tonic Tirado, Tintillo de Verano, Fernet, Agua Mineral y Vaso de Gaseosa.</p>
         <div class="buttons">
             <a href="https://maps.app.goo.gl/YwyfguKDhByogMug6" class="button">Ver en Maps</a>
-            <a href="https://growlerscc.com.ar/menu-growlers/" target="_blank" class="button">Ver Carta</a>
-        </div>
-        <p>Si alguien necesita o prefiere venir más temprano, avísenme y pueden pasar un rato por casa. Si somos muchos, nos vamos a merendar a un Starbucks cercano o a una plaza linda que hay cerca.</p>
-        <div class="buttons">
             <a href="https://www.google.com/calendar/render?action=TEMPLATE&text=Cumple+de+Franco&dates=20241208T003000Z/20241208T023000Z&details=Más+información+en+FrancoRodriguez.com.ar%2Fcumple&location=Av.+Santa+Fe+1430%2C+Recoleta" class="button">Agendar Evento</a>
         </div>
+        <p>Si alguien necesita o prefiere venir más temprano, avísenme y pueden pasar un rato por casa. Si somos muchos, nos vamos a merendar a un Starbucks cercano o a una plaza linda que hay cerca.</p>
+        
         <div class="list">
             <h3>Confirmados <span class="count">(20)</span></h3>
             <ul>
@@ -179,8 +132,9 @@
                 <li>Tobías</li>
                 <li>Lucas</li>
             </ul>
-            <button class="button" onclick="showPopup()">Confirmar Asistencia</button>
+            <a href="https://wa.me/5491133321196?text=Hola!%20Quería%20confirmarte%20que%20*voy*%20a%20tu%20cumple" class="button">Confirmar Asistencia</a>
         </div>
+        
         <div class="list">
             <h3>No Asisten <span class="count">(10)</span></h3>
             <ul>
@@ -195,55 +149,8 @@
                 <li>Alex</li>
                 <li>Oto</li>
             </ul>
-            <button class="button" onclick="showPopup()">No puedo ir</button>
+            <a href="https://wa.me/5491133321196?text=Hola!%20Quería%20confirmarte%20que%20*no*%20voy%20a%20tu%20cumple" class="button">No puedo ir</a>
         </div>
     </div>
-    <!-- Modal Popup -->
-    <div id="popup" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <p>La lista de invitados ya está cerrada y confirmada.</p>
-        </div>
-    </div>
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- TimeCircles JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/TimeCircles/1.5.3/TimeCircles.min.js" integrity="sha512-tXkTQ/3Tg/VrqlJl+6iJVgFJZ4gi5F7YhKn3BPcMrqiHlfXUzV+1EQJKSlh4YQHgeDWeK9G5Vk5tmATkEUPp4g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script>
-        $(document).ready(function() {
-            // Inicializar TimeCircles
-            $("#countdown").TimeCircles({
-                count_past_zero: false,
-                time: {
-                    Days: { color: "#ff6b6b" },
-                    Hours: { color: "#ff6b6b" },
-                    Minutes: { color: "#ff6b6b" },
-                    Seconds: { color: "#ff6b6b" }
-                }
-            }).addListener(function(unit, value, total) {
-                if (total <= 0) {
-                    $("#countdown").fadeOut();
-                }
-            });
-        });
-
-        // Popup modal
-        function showPopup() {
-            var modal = document.getElementById("popup");
-            var span = document.getElementsByClassName("close")[0];
-
-            modal.style.display = "block";
-
-            span.onclick = function() {
-              modal.style.display = "none";
-            }
-
-            window.onclick = function(event) {
-              if (event.target == modal) {
-                modal.style.display = "none";
-              }
-            }
-        }
-    </script>
 </body>
 </html>
