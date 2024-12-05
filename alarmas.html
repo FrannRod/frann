@@ -164,12 +164,22 @@
           </thead>
           <tbody>
             <tr class="fixed">
-              <td>Hora de inicio</td>
+              <td>Hora de inicio
+              <button class="add-btn-inline">+</button></td>
               <td><input type="time" id="start-time"></td>
               <td>-</td>
               <td></td>
             </tr>
             <!-- Actividades iniciales -->
+            <tr class="activity-row">
+              <td class="activity-cell">
+                <div contenteditable="true" class="activity-name editable">Luces</div>
+                <button class="add-btn-inline">+</button>
+              </td>
+              <td id="start-luces"></td>
+              <td><input type="number" id="luces" value="10"></td>
+              <td><button class="delete-btn" data-target="luces"><i class="fas fa-trash-alt"></i></button></td>
+            </tr>
             <tr class="activity-row">
               <td class="activity-cell">
                 <div contenteditable="true" class="activity-name editable">Alarma 1</div>
