@@ -45,6 +45,7 @@
       padding: 5px;
       border-radius: 4px;
       font-size: 0.95rem;
+      position: relative;
     }
 
     .book-item.read {
@@ -53,6 +54,13 @@
 
     .book-item.unread {
       background-color: #f8d2d2; /* Libro no leído */
+    }
+
+    .arrow {
+      margin-top: 5px;
+      font-size: 0.85rem;
+      color: #555;
+      font-style: italic;
     }
   </style>
 </head>
@@ -105,19 +113,27 @@
       sagas[book.saga].push(book);
     });
 
-    // Ordenar cada saga por id y mostrarlas en columnas
+    // Crear contenedor
     const container = document.querySelector('.sagas-container');
 
+    // Guardar referencias a cada elemento de libro según su ID
+    const bookElements = {};
+
+    // Crear columnas por saga, ordenadas dentro de cada saga por ID
     Object.keys(sagas).forEach(sagaName => {
+      // Ordenar libros por ID
       sagas[sagaName].sort((a, b) => a.id - b.id);
 
+      // Crear columna
       const sagaColumn = document.createElement('div');
       sagaColumn.classList.add('saga-column');
 
+      // Título de la saga
       const sagaTitle = document.createElement('h2');
       sagaTitle.textContent = sagaName;
       sagaColumn.appendChild(sagaTitle);
 
+      // Crear elementos de libros
       sagas[sagaName].forEach(book => {
         const bookDiv = document.createElement('div');
         bookDiv.classList.add('book-item');
@@ -131,10 +147,28 @@
         }
 
         sagaColumn.appendChild(bookDiv);
+        bookElements[book.id] = bookDiv;
       });
 
       container.appendChild(sagaColumn);
     });
+
+    // Ordenar todos los libros por ID para detectar los saltos de saga
+    const allBooksSorted = [...data.books].sort((a, b) => a.id - b.id);
+
+    for (let i = 0; i < allBooksSorted.length - 1; i++) {
+      const currentBook = allBooksSorted[i];
+      const nextBook = allBooksSorted[i + 1];
+
+      // Si el siguiente libro es de otra saga, agregamos flecha en el actual
+      if (currentBook.saga !== nextBook.saga) {
+        const arrowDiv = document.createElement('div');
+        arrowDiv.classList.add('arrow');
+        arrowDiv.textContent = `→ Salto a ${nextBook.saga} (ID ${nextBook.id})`;
+        
+        bookElements[currentBook.id].appendChild(arrowDiv);
+      }
+    }
   </script>
 </body>
 </html>
