@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Libros de Brandon Sanderson</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #fafafa;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .sagas-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      padding: 20px;
+      justify-content: center;
+    }
+
+    .saga-column {
+      display: flex;
+      flex-direction: column;
+      width: 220px;
+      border: 1px solid #ccc;
+      background-color: #fff;
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    .saga-column h2 {
+      margin: 0 0 10px;
+      text-align: center;
+      font-size: 1.2rem;
+    }
+
+    .book-item {
+      margin: 5px 0;
+      padding: 5px;
+      border-radius: 4px;
+      font-size: 0.95rem;
+    }
+
+    .book-item.read {
+      background-color: #d2f8d2; /* Libro leído */
+    }
+
+    .book-item.unread {
+      background-color: #f8d2d2; /* Libro no leído */
+    }
+  </style>
+</head>
+<body>
+  <h1>Libros de Brandon Sanderson</h1>
+
+  <div class="sagas-container"></div>
+
+  <script>
+    const data = {
+      "books": [
+        {"id": 1, "title": "Elantris", "saga": "Elantris", "is_spinoff": false, "is_read": true},
+        {"id": 2, "title": "The Hope of Elantris", "saga": "Elantris", "is_spinoff": true, "is_read": true},
+        {"id": 3, "title": "The Final Empire", "saga": "Mistborn", "is_spinoff": false, "is_read": true},
+        {"id": 4, "title": "The Well of Ascension", "saga": "Mistborn", "is_spinoff": false, "is_read": true},
+        {"id": 5, "title": "The Hero of Ages", "saga": "Mistborn", "is_spinoff": false, "is_read": true},
+        {"id": 6, "title": "Warbreaker", "saga": "Warbreaker", "is_spinoff": false, "is_read": false},
+        {"id": 7, "title": "The Way of Kings", "saga": "Archivo de las Tormentas", "is_spinoff": false, "is_read": false},
+        {"id": 8, "title": "The Alloy of Law", "saga": "Mistborn", "is_spinoff": false, "is_read": true},
+        {"id": 9, "title": "The Eleventh Metal", "saga": "Mistborn", "is_spinoff": true, "is_read": false},
+        {"id": 10, "title": "The Emperor's Soul", "saga": "Elantris", "is_spinoff": true, "is_read": true},
+        {"id": 11, "title": "Shadows for Silence In the Forest of Hell", "saga": "Arcanum Unbounded", "is_spinoff": true, "is_read": false},
+        {"id": 12, "title": "Words of Radiance", "saga": "Archivo de las Tormentas", "is_spinoff": false, "is_read": false},
+        {"id": 13, "title": "Sixth of the Dusk", "saga": "Arcanum Unbounded", "is_spinoff": true, "is_read": false},
+        {"id": 14, "title": "Allomancer Jak", "saga": "Mistborn", "is_spinoff": true, "is_read": false},
+        {"id": 15, "title": "Shadows of Self", "saga": "Mistborn", "is_spinoff": false, "is_read": true},
+        {"id": 16, "title": "The Bands of Mourning", "saga": "Mistborn", "is_spinoff": false, "is_read": false},
+        {"id": 17, "title": "Mistborn: Secret History", "saga": "Mistborn", "is_spinoff": true, "is_read": false},
+        {"id": 18, "title": "White Sand Omnibus", "saga": "White Sand", "is_spinoff": false, "is_read": false},
+        {"id": 19, "title": "Arcanum Unbounded essays", "saga": "Arcanum Unbounded", "is_spinoff": true, "is_read": false},
+        {"id": 20, "title": "Edgedancer", "saga": "Archivo de las Tormentas", "is_spinoff": true, "is_read": false},
+        {"id": 21, "title": "Oathbringer", "saga": "Archivo de las Tormentas", "is_spinoff": false, "is_read": false},
+        {"id": 22, "title": "Dawnshard", "saga": "Archivo de las Tormentas", "is_spinoff": true, "is_read": false},
+        {"id": 23, "title": "Rhythm of War", "saga": "Archivo de las Tormentas", "is_spinoff": false, "is_read": false},
+        {"id": 24, "title": "The Lost Metal", "saga": "Mistborn", "is_spinoff": false, "is_read": false},
+        {"id": 25, "title": "Tress of the Emerald Sea", "saga": "Tress", "is_spinoff": false, "is_read": false},
+        {"id": 26, "title": "Yumi and the Nightmare Painter", "saga": "Yumi", "is_spinoff": false, "is_read": false},
+        {"id": 27, "title": "The Sunlit Man", "saga": "Archivo de las Tormentas", "is_spinoff": true, "is_read": false},
+        {"id": 28, "title": "Wind and Truth", "saga": "Archivo de las Tormentas", "is_spinoff": false, "is_read": false},
+        {"id": 29, "title": "Isles of the Emberdark", "saga": "Archivo de las Tormentas", "is_spinoff": true, "is_read": false}
+      ]
+    };
+
+    // Agrupar libros por saga
+    const sagas = {};
+    data.books.forEach(book => {
+      if (!sagas[book.saga]) {
+        sagas[book.saga] = [];
+      }
+      sagas[book.saga].push(book);
+    });
+
+    // Ordenar cada saga por id y mostrarlas en columnas
+    const container = document.querySelector('.sagas-container');
+
+    Object.keys(sagas).forEach(sagaName => {
+      sagas[sagaName].sort((a, b) => a.id - b.id);
+
+      const sagaColumn = document.createElement('div');
+      sagaColumn.classList.add('saga-column');
+
+      const sagaTitle = document.createElement('h2');
+      sagaTitle.textContent = sagaName;
+      sagaColumn.appendChild(sagaTitle);
+
+      sagas[sagaName].forEach(book => {
+        const bookDiv = document.createElement('div');
+        bookDiv.classList.add('book-item');
+        bookDiv.textContent = `${book.id} - ${book.title}${book.is_spinoff ? ' (Spin-off)' : ''}`;
+
+        // Color según si está leído o no
+        if (book.is_read) {
+          bookDiv.classList.add('read');
+        } else {
+          bookDiv.classList.add('unread');
+        }
+
+        sagaColumn.appendChild(bookDiv);
+      });
+
+      container.appendChild(sagaColumn);
+    });
+  </script>
+</body>
+</html>
