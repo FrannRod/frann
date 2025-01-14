@@ -22,6 +22,7 @@
       gap: 20px;
       padding: 20px;
       justify-content: center;
+      position: relative; /* Importante para que el overlay se posicione dentro */
     }
 
     .saga-column {
@@ -32,6 +33,7 @@
       background-color: #fff;
       border-radius: 8px;
       padding: 10px;
+      position: relative;
     }
 
     .saga-column h2 {
@@ -42,69 +44,101 @@
 
     .book-item {
       margin: 5px 0;
-      padding: 5px;
+      padding: 10px;
       border-radius: 4px;
       font-size: 0.95rem;
       position: relative;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+    .book-item:hover {
+      transform: scale(1.02);
     }
 
+    /* Estados de lectura */
     .book-item.read {
-      background-color: #d2f8d2; /* Libro leído */
+      background-color: #d2f8d2; /* Leído */
     }
-
     .book-item.unread {
-      background-color: #f8d2d2; /* Libro no leído */
+      background-color: #f8d2d2; /* No leído */
+    }
+    .book-item.currently-reading {
+      background-color: #fff3cd; /* Leyendo */
+      border: 1px solid #ffeeba;
+      box-shadow: 0 0 10px rgba(255, 235, 186, 0.5);
     }
 
+    /* Subtexto del salto de saga */
     .arrow {
       margin-top: 5px;
       font-size: 0.85rem;
       color: #555;
       font-style: italic;
     }
+
+    /* Overlay para dibujar las flechas */
+    #arrow-overlay {
+      position: absolute;   /* Posicionado relativo a .sagas-container */
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none; /* Permite hacer hover en los libros */
+      z-index: 500;
+    }
+
+    .arrow-svg {
+      position: absolute;
+      overflow: visible;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
   <h1>Libros de Brandon Sanderson</h1>
 
-  <div class="sagas-container"></div>
+  <!-- Contenedor principal de las sagas -->
+  <div class="sagas-container">
+    <!-- Overlay para las flechas -->
+    <div id="arrow-overlay"></div>
+  </div>
 
   <script>
     const data = {
       "books": [
-        {"id": 1, "title": "Elantris", "saga": "Elantris", "is_spinoff": false, "is_read": true},
-        {"id": 2, "title": "The Hope of Elantris", "saga": "Elantris", "is_spinoff": true, "is_read": true},
-        {"id": 3, "title": "The Final Empire", "saga": "Mistborn", "is_spinoff": false, "is_read": true},
-        {"id": 4, "title": "The Well of Ascension", "saga": "Mistborn", "is_spinoff": false, "is_read": true},
-        {"id": 5, "title": "The Hero of Ages", "saga": "Mistborn", "is_spinoff": false, "is_read": true},
-        {"id": 6, "title": "Warbreaker", "saga": "Warbreaker", "is_spinoff": false, "is_read": false},
-        {"id": 7, "title": "The Way of Kings", "saga": "Archivo de las Tormentas", "is_spinoff": false, "is_read": false},
-        {"id": 8, "title": "The Alloy of Law", "saga": "Mistborn", "is_spinoff": false, "is_read": true},
-        {"id": 9, "title": "The Eleventh Metal", "saga": "Mistborn", "is_spinoff": true, "is_read": false},
-        {"id": 10, "title": "The Emperor's Soul", "saga": "Elantris", "is_spinoff": true, "is_read": true},
-        {"id": 11, "title": "Shadows for Silence In the Forest of Hell", "saga": "Arcanum Unbounded", "is_spinoff": true, "is_read": false},
-        {"id": 12, "title": "Words of Radiance", "saga": "Archivo de las Tormentas", "is_spinoff": false, "is_read": false},
-        {"id": 13, "title": "Sixth of the Dusk", "saga": "Arcanum Unbounded", "is_spinoff": true, "is_read": false},
-        {"id": 14, "title": "Allomancer Jak", "saga": "Mistborn", "is_spinoff": true, "is_read": false},
-        {"id": 15, "title": "Shadows of Self", "saga": "Mistborn", "is_spinoff": false, "is_read": true},
-        {"id": 16, "title": "The Bands of Mourning", "saga": "Mistborn", "is_spinoff": false, "is_read": false},
-        {"id": 17, "title": "Mistborn: Secret History", "saga": "Mistborn", "is_spinoff": true, "is_read": false},
-        {"id": 18, "title": "White Sand Omnibus", "saga": "White Sand", "is_spinoff": false, "is_read": false},
-        {"id": 19, "title": "Arcanum Unbounded essays", "saga": "Arcanum Unbounded", "is_spinoff": true, "is_read": false},
-        {"id": 20, "title": "Edgedancer", "saga": "Archivo de las Tormentas", "is_spinoff": true, "is_read": false},
-        {"id": 21, "title": "Oathbringer", "saga": "Archivo de las Tormentas", "is_spinoff": false, "is_read": false},
-        {"id": 22, "title": "Dawnshard", "saga": "Archivo de las Tormentas", "is_spinoff": true, "is_read": false},
-        {"id": 23, "title": "Rhythm of War", "saga": "Archivo de las Tormentas", "is_spinoff": false, "is_read": false},
-        {"id": 24, "title": "The Lost Metal", "saga": "Mistborn", "is_spinoff": false, "is_read": false},
-        {"id": 25, "title": "Tress of the Emerald Sea", "saga": "Tress", "is_spinoff": false, "is_read": false},
-        {"id": 26, "title": "Yumi and the Nightmare Painter", "saga": "Yumi", "is_spinoff": false, "is_read": false},
-        {"id": 27, "title": "The Sunlit Man", "saga": "Archivo de las Tormentas", "is_spinoff": true, "is_read": false},
-        {"id": 28, "title": "Wind and Truth", "saga": "Archivo de las Tormentas", "is_spinoff": false, "is_read": false},
-        {"id": 29, "title": "Isles of the Emberdark", "saga": "Archivo de las Tormentas", "is_spinoff": true, "is_read": false}
+        {"id": 1, "title": "Elantris", "saga": "Elantris", "is_spinoff": false, "is_read": "read"},
+        {"id": 2, "title": "The Hope of Elantris", "saga": "Elantris", "is_spinoff": true, "is_read": "read"},
+        {"id": 3, "title": "The Final Empire", "saga": "Mistborn", "is_spinoff": false, "is_read": "read"},
+        {"id": 4, "title": "The Well of Ascension", "saga": "Mistborn", "is_spinoff": false, "is_read": "read"},
+        {"id": 5, "title": "The Hero of Ages", "saga": "Mistborn", "is_spinoff": false, "is_read": "read"},
+        {"id": 6, "title": "Warbreaker", "saga": "Warbreaker", "is_spinoff": false, "is_read": "currently-reading"},
+        {"id": 7, "title": "The Way of Kings", "saga": "Archivo de las Tormentas", "is_spinoff": false, "is_read": "unread"},
+        {"id": 8, "title": "The Alloy of Law", "saga": "Mistborn", "is_spinoff": false, "is_read": "read"},
+        {"id": 9, "title": "The Eleventh Metal", "saga": "Mistborn", "is_spinoff": true, "is_read": "unread"},
+        {"id": 10, "title": "The Emperor's Soul", "saga": "Elantris", "is_spinoff": true, "is_read": "read"},
+        {"id": 11, "title": "Shadows for Silence In the Forest of Hell", "saga": "Arcanum Unbounded", "is_spinoff": true, "is_read": "unread"},
+        {"id": 12, "title": "Words of Radiance", "saga": "Archivo de las Tormentas", "is_spinoff": false, "is_read": "unread"},
+        {"id": 13, "title": "Sixth of the Dusk", "saga": "Arcanum Unbounded", "is_spinoff": true, "is_read": "unread"},
+        {"id": 14, "title": "Allomancer Jak", "saga": "Mistborn", "is_spinoff": true, "is_read": "unread"},
+        {"id": 15, "title": "Shadows of Self", "saga": "Mistborn", "is_spinoff": false, "is_read": "read"},
+        {"id": 16, "title": "The Bands of Mourning", "saga": "Mistborn", "is_spinoff": false, "is_read": "unread"},
+        {"id": 17, "title": "Mistborn: Secret History", "saga": "Mistborn", "is_spinoff": true, "is_read": "unread"},
+        {"id": 18, "title": "White Sand Omnibus", "saga": "White Sand", "is_spinoff": false, "is_read": "unread"},
+        {"id": 19, "title": "Arcanum Unbounded essays", "saga": "Arcanum Unbounded", "is_spinoff": true, "is_read": "unread"},
+        {"id": 20, "title": "Edgedancer", "saga": "Archivo de las Tormentas", "is_spinoff": true, "is_read": "unread"},
+        {"id": 21, "title": "Oathbringer", "saga": "Archivo de las Tormentas", "is_spinoff": false, "is_read": "unread"},
+        {"id": 22, "title": "Dawnshard", "saga": "Archivo de las Tormentas", "is_spinoff": true, "is_read": "unread"},
+        {"id": 23, "title": "Rhythm of War", "saga": "Archivo de las Tormentas", "is_spinoff": false, "is_read": "unread"},
+        {"id": 24, "title": "The Lost Metal", "saga": "Mistborn", "is_spinoff": false, "is_read": "unread"},
+        {"id": 25, "title": "Tress of the Emerald Sea", "saga": "Tress", "is_spinoff": false, "is_read": "unread"},
+        {"id": 26, "title": "Yumi and the Nightmare Painter", "saga": "Yumi", "is_spinoff": false, "is_read": "unread"},
+        {"id": 27, "title": "The Sunlit Man", "saga": "Archivo de las Tormentas", "is_spinoff": true, "is_read": "unread"},
+        {"id": 28, "title": "Wind and Truth", "saga": "Archivo de las Tormentas", "is_spinoff": false, "is_read": "unread"},
+        {"id": 29, "title": "Isles of the Emberdark", "saga": "Archivo de las Tormentas", "is_spinoff": true, "is_read": "unread"}
       ]
     };
 
-    // Agrupar libros por saga
+    // Armar la estructura de sagas
     const sagas = {};
     data.books.forEach(book => {
       if (!sagas[book.saga]) {
@@ -113,35 +147,33 @@
       sagas[book.saga].push(book);
     });
 
-    // Crear contenedor
+    // Contenedor de las sagas
     const container = document.querySelector('.sagas-container');
+    // Contenedor overlay para dibujar flechas
+    const arrowOverlay = document.getElementById('arrow-overlay');
 
-    // Guardar referencias a cada elemento de libro según su ID
     const bookElements = {};
 
-    // Crear columnas por saga, ordenadas dentro de cada saga por ID
+    // Crear columnas y asignar estados
     Object.keys(sagas).forEach(sagaName => {
-      // Ordenar libros por ID
       sagas[sagaName].sort((a, b) => a.id - b.id);
 
-      // Crear columna
       const sagaColumn = document.createElement('div');
       sagaColumn.classList.add('saga-column');
 
-      // Título de la saga
       const sagaTitle = document.createElement('h2');
       sagaTitle.textContent = sagaName;
       sagaColumn.appendChild(sagaTitle);
 
-      // Crear elementos de libros
       sagas[sagaName].forEach(book => {
         const bookDiv = document.createElement('div');
         bookDiv.classList.add('book-item');
         bookDiv.textContent = `${book.id} - ${book.title}${book.is_spinoff ? ' (Spin-off)' : ''}`;
 
-        // Color según si está leído o no
-        if (book.is_read) {
+        if (book.is_read === 'read') {
           bookDiv.classList.add('read');
+        } else if (book.is_read === 'currently-reading') {
+          bookDiv.classList.add('currently-reading');
         } else {
           bookDiv.classList.add('unread');
         }
@@ -153,22 +185,135 @@
       container.appendChild(sagaColumn);
     });
 
-    // Ordenar todos los libros por ID para detectar los saltos de saga
+    // Ordenar todos los libros por ID
     const allBooksSorted = [...data.books].sort((a, b) => a.id - b.id);
 
+    // Mapa rápido ID->índice
+    const idToIndexMap = {};
+    allBooksSorted.forEach((book, idx) => {
+      idToIndexMap[book.id] = idx;
+    });
+
+    // Agregar el subtexto de "Salto a..." al final de cada libro que cambie de saga
     for (let i = 0; i < allBooksSorted.length - 1; i++) {
       const currentBook = allBooksSorted[i];
       const nextBook = allBooksSorted[i + 1];
-
-      // Si el siguiente libro es de otra saga, agregamos flecha en el actual
       if (currentBook.saga !== nextBook.saga) {
         const arrowDiv = document.createElement('div');
         arrowDiv.classList.add('arrow');
         arrowDiv.textContent = `→ Salto a ${nextBook.saga} (ID ${nextBook.id})`;
-        
         bookElements[currentBook.id].appendChild(arrowDiv);
       }
     }
+
+    // Flecha curva, ajustando origen según el offset del contenedor
+    function drawCurvedArrow(fromElem, toElem) {
+      // Coords del contenedor (para restar y alinear bien la flecha)
+      const containerRect = arrowOverlay.getBoundingClientRect();
+
+      const fromRect = fromElem.getBoundingClientRect();
+      const toRect = toElem.getBoundingClientRect();
+
+      // Resto containerRect.left/top para alinear 0,0 en el overlay
+      const startX = (fromRect.left + fromRect.width / 2) - containerRect.left;
+      const startY = (fromRect.top + fromRect.height / 2) - containerRect.top;
+      const endX = (toRect.left + toRect.width / 2) - containerRect.left;
+      const endY = (toRect.top + toRect.height / 2) - containerRect.top;
+
+      const svgNS = 'http://www.w3.org/2000/svg';
+      const svg = document.createElementNS(svgNS, 'svg');
+      svg.classList.add('arrow-svg');
+      svg.style.left = 0;
+      svg.style.top = 0;
+      svg.style.width = '100%';
+      svg.style.height = '100%';
+
+      // Definir marcador de flecha
+      const defs = document.createElementNS(svgNS, 'defs');
+      const marker = document.createElementNS(svgNS, 'marker');
+      marker.setAttribute('id', 'arrowhead');
+      marker.setAttribute('markerWidth', '10');
+      marker.setAttribute('markerHeight', '7');
+      marker.setAttribute('refX', '6');
+      marker.setAttribute('refY', '3.5');
+      marker.setAttribute('orient', 'auto');
+
+      const polygon = document.createElementNS(svgNS, 'polygon');
+      polygon.setAttribute('points', '0 0, 10 3.5, 0 7');
+      polygon.setAttribute('fill', '#555');
+
+      marker.appendChild(polygon);
+      defs.appendChild(marker);
+      svg.appendChild(defs);
+
+      // Curva suave con path Bezier
+      // Dos puntos de control, en la mitad horizontal del trayecto
+      const cX1 = (startX + endX) / 2;
+      const cY1 = startY;
+      const cX2 = (startX + endX) / 2;
+      const cY2 = endY;
+      const d = `M ${startX},${startY} C ${cX1},${cY1} ${cX2},${cY2} ${endX},${endY}`;
+
+      const path = document.createElementNS(svgNS, 'path');
+      path.setAttribute('d', d);
+      path.setAttribute('stroke', 'rgba(85, 85, 85, 0.7)');
+      path.setAttribute('stroke-width', '1.6');
+      path.setAttribute('fill', 'none');
+      path.setAttribute('marker-end', 'url(#arrowhead)');
+
+      svg.appendChild(path);
+      return svg;
+    }
+
+    let currentArrow = null;
+
+    function showArrow(bookId) {
+      const idx = idToIndexMap[bookId];
+      const nextIdx = idx + 1;
+      if (nextIdx >= allBooksSorted.length) return;
+
+      const nextBook = allBooksSorted[nextIdx];
+      const nextElem = bookElements[nextBook.id];
+      const thisElem = bookElements[bookId];
+      if (!nextElem || !thisElem) return;
+
+      currentArrow = drawCurvedArrow(thisElem, nextElem);
+      arrowOverlay.appendChild(currentArrow);
+    }
+
+    function hideArrow() {
+      if (currentArrow) {
+        arrowOverlay.removeChild(currentArrow);
+        currentArrow = null;
+      }
+    }
+
+    // Eventos hover/touch en cada libro
+    allBooksSorted.forEach(book => {
+      const elem = bookElements[book.id];
+      if (!elem) return;
+
+      // Desktop
+      elem.addEventListener('mouseenter', () => showArrow(book.id));
+      elem.addEventListener('mouseleave', hideArrow);
+
+      // Mobile
+      elem.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        showArrow(book.id);
+      });
+      elem.addEventListener('touchend', hideArrow);
+    });
+
+    // Ocultar flecha si clickeás fuera
+    document.addEventListener('click', (e) => {
+      if (!e.target.classList.contains('book-item')) {
+        hideArrow();
+      }
+    });
+
+    // Ocultar flecha si redimensionás
+    window.addEventListener('resize', hideArrow);
   </script>
 </body>
 </html>
