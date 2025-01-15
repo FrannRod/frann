@@ -50,7 +50,11 @@
       position: relative;
       cursor: pointer;
       transition: background-color 0.3s, transform 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
+
     .book-item:hover {
       transform: scale(1.02);
     }
@@ -170,6 +174,7 @@
         bookDiv.classList.add('book-item');
         bookDiv.textContent = `${book.id} - ${book.title}${book.is_spinoff ? ' (Spin-off)' : ''}`;
 
+        // Agregamos la clase según el estado de lectura
         if (book.is_read === 'read') {
           bookDiv.classList.add('read');
         } else if (book.is_read === 'currently-reading') {
@@ -177,6 +182,26 @@
         } else {
           bookDiv.classList.add('unread');
         }
+
+        // Creamos el checkbox para actualizar el estado
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = (book.is_read === 'read');
+        checkbox.addEventListener('change', () => {
+          if (checkbox.checked) {
+            book.is_read = 'read';
+            bookDiv.classList.remove('unread','currently-reading');
+            bookDiv.classList.add('read');
+          } else {
+            // En este caso, si se desmarca, lo mandamos a "unread"
+            book.is_read = 'unread';
+            bookDiv.classList.remove('read','currently-reading');
+            bookDiv.classList.add('unread');
+          }
+        });
+
+        // Metemos el checkbox al final del div del libro
+        bookDiv.appendChild(checkbox);
 
         sagaColumn.appendChild(bookDiv);
         bookElements[book.id] = bookDiv;
@@ -206,15 +231,14 @@
       }
     }
 
-    // Flecha curva, ajustando origen según el offset del contenedor
+    // Flecha curva
     function drawCurvedArrow(fromElem, toElem) {
-      // Coords del contenedor (para restar y alinear bien la flecha)
+      // Coords del contenedor
       const containerRect = arrowOverlay.getBoundingClientRect();
 
       const fromRect = fromElem.getBoundingClientRect();
       const toRect = toElem.getBoundingClientRect();
 
-      // Resto containerRect.left/top para alinear 0,0 en el overlay
       const startX = (fromRect.left + fromRect.width / 2) - containerRect.left;
       const startY = (fromRect.top + fromRect.height / 2) - containerRect.top;
       const endX = (toRect.left + toRect.width / 2) - containerRect.left;
@@ -247,7 +271,6 @@
       svg.appendChild(defs);
 
       // Curva suave con path Bezier
-      // Dos puntos de control, en la mitad horizontal del trayecto
       const cX1 = (startX + endX) / 2;
       const cY1 = startY;
       const cX2 = (startX + endX) / 2;
