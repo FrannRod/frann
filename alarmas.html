@@ -288,6 +288,9 @@
         <label for="total-duration">Duración total:</label>
         <span id="total-duration">00:00</span>
       </div>
+      <div class="form-group" style="margin-top:20px;">
+        <button id="schedule-notifications" class="button">Programar recordatorios</button>
+      </div>
     </section>
 
     <!-- Card con la explicación "Como usar?" -->
@@ -305,6 +308,11 @@
       const $endTimeInput = $('#end-time');
       const $totalDurationLabel = $('#total-duration');
       const $activityTable = $('#activity-table tbody');
+
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
+      }
+      Notification.requestPermission();
 
       function setInitialTimes() {
         $startTimeInput.val("07:00");
@@ -431,6 +439,37 @@
         onChange: function () {
           calculateStartTimeFromEnd();
         }
+      });
+
+      $('#schedule-notifications').on('click', function () {
+        if (Notification.permission !== 'granted') {
+          alert('Debes permitir notificaciones para usar esta función');
+          return;
+        }
+        if (!confirm('¿Estás seguro de programar los recordatorios? Podés minimizar el navegador pero no deberías cerrar la pestaña.')) {
+          return;
+        }
+        const now = new Date();
+        $activityTable.find('tr').not('.fixed').each(function () {
+          const name = $(this).find('.activity-name').text().trim();
+          const timeStr = $(this).find('td').eq(1).text().trim();
+          if (!timeStr) return;
+          const [h, m] = timeStr.split(':').map(Number);
+          const target = new Date();
+          target.setHours(h, m, 0, 0);
+          let delay = target.getTime() - now.getTime();
+          if (delay < 0) delay += 24 * 60 * 60 * 1000;
+          setTimeout(() => {
+            navigator.serviceWorker.ready.then(reg => {
+              if (reg.active) {
+                reg.active.postMessage({
+                  title: 'Recordatorio',
+                  options: { body: `Es hora de ${name}` }
+                });
+              }
+            });
+          }, delay);
+        });
       });
     });
   </script>
