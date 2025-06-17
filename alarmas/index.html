@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Planificador de Tiempo</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- Font Awesome para los iconos -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      padding: 20px;
+      margin: 0;
+      overflow-x: hidden;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+      background-color: #eaeaea;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .content-section {
+      max-width: 100%;
+      margin: 0 auto;
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+      text-align: center;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 30px;
+      background-color: #ffffff;
+      table-layout: auto;
+    }
+
+    table th, table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+      word-wrap: break-word;
+      position: relative;
+    }
+
+    table th {
+      background-color: #f4f4f4;
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+
+    .editable {
+      background-color: #ffffe0;
+      cursor: pointer;
+    }
+
+    .delete-btn {
+      background-color: transparent;
+      color: #ff5c5c;
+      border: none;
+      padding: 10px;
+      cursor: pointer;
+      transition: color 0.3s, transform 0.3s;
+      font-size: 1.5em;
+    }
+
+    .delete-btn:hover {
+      color: #e04e4e;
+      transform: scale(1.2);
+    }
+
+    .activity-cell {
+      position: relative;
+    }
+
+    .add-btn-inline {
+      position: absolute;
+      bottom: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.05);
+      color: #4CAF50;
+      border: none;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.5em;
+      line-height: 30px;
+      text-align: center;
+      opacity: 0.7;
+      transition: background-color 0.3s, opacity 0.3s;
+    }
+
+    .add-btn-inline:hover {
+      background-color: rgba(0, 0, 0, 0.1);
+      opacity: 1;
+    }
+
+    .form-group {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        padding: 10px;
+      }
+
+      input[type="number"] {
+        width: 50px;
+      }
+
+      h1 {
+        font-size: 2em;
+      }
+
+      table th, table td {
+        font-size: 0.8em;
+        padding: 6px;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+
+      .content-section {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h1>Planificador de Tiempo</h1>
+      <nav>
+        <a href="index.html" class="button">Volver</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="content-section">
+      <h2>Configuración de Actividades (<a href="#how-to" class="button">?</a>)</h2>
+
+      <div style="overflow-x: auto;">
+        <table id="activity-table">
+          <thead>
+            <tr>
+              <th>Actividad</th>
+              <th>Inicio</th>
+              <th>Duración (min)</th>
+              <th>Eliminar</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="fixed">
+              <td>Hora de inicio
+              <button class="add-btn-inline">+</button></td>
+              <td><input type="time" id="start-time"></td>
+              <td>-</td>
+              <td></td>
+            </tr>
+            <!-- Actividades iniciales -->
+            <tr class="activity-row">
+              <td class="activity-cell">
+                <div contenteditable="true" class="activity-name editable">Alarma</div>
+                <button class="add-btn-inline">+</button>
+              </td>
+              <td id="start-alarma"></td>
+              <td><input type="number" id="alarma" value="5"></td>
+              <td><button class="delete-btn" data-target="alarma"><i class="fas fa-trash-alt"></i></button></td>
+            </tr>
+            <tr class="activity-row">
+              <td class="activity-cell">
+                <div contenteditable="true" class="activity-name editable">Levantarse</div>
+                <button class="add-btn-inline">+</button>
+              </td>
+              <td id="start-levantarse"></td>
+              <td><input type="number" id="levantarse" value="10"></td>
+              <td><button class="delete-btn" data-target="levantarse"><i class="fas fa-trash-alt"></i></button></td>
+            </tr>
+            <tr class="activity-row">
+              <td class="activity-cell">
+                <div contenteditable="true" class="activity-name editable">Ducha</div>
+                <button class="add-btn-inline">+</button>
+              </td>
+              <td id="start-ducha"></td>
+              <td><input type="number" id="ducha" value="15"></td>
+              <td><button class="delete-btn" data-target="ducha"><i class="fas fa-trash-alt"></i></button></td>
+            </tr>
+            <tr class="activity-row">
+              <td class="activity-cell">
+                <div contenteditable="true" class="activity-name editable">Desayuno</div>
+                <button class="add-btn-inline">+</button>
+              </td>
+              <td id="start-desayuno"></td>
+              <td><input type="number" id="desayuno" value="20"></td>
+              <td><button class="delete-btn" data-target="desayuno"><i class="fas fa-trash-alt"></i></button></td>
+            </tr>
+            <tr class="activity-row">
+              <td class="activity-cell">
+                <div contenteditable="true" class="activity-name editable">Vestirse</div>
+                <button class="add-btn-inline">+</button>
+              </td>
+              <td id="start-vestirse"></td>
+              <td><input type="number" id="vestirse" value="10"></td>
+              <td><button class="delete-btn" data-target="vestirse"><i class="fas fa-trash-alt"></i></button></td>
+            </tr>
+            <tr class="activity-row">
+              <td class="activity-cell">
+                <div contenteditable="true" class="activity-name editable">Viaje al trabajo</div>
+                <button class="add-btn-inline">+</button>
+              </td>
+              <td id="start-viaje"></td>
+              <td><input type="number" id="viaje" value="30"></td>
+              <td><button class="delete-btn" data-target="viaje"><i class="fas fa-trash-alt"></i></button></td>
+            </tr>
+            <tr class="fixed">
+              <td>Hora de fin</td>
+              <td><input type="time" id="end-time" value="08:30"></td>
+              <td>-</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="form-group">
+        <label for="total-duration">Duración total:</label>
+        <span id="total-duration">00:00</span>
+      </div>
+    </section>
+
+    <!-- Card con la explicación "Como usar?" -->
+    <div id="how-to" class="content-section" style="margin-top: 30px; padding: 20px; background-color: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+      <h3 style="text-align: center;">¿Cómo usar?</h3>
+      <p style="text-align: justify; font-size: 1em; line-height: 1.5;">
+        Esta herramienta está pensada para maximizar tus horas de sueño y organizar tus mañanas de forma eficiente. Seleccioná las actividades que hacés habitualmente por la mañana y asignales el tiempo (aproximado) que te llevan, como se ve en los ejemplos. Podés agregar nuevas actividades, o eliminar las existentes tocando el ícono del tachito. Luego, configurá la hora a la que querés terminar todo, y automáticamente se calculará la hora de inicio. Esto te va a ayudar a saber a qué hora programar tus alarmas para optimizar tu descanso. También podés fijar la hora de inicio y la herramienta calculará a qué hora vas a terminar con todo.
+      </p>
+    </div>
+  </main>
+
+  <script>
+    $(document).ready(function () {
+      const $startTimeInput = $('#start-time');
+      const $endTimeInput = $('#end-time');
+      const $totalDurationLabel = $('#total-duration');
+      const $activityTable = $('#activity-table tbody');
+
+      function setInitialTimes() {
+        $startTimeInput.val("07:00");
+        $endTimeInput.val("08:30");
+        calculateStartTimeFromEnd();
+      }
+
+      function calculateTotalDuration() {
+        let totalMinutes = 0;
+        $activityTable.find('tr').not('.fixed').find('input[type="number"]').each(function () {
+          const value = parseInt($(this).val(), 10);
+          if (!isNaN(value)) {
+            totalMinutes += value;
+          }
+        });
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        $totalDurationLabel.text(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`);
+        return totalMinutes;
+      }
+
+      function calculateTimesFromStart() {
+        const startTime = $startTimeInput.val().split(':');
+        let startHour = parseInt(startTime[0], 10);
+        let startMinute = parseInt(startTime[1], 10);
+        let currentTime = new Date(0, 0, 0, startHour, startMinute, 0);
+
+        $activityTable.find('tr').not('.fixed').each(function () {
+          const $activityStart = $(this).find('td').eq(1);
+          const duration = parseInt($(this).find('input[type="number"]').val(), 10);
+          if (!isNaN(duration)) {
+            $activityStart.text(currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
+            currentTime.setMinutes(currentTime.getMinutes() + duration);
+          } else {
+            $activityStart.text('NaN');
+          }
+        });
+
+        $endTimeInput.val(currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
+      }
+
+      function calculateStartTimeFromEnd() {
+        const endTime = $endTimeInput.val().split(':');
+        let endHour = parseInt(endTime[0], 10);
+        let endMinute = parseInt(endTime[1], 10);
+        let endTimeDate = new Date(0, 0, 0, endHour, endMinute, 0);
+
+        const totalDurationMinutes = calculateTotalDuration();
+        endTimeDate.setMinutes(endTimeDate.getMinutes() - totalDurationMinutes);
+
+        const newStartHour = endTimeDate.getHours().toString().padStart(2, '0');
+        const newStartMinute = endTimeDate.getMinutes().toString().padStart(2, '0');
+        $startTimeInput.val(`${newStartHour}:${newStartMinute}`);
+
+        calculateTimesFromStart();
+      }
+
+      $(document).on('input change blur focusout', '#activity-table input[type="number"]', function () {
+        calculateStartTimeFromEnd();
+      });
+
+      $startTimeInput.on('input change blur focusout', function () {
+        calculateTimesFromStart();
+      });
+
+      $endTimeInput.on('input change blur focusout', function () {
+        calculateStartTimeFromEnd();
+      });
+
+      $(document).on('click', '.delete-btn', function () {
+        const $activityRow = $(this).closest('tr');
+        $activityRow.remove();
+        calculateStartTimeFromEnd();
+      });
+
+      $(document).on('click', '.add-btn-inline', function () {
+        const $currentRow = $(this).closest('tr');
+        const newRow = `
+          <tr class="activity-row">
+            <td class="activity-cell">
+              <div contenteditable="true" class="activity-name editable">Nueva Actividad</div>
+              <button class="add-btn-inline">+</button>
+            </td>
+            <td></td>
+            <td><input type="number" value="0"></td>
+            <td><button class="delete-btn"><i class="fas fa-trash-alt"></i></button></td>
+          </tr>`;
+        $currentRow.after(newRow);
+        const $newActivityName = $currentRow.next().find('.activity-name');
+        $newActivityName.focus();
+        calculateStartTimeFromEnd();
+      });
+
+      $(document).on('focus', '.activity-name', function () {
+        const element = this;
+        setTimeout(() => {
+          const range = document.createRange();
+          range.selectNodeContents(element);
+          const selection = window.getSelection();
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }, 0);
+      });
+
+      $(document).on('focus', 'input[type="number"]', function () {
+        this.select();
+      });
+
+      setInitialTimes();
+
+      $('#start-time').flatpickr({
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        onChange: function () {
+          calculateTimesFromStart();
+        }
+      });
+
+      $('#end-time').flatpickr({
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        onChange: function () {
+          calculateStartTimeFromEnd();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
