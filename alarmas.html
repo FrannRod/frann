@@ -59,7 +59,8 @@
       padding: 10px;
       cursor: pointer;
       transition: color 0.3s, transform 0.3s;
-      font-size: 1.5em;
+      font-size: 1.2em;
+      margin-right: 8px;
     }
 
     .delete-btn:hover {
@@ -69,6 +70,9 @@
 
     .activity-cell {
       position: relative;
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
 
     .add-btn-inline {
@@ -99,6 +103,46 @@
       text-align: center;
       margin-top: 20px;
       font-size: 1.2em;
+    }
+
+    /* Modal styles for help section */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 10% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 10px;
+    }
+
+    .modal-content h3 {
+      text-align: center;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
     }
 
     @media (max-width: 768px) {
@@ -143,7 +187,7 @@
 
   <main>
     <section class="content-section">
-      <h2>Configuración de Actividades (<a href="#how-to" class="button small">?</a>)</h2>
+      <h2>Configuración de Actividades <button id="help-button" class="button small">?</button></h2>
 
       <div style="overflow-x: auto;">
         <table id="activity-table">
@@ -152,123 +196,120 @@
               <th>Actividad</th>
               <th>Inicio</th>
               <th>Duración (min)</th>
-              <th>Eliminar</th>
             </tr>
           </thead>
           <tbody>
-            <tr class="fixed">
-              <td>Hora de inicio
-              <button class="add-btn-inline">+</button></td>
-              <td><input type="time" id="start-time"></td>
-              <td>-</td>
-              <td></td>
-            </tr>
+              <tr class="fixed">
+                <td>Hora de inicio
+                <button class="add-btn-inline">+</button></td>
+                <td><input type="time" id="start-time"></td>
+                <td>-</td>
+              </tr>
             <!-- Actividades iniciales -->
-            <tr class="activity-row">
-              <td class="activity-cell">
-                <div contenteditable="true" class="activity-name editable">Alarma 1</div>
-                <button class="add-btn-inline">+</button>
-              </td>
-              <td id="start-alarma1"></td>
-              <td><input type="number" id="alarma1" value="7"></td>
-              <td><button class="delete-btn" data-target="alarma1"><i class="fas fa-trash-alt"></i></button></td>
-            </tr>
-            <tr class="activity-row">
-              <td class="activity-cell">
-                <div contenteditable="true" class="activity-name editable">Alarma 2</div>
-                <button class="add-btn-inline">+</button>
-              </td>
-              <td id="start-alarma2"></td>
-              <td><input type="number" id="alarma2" value="8"></td>
-              <td><button class="delete-btn" data-target="alarma2"><i class="fas fa-trash-alt"></i></button></td>
-            </tr>
-            <tr class="activity-row">
-              <td class="activity-cell">
-                <div contenteditable="true" class="activity-name editable">Luces</div>
-                <button class="add-btn-inline">+</button>
-              </td>
-              <td id="start-luces"></td>
-              <td><input type="number" id="luces" value="1"></td>
-              <td><button class="delete-btn" data-target="luces"><i class="fas fa-trash-alt"></i></button></td>
-            </tr>
-            <tr class="activity-row">
-              <td class="activity-cell">
-                <div contenteditable="true" class="activity-name editable">Alarma 3</div>
-                <button class="add-btn-inline">+</button>
-              </td>
-              <td id="start-alarma3"></td>
-              <td><input type="number" id="alarma3" value="2"></td>
-              <td><button class="delete-btn" data-target="alarma3"><i class="fas fa-trash-alt"></i></button></td>
-            </tr>
-            <tr class="activity-row">
-              <td class="activity-cell">
-                <div contenteditable="true" class="activity-name editable">Despejarse</div>
-                <button class="add-btn-inline">+</button>
-              </td>
-              <td id="start-despejarse"></td>
-              <td><input type="number" id="despejarse" value="15"></td>
-              <td><button class="delete-btn" data-target="despejarse"><i class="fas fa-trash-alt"></i></button></td>
-            </tr>
-            <tr class="activity-row">
-              <td class="activity-cell">
-                <div contenteditable="true" class="activity-name editable">Bañarse</div>
-                <button class="add-btn-inline">+</button>
-              </td>
-              <td id="start-bañarse"></td>
-              <td><input type="number" id="bañarse" value="30"></td>
-              <td><button class="delete-btn" data-target="bañarse"><i class="fas fa-trash-alt"></i></button></td>
-            </tr>
-            <tr class="activity-row">
-              <td class="activity-cell">
-                <div contenteditable="true" class="activity-name editable">Afeitarse</div>
-                <button class="add-btn-inline">+</button>
-              </td>
-              <td id="start-afeitarse"></td>
-              <td><input type="number" id="afeitarse" value="7"></td>
-              <td><button class="delete-btn" data-target="afeitarse"><i class="fas fa-trash-alt"></i></button></td>
-            </tr>
-            <tr class="activity-row">
-              <td class="activity-cell">
-                <div contenteditable="true" class="activity-name editable">Cambiarse</div>
-                <button class="add-btn-inline">+</button>
-              </td>
-              <td id="start-cambiarse"></td>
-              <td><input type="number" id="cambiarse" value="15"></td>
-              <td><button class="delete-btn" data-target="cambiarse"><i class="fas fa-trash-alt"></i></button></td>
-            </tr>
-            <tr class="activity-row">
-              <td class="activity-cell">
-                <div contenteditable="true" class="activity-name editable">Prepararse</div>
-                <button class="add-btn-inline">+</button>
-              </td>
-              <td id="start-prepararse"></td>
-              <td><input type="number" id="prepararse" value="15"></td>
-              <td><button class="delete-btn" data-target="prepararse"><i class="fas fa-trash-alt"></i></button></td>
-            </tr>
-            <tr class="activity-row">
-              <td class="activity-cell">
-                <div contenteditable="true" class="activity-name editable">Viaje</div>
-                <button class="add-btn-inline">+</button>
-              </td>
-              <td id="start-viaje"></td>
-              <td><input type="number" id="viaje" value="45"></td>
-              <td><button class="delete-btn" data-target="viaje"><i class="fas fa-trash-alt"></i></button></td>
-            </tr>
-            <tr class="activity-row">
-              <td class="activity-cell">
-                <div contenteditable="true" class="activity-name editable">Comprar café</div>
-                <button class="add-btn-inline">+</button>
-              </td>
-              <td id="start-cafe"></td>
-              <td><input type="number" id="cafe" value="15"></td>
-              <td><button class="delete-btn" data-target="cafe"><i class="fas fa-trash-alt"></i></button></td>
-            </tr>
-            <tr class="fixed">
-              <td>Hora de fin</td>
-              <td><input type="time" id="end-time" value="09:30"></td>
-              <td>-</td>
-              <td></td>
-            </tr>
+              <tr class="activity-row">
+                <td class="activity-cell">
+                  <button class="delete-btn" data-target="alarma1"><i class="fas fa-trash-alt"></i></button>
+                  <div contenteditable="true" class="activity-name editable">Alarma 1</div>
+                  <button class="add-btn-inline">+</button>
+                </td>
+                <td id="start-alarma1"></td>
+                <td><input type="number" id="alarma1" value="7"></td>
+              </tr>
+              <tr class="activity-row">
+                <td class="activity-cell">
+                  <button class="delete-btn" data-target="alarma2"><i class="fas fa-trash-alt"></i></button>
+                  <div contenteditable="true" class="activity-name editable">Alarma 2</div>
+                  <button class="add-btn-inline">+</button>
+                </td>
+                <td id="start-alarma2"></td>
+                <td><input type="number" id="alarma2" value="8"></td>
+              </tr>
+              <tr class="activity-row">
+                <td class="activity-cell">
+                  <button class="delete-btn" data-target="luces"><i class="fas fa-trash-alt"></i></button>
+                  <div contenteditable="true" class="activity-name editable">Luces</div>
+                  <button class="add-btn-inline">+</button>
+                </td>
+                <td id="start-luces"></td>
+                <td><input type="number" id="luces" value="1"></td>
+              </tr>
+              <tr class="activity-row">
+                <td class="activity-cell">
+                  <button class="delete-btn" data-target="alarma3"><i class="fas fa-trash-alt"></i></button>
+                  <div contenteditable="true" class="activity-name editable">Alarma 3</div>
+                  <button class="add-btn-inline">+</button>
+                </td>
+                <td id="start-alarma3"></td>
+                <td><input type="number" id="alarma3" value="2"></td>
+              </tr>
+              <tr class="activity-row">
+                <td class="activity-cell">
+                  <button class="delete-btn" data-target="despejarse"><i class="fas fa-trash-alt"></i></button>
+                  <div contenteditable="true" class="activity-name editable">Despejarse</div>
+                  <button class="add-btn-inline">+</button>
+                </td>
+                <td id="start-despejarse"></td>
+                <td><input type="number" id="despejarse" value="15"></td>
+              </tr>
+              <tr class="activity-row">
+                <td class="activity-cell">
+                  <button class="delete-btn" data-target="bañarse"><i class="fas fa-trash-alt"></i></button>
+                  <div contenteditable="true" class="activity-name editable">Bañarse</div>
+                  <button class="add-btn-inline">+</button>
+                </td>
+                <td id="start-bañarse"></td>
+                <td><input type="number" id="bañarse" value="30"></td>
+              </tr>
+              <tr class="activity-row">
+                <td class="activity-cell">
+                  <button class="delete-btn" data-target="afeitarse"><i class="fas fa-trash-alt"></i></button>
+                  <div contenteditable="true" class="activity-name editable">Afeitarse</div>
+                  <button class="add-btn-inline">+</button>
+                </td>
+                <td id="start-afeitarse"></td>
+                <td><input type="number" id="afeitarse" value="7"></td>
+              </tr>
+              <tr class="activity-row">
+                <td class="activity-cell">
+                  <button class="delete-btn" data-target="cambiarse"><i class="fas fa-trash-alt"></i></button>
+                  <div contenteditable="true" class="activity-name editable">Cambiarse</div>
+                  <button class="add-btn-inline">+</button>
+                </td>
+                <td id="start-cambiarse"></td>
+                <td><input type="number" id="cambiarse" value="15"></td>
+              </tr>
+              <tr class="activity-row">
+                <td class="activity-cell">
+                  <button class="delete-btn" data-target="prepararse"><i class="fas fa-trash-alt"></i></button>
+                  <div contenteditable="true" class="activity-name editable">Prepararse</div>
+                  <button class="add-btn-inline">+</button>
+                </td>
+                <td id="start-prepararse"></td>
+                <td><input type="number" id="prepararse" value="15"></td>
+              </tr>
+              <tr class="activity-row">
+                <td class="activity-cell">
+                  <button class="delete-btn" data-target="viaje"><i class="fas fa-trash-alt"></i></button>
+                  <div contenteditable="true" class="activity-name editable">Viaje</div>
+                  <button class="add-btn-inline">+</button>
+                </td>
+                <td id="start-viaje"></td>
+                <td><input type="number" id="viaje" value="45"></td>
+              </tr>
+              <tr class="activity-row">
+                <td class="activity-cell">
+                  <button class="delete-btn" data-target="cafe"><i class="fas fa-trash-alt"></i></button>
+                  <div contenteditable="true" class="activity-name editable">Comprar café</div>
+                  <button class="add-btn-inline">+</button>
+                </td>
+                <td id="start-cafe"></td>
+                <td><input type="number" id="cafe" value="15"></td>
+              </tr>
+              <tr class="fixed">
+                <td>Hora de fin</td>
+                <td><input type="time" id="end-time" value="09:30"></td>
+                <td>-</td>
+              </tr>
           </tbody>
         </table>
       </div>
@@ -278,12 +319,15 @@
       </div>
     </section>
 
-    <!-- Card con la explicación "Como usar?" -->
-    <div id="how-to" class="content-section" style="margin-top: 30px; padding: 20px; background-color: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
-      <h3 style="text-align: center;">¿Cómo usar?</h3>
-      <p style="text-align: justify; font-size: 1em; line-height: 1.5;">
-        Esta herramienta está pensada para maximizar tus horas de sueño y organizar tus mañanas de forma eficiente. Seleccioná las actividades que hacés habitualmente por la mañana y asignales el tiempo (aproximado) que te llevan, como se ve en los ejemplos. Podés agregar nuevas actividades, o eliminar las existentes tocando el ícono del tachito. Luego, configurá la hora a la que querés terminar todo, y automáticamente se calculará la hora de inicio. Esto te va a ayudar a saber a qué hora programar tus alarmas para optimizar tu descanso. También podés fijar la hora de inicio y la herramienta calculará a qué hora vas a terminar con todo.
-      </p>
+    <!-- Modal with help content -->
+    <div id="help-modal" class="modal">
+      <div class="modal-content">
+        <span id="close-help" class="close">&times;</span>
+        <h3>¿Cómo usar?</h3>
+        <p style="text-align: justify; font-size: 1em; line-height: 1.5;">
+          Esta herramienta está pensada para maximizar tus horas de sueño y organizar tus mañanas de forma eficiente. Seleccioná las actividades que hacés habitualmente por la mañana y asignales el tiempo (aproximado) que te llevan, como se ve en los ejemplos. Podés agregar nuevas actividades, o eliminar las existentes tocando el ícono del tachito. Luego, configurá la hora a la que querés terminar todo, y automáticamente se calculará la hora de inicio. Esto te va a ayudar a saber a qué hora programar tus alarmas para optimizar tu descanso. También podés fijar la hora de inicio y la herramienta calculará a qué hora vas a terminar con todo.
+        </p>
+      </div>
     </div>
   </main>
 
@@ -293,6 +337,23 @@
       const $endTimeInput = $('#end-time');
       const $totalDurationLabel = $('#total-duration');
       const $activityTable = $('#activity-table tbody');
+      const $helpModal = $('#help-modal');
+      const $helpButton = $('#help-button');
+      const $closeHelp = $('#close-help');
+
+      $helpButton.on('click', function () {
+        $helpModal.fadeIn();
+      });
+
+      $closeHelp.on('click', function () {
+        $helpModal.fadeOut();
+      });
+
+      $(window).on('click', function (e) {
+        if ($(e.target).is($helpModal)) {
+          $helpModal.fadeOut();
+        }
+      });
 
       function setInitialTimes() {
         $startTimeInput.val("07:00");
@@ -373,12 +434,12 @@
         const newRow = `
           <tr class="activity-row">
             <td class="activity-cell">
+              <button class="delete-btn"><i class="fas fa-trash-alt"></i></button>
               <div contenteditable="true" class="activity-name editable">Nueva Actividad</div>
               <button class="add-btn-inline">+</button>
             </td>
             <td></td>
             <td><input type="number" value="0"></td>
-            <td><button class="delete-btn"><i class="fas fa-trash-alt"></i></button></td>
           </tr>`;
         $currentRow.after(newRow);
         const $newActivityName = $currentRow.next().find('.activity-name');
