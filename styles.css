@@ -13,6 +13,16 @@ body {
   padding-bottom: 60px;
 }
 
+header.hero {
+  background-image: url('https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80');
+  background-size: cover;
+  background-position: center;
+  color: #ffffff;
+  padding: 80px 20px;
+  text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+
 header {
   background-color: #2c3e50;
   color: #ffffff;
@@ -129,6 +139,26 @@ footer a {
   margin-top: 10px;
   font-weight: 600;
   color: #555;
+}
+
+.projects-list {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+}
+
+.projects-list li {
+  margin: 10px 0;
+}
+
+.projects-list a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.projects-list a:hover {
+  text-decoration: underline;
 }
 
 .button {
