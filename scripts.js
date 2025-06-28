@@ -16,7 +16,8 @@ const tagline = document.querySelector('.tagline');
 const phrases = [
   'Líder Técnico',
   'Apasionado por la tecnología',
-  'Desarrollador de software'
+  'Desarrollador de software',
+  'Experto en IA'
 ];
 let phraseIndex = 0;
 let charIndex = 0;
