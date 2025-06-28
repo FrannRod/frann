@@ -13,6 +13,16 @@ body {
   padding-bottom: 60px;
 }
 
+header.hero {
+  background-image: url('https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80');
+  background-size: cover;
+  background-position: center;
+  color: #ffffff;
+  padding: 80px 20px;
+  text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+
 header {
   background-color: #2c3e50;
   color: #ffffff;
@@ -31,22 +41,6 @@ header {
   font-weight: 300;
 }
 
-header nav {
-  margin-top: 20px;
-}
-
-header nav a {
-  margin: 0 10px;
-  color: #ffffff;
-  text-decoration: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  transition: background 0.3s;
-}
-
-header nav a:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
 
 h1 {
   font-family: 'Poppins', sans-serif;
@@ -70,11 +64,6 @@ main {
   text-align: center;
 }
 
-.alt-bg {
-  background-color: #f9f9f9;
-  padding: 40px;
-  border-radius: 10px;
-}
 
 h2 {
   font-family: 'Poppins', sans-serif;
@@ -112,23 +101,41 @@ footer a {
   }
 }
 
-.testimonial {
-  margin: 20px;
-  padding: 20px;
+
+.projects-list {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+}
+
+
+.project-card {
   background-color: #ffffff;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  font-style: italic;
-  display: inline-block;
-  max-width: 300px;
-  vertical-align: top;
+  padding: 20px;
+  margin: 20px 0;
+  text-align: left;
 }
 
-.testimonial span {
-  display: block;
-  margin-top: 10px;
+.project-card h3 {
+  margin-bottom: 10px;
+  font-size: 1.4em;
+}
+
+.project-card p {
+  margin-bottom: 10px;
+  font-size: 1em;
+}
+
+.projects-list a {
+  color: #007bff;
+  text-decoration: none;
   font-weight: 600;
-  color: #555;
+}
+
+.projects-list a:hover {
+  text-decoration: underline;
 }
 
 .button {
