@@ -70,6 +70,14 @@ main {
   border-radius: 10px;
 }
 
+#contact p {
+  margin: 10px 0;
+}
+
+#contact .button {
+  margin-top: 10px;
+}
+
 h2 {
   font-family: 'Poppins', sans-serif;
   font-size: 2em;
@@ -81,9 +89,6 @@ footer {
   color: white;
   padding: 20px;
   text-align: center;
-  position: fixed;
-  width: 100%;
-  bottom: 0;
 }
 
 footer a {

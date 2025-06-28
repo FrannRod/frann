@@ -1,23 +1,27 @@
 #!/bin/bash
+set -e
 
-# Hacer push de la rama main
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+
+echo "Cambiando a la rama main..."
+git checkout main
+
+echo "Obteniendo ultimos cambios de origin/main..."
+git pull origin main
+
 echo "Haciendo push de la rama main..."
 git push origin main
 
-# Cambiar a la rama produccion
 echo "Cambiando a la rama produccion..."
 git checkout produccion
 
-# Hacer merge de la rama main en produccion
 echo "Haciendo merge de la rama main en produccion..."
 git merge main -m "Merge main a producción"
 
-# Hacer push de la rama produccion
 echo "Haciendo push de la rama produccion..."
 git push origin produccion
 
-# Volver a la rama main
 echo "Volviendo a la rama main..."
 git checkout main
 
-echo "Proceso completado."
+echo "Proceso completado. Regresando a ${current_branch} si es necesario."
