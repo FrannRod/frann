@@ -119,6 +119,13 @@ main {
   margin-top: 10px;
 }
 
+.social-links {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 10px;
+}
+
 h2 {
   font-family: 'Poppins', sans-serif;
   font-size: 2em;
