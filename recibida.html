@@ -15,12 +15,15 @@
   <header class="hero hero-big">
     <div class="header-content">
       <h1>¡Se viene mi recibida!</h1>
-      <p class="tagline">Sumate al festejo</p>
+      <p class="tagline" data-phrases='["Ingeniero Informático"]'>Ingeniero Informático</p>
     </div>
+    <a href="#info" class="scroll-down" aria-label="Desplazar hacia el contenido">
+      <i class="fas fa-chevron-down"></i>
+    </a>
   </header>
 
   <main>
-    <section class="content-section fade-in">
+    <section id="info" class="content-section fade-in">
       <h2>¿Cuándo rindo?</h2>
       <p>El final es el <strong>miércoles 23 de julio</strong>. Ese día no me dan la nota, pero seguramente me la confirmen en la misma semana.</p>
       <p>Para festejar tranquilos, la idea es juntarnos el finde siguiente.</p>
@@ -34,10 +37,16 @@
 
     <section class="content-section fade-in">
       <h2>Fechas posibles</h2>
-      <ul>
-        <li><strong>Sábado 26 de julio</strong> - alrededor de las 19 hs en UADE.</li>
-        <li><strong>Domingo 27 de julio</strong> - alrededor de las 16 hs en UADE.</li>
-      </ul>
+      <div class="date-cards">
+        <div class="date-card">
+          <h3>Sábado 26 de julio</h3>
+          <p>Alrededor de las 19 hs en UADE.</p>
+        </div>
+        <div class="date-card">
+          <h3>Domingo 27 de julio</h3>
+          <p>Alrededor de las 16 hs en UADE.</p>
+        </div>
+      </div>
     </section>
 
     <section class="content-section alt-bg fade-in">

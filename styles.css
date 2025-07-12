@@ -205,16 +205,17 @@ footer a {
 }
 
 .button {
-  background-color: #0069d9;
-  color: white;
+  background: linear-gradient(45deg, #0069d9, #0053a4);
+  color: #fff;
   padding: 12px 24px;
   border-radius: 5px;
   text-decoration: none;
   font-weight: bold;
   display: inline-block;
-  margin-top: 20px;
+  margin: 20px 0;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: background 0.3s, transform 0.2s, box-shadow 0.2s;
+  border: none;
 }
 
 .button.small {
@@ -263,4 +264,52 @@ footer a {
 .to-top.show {
   opacity: 1;
   pointer-events: auto;
+}
+
+/* Scroll indicator arrow */
+.scroll-down {
+  position: absolute;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2rem;
+  color: #fff;
+  animation: arrow-blink 1.5s infinite;
+  z-index: 1;
+}
+
+@keyframes arrow-blink {
+  0%, 100% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  50% {
+    opacity: 0.4;
+    transform: translate(-50%, 10px);
+  }
+}
+
+/* Date cards */
+.date-cards {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.date-card {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  flex: 1 1 200px;
+  max-width: 250px;
+}
+
+@media (max-width: 600px) {
+  .date-cards {
+    flex-direction: column;
+    align-items: center;
+  }
 }

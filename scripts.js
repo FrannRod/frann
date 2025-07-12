@@ -13,12 +13,20 @@ document.querySelectorAll('.fade-in').forEach(section => {
 
 // Simple typewriter effect for the tagline
 const tagline = document.querySelector('.tagline');
-const phrases = [
+let phrases = [
   'Líder Técnico',
   'Apasionado por la tecnología',
   'Desarrollador de software',
   'Experto en IA'
 ];
+
+if (tagline && tagline.dataset.phrases) {
+  try {
+    phrases = JSON.parse(tagline.dataset.phrases);
+  } catch (e) {
+    phrases = [tagline.textContent];
+  }
+}
 let phraseIndex = 0;
 let charIndex = 0;
 let removing = false;
