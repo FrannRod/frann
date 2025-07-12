@@ -323,5 +323,19 @@ footer a {
     width: 90%;
     max-width: 350px;
   }
+
+  header {
+    position: relative;      /* la referencia para la flecha */
+  }
+
+  .scroll-down {
+    position: absolute;
+    /* 100dvh = alto dinámico del viewport.
+       40px = aprox. alto de la flecha; ajustalo a gusto. */
+    top: calc(100dvh - 70px);
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
 }
 
