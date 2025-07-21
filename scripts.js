@@ -79,3 +79,25 @@ if (toTop) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 }
+
+// Mostrar lista secreta al tocar 3 veces el año del footer
+document.addEventListener('DOMContentLoaded', () => {
+  const hiddenList = document.getElementById('otros-invitados');
+  const year = document.querySelector('footer p');
+  if (hiddenList && year) {
+    let taps = 0;
+    let last = 0;
+    year.addEventListener('click', () => {
+      const now = Date.now();
+      if (now - last > 800) {
+        taps = 0;
+      }
+      taps++;
+      last = now;
+      if (taps >= 3) {
+        hiddenList.style.display = hiddenList.style.display === 'none' ? 'block' : 'none';
+        taps = 0;
+      }
+    });
+  }
+});
