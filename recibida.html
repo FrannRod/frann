@@ -47,7 +47,7 @@
     <section class="content-section fade-in">
       <h2>Confirmaciones</h2>
       <div class="list">
-        <h3>Van a todo <span class="count">(15)</span></h3>
+        <h3>Van a todo <span class="count">(n)</span></h3>
         <ul>
           <li>👑Fran</li>
           <li>Sofi Torres</li>
@@ -58,6 +58,9 @@
           <li>Anto</li>
           <li>Flor</li>
           <li>Sofi Rodríguez</li>
+          <li>Agos Rodríguez</li>
+          <li>Mamá</li>
+          <li>Papá</li>
           <li>Pire</li>
           <li>Lucas Taylor</li>
           <li>Santi</li>
@@ -78,7 +81,7 @@
       </div>
 
       <div class="list">
-        <h3>No confirmaron <span class="count">(18)</span></h3>
+        <h3>No confirmaron <span class="count">(n)</span></h3>
         <ul>
           <li>Anita</li>
           <li>Alejo</li>
@@ -90,30 +93,28 @@
           <li>Violeta</li>
           <li>Juancito</li>
           <li>Franco Benito</li>
+          <li>Alex AM3</li>
           <li>Tobi</li>
           <li>Ivana</li>
-          <li>Agos Rodríguez</li>
-          <li>Mamá</li>
-          <li>Papá</li>
           <li>Stef</li>
-          <li>Melu</li>
           <li>Anabella Gaona</li>
         </ul>
         <a href="https://wa.me/5491133321196?text=Hola!%20Todav%C3%ADa%20no%20s%C3%A9%20si%20puedo%20ir%20a%20tu%20recibida" class="button small">Aviso cuando sepa</a>
       </div>
 
       <div class="list">
-        <h3>No van <span class="count">(3)</span></h3>
+        <h3>No van <span class="count">(n)</span></h3>
         <ul>
           <li>Enzo</li>
           <li>Cata</li>
           <li>Marcos</li>
+          <li>Melu</li>
         </ul>
         <a href="https://wa.me/5491133321196?text=Hola!%20Lamento%20avisarte%20que%20*no*%20voy%20a%20tu%20recibida" class="button small">No puedo ir</a>
       </div>
 
       <div id="otros-invitados" class="list" style="display:none">
-        <h3>Otros invitados <span class="count">(12)</span></h3>
+        <h3>Otros invitados <span class="count">(n)</span></h3>
         <ul>
           <li>Juan Cruz Pinamar</li>
           <li>Nachito Pinamar</li>
@@ -124,7 +125,6 @@
           <li>Los programadores de la ofi?</li>
           <li>Manu Calim?</li>
           <li>Chris y Ernesto???????</li>
-          <li>Alex AM3</li>
           <li>Sabri Gambetta</li>
           <li>Lucia Angelucci</li>
         </ul>
@@ -141,5 +141,27 @@
   </footer>
   <button id="to-top" class="to-top" aria-label="Volver arriba">&#8679;</button>
   <script src="scripts.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.list').forEach(function(listDiv) {
+        const ul = listDiv.querySelector('ul');
+        const countSpan = listDiv.querySelector('span.count');
+        if (ul && countSpan) {
+          const count = ul.querySelectorAll('li').length;
+          countSpan.textContent = `(${count})`;
+        }
+      });
+      // Para la lista secreta
+      const otrosDiv = document.getElementById('otros-invitados');
+      if (otrosDiv) {
+        const ul = otrosDiv.querySelector('ul');
+        const countSpan = otrosDiv.querySelector('span.count');
+        if (ul && countSpan) {
+          const count = ul.querySelectorAll('li').length;
+          countSpan.textContent = `(${count})`;
+        }
+      }
+    });
+  </script>
 </body>
 </html>
