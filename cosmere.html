@@ -109,8 +109,8 @@
   </div>
 
   <script>
-    const data = {
-      "books": [
+    const datos = {
+      "libros": [
         {"id": 1, "title": "Elantris", "saga": "Elantris", "is_spinoff": false, "is_read": "read"},
         {"id": 2, "title": "The Hope of Elantris", "saga": "Elantris", "is_spinoff": true, "is_read": "read"},
         {"id": 3, "title": "The Final Empire", "saga": "Mistborn", "is_spinoff": false, "is_read": "read"},
@@ -119,15 +119,15 @@
         {"id": 6, "title": "Warbreaker", "saga": "Warbreaker", "is_spinoff": false, "is_read": "read"},
         {"id": 7, "title": "The Way of Kings", "saga": "Archivo de las Tormentas", "is_spinoff": false, "is_read": "read"},
         {"id": 8, "title": "The Alloy of Law", "saga": "Mistborn", "is_spinoff": false, "is_read": "read"},
-        {"id": 9, "title": "The Eleventh Metal", "saga": "Mistborn", "is_spinoff": true, "is_read": "unread"},
+        {"id": 9, "title": "The Eleventh Metal", "saga": "Mistborn", "is_spinoff": true, "is_read": "read"},
         {"id": 10, "title": "The Emperor's Soul", "saga": "Elantris", "is_spinoff": true, "is_read": "read"},
         {"id": 11, "title": "Shadows for Silence In the Forest of Hell", "saga": "Arcanum Unbounded", "is_spinoff": true, "is_read": "unread"},
         {"id": 12, "title": "Words of Radiance", "saga": "Archivo de las Tormentas", "is_spinoff": false, "is_read": "read"},
         {"id": 13, "title": "Sixth of the Dusk", "saga": "Arcanum Unbounded", "is_spinoff": true, "is_read": "unread"},
-        {"id": 14, "title": "Allomancer Jak", "saga": "Mistborn", "is_spinoff": true, "is_read": "unread"},
+        {"id": 14, "title": "Allomancer Jak", "saga": "Mistborn", "is_spinoff": true, "is_read": "read"},
         {"id": 15, "title": "Shadows of Self", "saga": "Mistborn", "is_spinoff": false, "is_read": "read"},
-        {"id": 16, "title": "The Bands of Mourning", "saga": "Mistborn", "is_spinoff": false, "is_read": "currently-reading"},
-        {"id": 17, "title": "Mistborn: Secret History", "saga": "Mistborn", "is_spinoff": true, "is_read": "unread"},
+        {"id": 16, "title": "The Bands of Mourning", "saga": "Mistborn", "is_spinoff": false, "is_read": "read"},
+        {"id": 17, "title": "Mistborn: Secret History", "saga": "Mistborn", "is_spinoff": true, "is_read": "currently-reading"},
         {"id": 18, "title": "White Sand Omnibus", "saga": "White Sand", "is_spinoff": false, "is_read": "unread"},
         {"id": 19, "title": "Arcanum Unbounded essays", "saga": "Arcanum Unbounded", "is_spinoff": true, "is_read": "unread"},
         {"id": 20, "title": "Edgedancer", "saga": "Archivo de las Tormentas", "is_spinoff": true, "is_read": "unread"},
@@ -145,199 +145,211 @@
 
     // Armar la estructura de sagas
     const sagas = {};
-    data.books.forEach(book => {
-      if (!sagas[book.saga]) {
-        sagas[book.saga] = [];
+    datos.libros.forEach(libro => {
+      if (!sagas[libro.saga]) {
+        sagas[libro.saga] = [];
       }
-      sagas[book.saga].push(book);
+      sagas[libro.saga].push(libro);
     });
 
     // Contenedor de las sagas
-    const container = document.querySelector('.sagas-container');
+    const contenedor = document.querySelector('.sagas-container');
     // Contenedor overlay para dibujar flechas
-    const arrowOverlay = document.getElementById('arrow-overlay');
+    const overlayFlechas = document.getElementById('arrow-overlay');
 
-    const bookElements = {};
+    const elementosLibros = {};
 
     // Crear columnas y asignar estados
-    Object.keys(sagas).forEach(sagaName => {
-      sagas[sagaName].sort((a, b) => a.id - b.id);
+    Object.keys(sagas).forEach(nombreSaga => {
+      sagas[nombreSaga].sort((a, b) => a.id - b.id);
 
-      const sagaColumn = document.createElement('div');
-      sagaColumn.classList.add('saga-column');
+      const columnaSaga = document.createElement('div');
+      columnaSaga.classList.add('saga-column');
 
-      const sagaTitle = document.createElement('h2');
-      sagaTitle.textContent = sagaName;
-      sagaColumn.appendChild(sagaTitle);
+      const tituloSaga = document.createElement('h2');
+      tituloSaga.textContent = nombreSaga;
+      columnaSaga.appendChild(tituloSaga);
 
-      sagas[sagaName].forEach(book => {
-        const bookDiv = document.createElement('div');
-        bookDiv.classList.add('book-item');
-        bookDiv.textContent = `${book.id} - ${book.title}${book.is_spinoff ? ' (Spin-off)' : ''}`;
+      sagas[nombreSaga].forEach(libro => {
+        const divLibro = document.createElement('div');
+        divLibro.classList.add('book-item');
+        divLibro.textContent = `${libro.id} - ${libro.title}${libro.is_spinoff ? ' (Spin-off)' : ''}`;
 
         // Agregamos la clase según el estado de lectura
-        if (book.is_read === 'read') {
-          bookDiv.classList.add('read');
-        } else if (book.is_read === 'currently-reading') {
-          bookDiv.classList.add('currently-reading');
+        if (libro.is_read === 'read') {
+          divLibro.classList.add('read');
+        } else if (libro.is_read === 'currently-reading') {
+          divLibro.classList.add('currently-reading');
         } else {
-          bookDiv.classList.add('unread');
+          divLibro.classList.add('unread');
         }
 
         // Creamos el checkbox para actualizar el estado
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.checked = (book.is_read === 'read');
-        checkbox.addEventListener('change', () => {
-          if (checkbox.checked) {
-            book.is_read = 'read';
-            bookDiv.classList.remove('unread','currently-reading');
-            bookDiv.classList.add('read');
+        const casilla = document.createElement('input');
+        casilla.type = 'checkbox';
+        casilla.checked = (libro.is_read === 'read');
+        casilla.addEventListener('change', () => {
+          if (casilla.checked) {
+            libro.is_read = 'read';
+            divLibro.classList.remove('unread','currently-reading');
+            divLibro.classList.add('read');
           } else {
             // En este caso, si se desmarca, lo mandamos a "unread"
-            book.is_read = 'unread';
-            bookDiv.classList.remove('read','currently-reading');
-            bookDiv.classList.add('unread');
+            libro.is_read = 'unread';
+            divLibro.classList.remove('read','currently-reading');
+            divLibro.classList.add('unread');
           }
         });
 
         // Metemos el checkbox al final del div del libro
-        bookDiv.appendChild(checkbox);
+        divLibro.appendChild(casilla);
 
-        sagaColumn.appendChild(bookDiv);
-        bookElements[book.id] = bookDiv;
+        columnaSaga.appendChild(divLibro);
+        elementosLibros[libro.id] = divLibro;
       });
 
-      container.appendChild(sagaColumn);
+      contenedor.appendChild(columnaSaga);
     });
 
     // Ordenar todos los libros por ID
-    const allBooksSorted = [...data.books].sort((a, b) => a.id - b.id);
+    const librosOrdenados = [...datos.libros].sort((a, b) => a.id - b.id);
 
     // Mapa rápido ID->índice
-    const idToIndexMap = {};
-    allBooksSorted.forEach((book, idx) => {
-      idToIndexMap[book.id] = idx;
+    const mapaIdIndice = {};
+    librosOrdenados.forEach((libro, indice) => {
+      mapaIdIndice[libro.id] = indice;
     });
 
     // Agregar el subtexto de "Salto a..." al final de cada libro que cambie de saga
-    for (let i = 0; i < allBooksSorted.length - 1; i++) {
-      const currentBook = allBooksSorted[i];
-      const nextBook = allBooksSorted[i + 1];
-      if (currentBook.saga !== nextBook.saga) {
-        const arrowDiv = document.createElement('div');
-        arrowDiv.classList.add('arrow');
-        arrowDiv.textContent = `→ Salto a ${nextBook.saga} (ID ${nextBook.id})`;
-        bookElements[currentBook.id].appendChild(arrowDiv);
+    for (let i = 0; i < librosOrdenados.length - 1; i++) {
+      const libroActual = librosOrdenados[i];
+      const libroSiguiente = librosOrdenados[i + 1];
+      if (libroActual.saga !== libroSiguiente.saga) {
+        const textoFlecha = document.createElement('div');
+        textoFlecha.classList.add('arrow');
+        textoFlecha.textContent = `→ Salto a ${libroSiguiente.saga} (ID ${libroSiguiente.id})`;
+        elementosLibros[libroActual.id].appendChild(textoFlecha);
       }
     }
 
     // Flecha curva
-    function drawCurvedArrow(fromElem, toElem) {
+    function dibujarFlechaCurva(desdeElem, hastaElem) {
       // Coords del contenedor
-      const containerRect = arrowOverlay.getBoundingClientRect();
+      const rectContenedor = overlayFlechas.getBoundingClientRect();
+      const rectDesde = desdeElem.getBoundingClientRect();
+      const rectHasta = hastaElem.getBoundingClientRect();
 
-      const fromRect = fromElem.getBoundingClientRect();
-      const toRect = toElem.getBoundingClientRect();
+      const inicioX = (rectDesde.left + rectDesde.width / 2) - rectContenedor.left;
+      const inicioY = (rectDesde.top + rectDesde.height / 2) - rectContenedor.top;
+      const finX = (rectHasta.left + rectHasta.width / 2) - rectContenedor.left;
+      const finY = (rectHasta.top + rectHasta.height / 2) - rectContenedor.top;
 
-      const startX = (fromRect.left + fromRect.width / 2) - containerRect.left;
-      const startY = (fromRect.top + fromRect.height / 2) - containerRect.top;
-      const endX = (toRect.left + toRect.width / 2) - containerRect.left;
-      const endY = (toRect.top + toRect.height / 2) - containerRect.top;
-
-      const svgNS = 'http://www.w3.org/2000/svg';
-      const svg = document.createElementNS(svgNS, 'svg');
-      svg.classList.add('arrow-svg');
-      svg.style.left = 0;
-      svg.style.top = 0;
-      svg.style.width = '100%';
-      svg.style.height = '100%';
+      const espacioSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      espacioSvg.classList.add('arrow-svg');
+      espacioSvg.style.left = 0;
+      espacioSvg.style.top = 0;
+      espacioSvg.style.width = '100%';
+      espacioSvg.style.height = '100%';
 
       // Definir marcador de flecha
-      const defs = document.createElementNS(svgNS, 'defs');
-      const marker = document.createElementNS(svgNS, 'marker');
-      marker.setAttribute('id', 'arrowhead');
-      marker.setAttribute('markerWidth', '10');
-      marker.setAttribute('markerHeight', '7');
-      marker.setAttribute('refX', '6');
-      marker.setAttribute('refY', '3.5');
-      marker.setAttribute('orient', 'auto');
+      const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      const marcador = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+      marcador.setAttribute('id', 'arrowhead');
+      marcador.setAttribute('markerWidth', '10');
+      marcador.setAttribute('markerHeight', '7');
+      marcador.setAttribute('refX', '6');
+      marcador.setAttribute('refY', '3.5');
+      marcador.setAttribute('orient', 'auto');
 
-      const polygon = document.createElementNS(svgNS, 'polygon');
-      polygon.setAttribute('points', '0 0, 10 3.5, 0 7');
-      polygon.setAttribute('fill', '#555');
+      const poligono = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+      poligono.setAttribute('points', '0 0, 10 3.5, 0 7');
+      poligono.setAttribute('fill', '#555');
 
-      marker.appendChild(polygon);
-      defs.appendChild(marker);
-      svg.appendChild(defs);
+      marcador.appendChild(poligono);
+      defs.appendChild(marcador);
+      espacioSvg.appendChild(defs);
 
       // Curva suave con path Bezier
-      const cX1 = (startX + endX) / 2;
-      const cY1 = startY;
-      const cX2 = (startX + endX) / 2;
-      const cY2 = endY;
-      const d = `M ${startX},${startY} C ${cX1},${cY1} ${cX2},${cY2} ${endX},${endY}`;
+      const controlX1 = (inicioX + finX) / 2;
+      const controlY1 = inicioY;
+      const controlX2 = (inicioX + finX) / 2;
+      const controlY2 = finY;
+      const d = `M ${inicioX},${inicioY} C ${controlX1},${controlY1} ${controlX2},${controlY2} ${finX},${finY}`;
 
-      const path = document.createElementNS(svgNS, 'path');
-      path.setAttribute('d', d);
-      path.setAttribute('stroke', 'rgba(85, 85, 85, 0.7)');
-      path.setAttribute('stroke-width', '1.6');
-      path.setAttribute('fill', 'none');
-      path.setAttribute('marker-end', 'url(#arrowhead)');
+      const camino = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      camino.setAttribute('d', d);
+      camino.setAttribute('stroke', 'rgba(85, 85, 85, 0.7)');
+      camino.setAttribute('stroke-width', '1.6');
+      camino.setAttribute('fill', 'none');
+      camino.setAttribute('marker-end', 'url(#arrowhead)');
 
-      svg.appendChild(path);
-      return svg;
+      espacioSvg.appendChild(camino);
+      return espacioSvg;
     }
 
-    let currentArrow = null;
+    let flechasActuales = [];
 
-    function showArrow(bookId) {
-      const idx = idToIndexMap[bookId];
-      const nextIdx = idx + 1;
-      if (nextIdx >= allBooksSorted.length) return;
+    function mostrarFlechas(idLibro) {
+      ocultarFlechas();
+      const indice = mapaIdIndice[idLibro];
+      const indiceSiguiente = indice + 1;
+      const indiceAnterior = indice - 1;
 
-      const nextBook = allBooksSorted[nextIdx];
-      const nextElem = bookElements[nextBook.id];
-      const thisElem = bookElements[bookId];
-      if (!nextElem || !thisElem) return;
+      const elementoActual = elementosLibros[idLibro];
 
-      currentArrow = drawCurvedArrow(thisElem, nextElem);
-      arrowOverlay.appendChild(currentArrow);
-    }
+      if (indiceSiguiente < librosOrdenados.length) {
+        const libroSiguiente = librosOrdenados[indiceSiguiente];
+        const elemSiguiente = elementosLibros[libroSiguiente.id];
+        if (elemSiguiente && elementoActual) {
+          const flechaSig = dibujarFlechaCurva(elementoActual, elemSiguiente);
+          overlayFlechas.appendChild(flechaSig);
+          flechasActuales.push(flechaSig);
+        }
+      }
 
-    function hideArrow() {
-      if (currentArrow) {
-        arrowOverlay.removeChild(currentArrow);
-        currentArrow = null;
+      if (indiceAnterior >= 0) {
+        const libroAnterior = librosOrdenados[indiceAnterior];
+        const elemAnterior = elementosLibros[libroAnterior.id];
+        if (elemAnterior && elementoActual) {
+          const flechaAnt = dibujarFlechaCurva(elemAnterior, elementoActual);
+          overlayFlechas.appendChild(flechaAnt);
+          flechasActuales.push(flechaAnt);
+        }
       }
     }
 
+    function ocultarFlechas() {
+      flechasActuales.forEach(flecha => overlayFlechas.removeChild(flecha));
+      flechasActuales = [];
+    }
+
     // Eventos hover/touch en cada libro
-    allBooksSorted.forEach(book => {
-      const elem = bookElements[book.id];
+    librosOrdenados.forEach(libro => {
+      const elem = elementosLibros[libro.id];
       if (!elem) return;
 
       // Desktop
-      elem.addEventListener('mouseenter', () => showArrow(book.id));
-      elem.addEventListener('mouseleave', hideArrow);
+      elem.addEventListener('mouseenter', () => mostrarFlechas(libro.id));
+      elem.addEventListener('mouseleave', ocultarFlechas);
 
       // Mobile
       elem.addEventListener('touchstart', (e) => {
+        if (e.target.tagName.toLowerCase() === 'input') return;
         e.preventDefault();
-        showArrow(book.id);
+        mostrarFlechas(libro.id);
       });
-      elem.addEventListener('touchend', hideArrow);
+      elem.addEventListener('touchend', ocultarFlechas);
     });
 
     // Ocultar flecha si clickeás fuera
     document.addEventListener('click', (e) => {
       if (!e.target.classList.contains('book-item')) {
-        hideArrow();
+        ocultarFlechas();
       }
     });
 
     // Ocultar flecha si redimensionás
-    window.addEventListener('resize', hideArrow);
+    window.addEventListener('resize', ocultarFlechas);
   </script>
 </body>
 </html>
