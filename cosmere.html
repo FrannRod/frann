@@ -142,6 +142,34 @@
       ]
     };
 
+    const claveEstado = 'estadoLecturaCosmere';
+
+    function cargarEstados() {
+      const guardado = localStorage.getItem(claveEstado);
+      if (guardado) {
+        try {
+          const estadosGuardados = JSON.parse(guardado);
+          datos.libros.forEach(libro => {
+            if (estadosGuardados[libro.id]) {
+              libro.is_read = estadosGuardados[libro.id];
+            }
+          });
+        } catch (error) {
+          console.error('No se pudieron cargar los estados guardados', error);
+        }
+      }
+    }
+
+    function guardarEstados() {
+      const estados = {};
+      datos.libros.forEach(libro => {
+        estados[libro.id] = libro.is_read;
+      });
+      localStorage.setItem(claveEstado, JSON.stringify(estados));
+    }
+
+    cargarEstados();
+
     // Armar la estructura de sagas
     const sagas = {};
     datos.libros.forEach(libro => {
@@ -198,6 +226,7 @@
             divLibro.classList.remove('read','currently-reading');
             divLibro.classList.add('unread');
           }
+          guardarEstados();
         });
 
         // Metemos el checkbox al final del div del libro
@@ -209,6 +238,8 @@
 
       contenedor.appendChild(columnaSaga);
     });
+
+    guardarEstados();
 
     // Ordenar todos los libros por ID
     const librosOrdenados = [...datos.libros].sort((a, b) => a.id - b.id);
