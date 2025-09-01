@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tablero Hex</title>
+<style>
+:root{
+  --tamanoHex:80px;
+  --alturaHex:69.28px;
+  --gap:8px;
+}
+@media (max-width:600px){
+  :root{
+    --tamanoHex:60px;
+    --alturaHex:51.96px;
+    --gap:6px;
+  }
+}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Inter,sans-serif;
+  background:#111827;
+  color:#e5e7eb;
+  user-select:none;
+}
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 16px;
+  background:#1f2937;
+  box-shadow:0 2px 4px rgba(0,0,0,0.4);
+}
+header h1{
+  margin:0;
+  font-size:1.25rem;
+}
+header .acciones button{
+  margin-left:8px;
+  padding:6px 10px;
+  background:#374151;
+  color:#e5e7eb;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  transition:background 120ms ease-out;
+}
+header .acciones button:hover{background:#4b5563;}
+#contenedor{
+  display:flex;
+  height:calc(100vh - 56px);
+}
+#panel{
+  width:220px;
+  background:#1f2937;
+  padding:12px;
+  overflow:auto;
+  transition:transform 200ms ease-out;
+}
+#panel.colapsado{transform:translateX(-100%);} 
+#panel button{
+  margin-bottom:8px;
+}
+#tablero{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  overflow:auto;
+  padding:20px;
+}
+.fila{display:flex;}
+.fila.offset{margin-left:calc(var(--tamanoHex)/2 + var(--gap)/2);} 
+.hex{
+  position:relative;
+  width:var(--tamanoHex);
+  height:var(--alturaHex);
+  margin:calc(var(--gap)/2);
+  transition:transform 120ms ease-out, filter 120ms ease-out;
+  will-change:transform, filter;
+}
+.hex:hover{transform:translateY(-2px); filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));}
+.hex svg{width:100%; height:100%;}
+.hex polygon.base{transition:fill 120ms ease-out, stroke 120ms ease-out;}
+.hex polygon.contorno{fill:none; stroke:#00bcd4; stroke-width:3; opacity:0;}
+.hex.seleccionado polygon.contorno{opacity:0.85; filter:drop-shadow(0 0 4px #00bcd4);} 
+.hex.hoverObjetivo polygon.contorno{opacity:0.75;}
+.hex.conflicto polygon.base{stroke-dasharray:4; stroke:#ef4444;}
+.ficha{position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); pointer-events:auto;}
+.ficha svg{width:60%; height:60%; pointer-events:none;}
+.ficha:hover{cursor:grab; filter:drop-shadow(0 1px 2px rgba(0,0,0,0.6));}
+.ficha.arrastrando{opacity:0.2; cursor:grabbing;}
+.badge{position:absolute; top:2px; right:2px; background:rgba(0,0,0,0.25); backdrop-filter:blur(2px); color:#fff; font-size:0.65rem; padding:1px 3px; border-radius:4px; font-weight:600;}
+.menu{position:fixed; background:#1f2937; color:#e5e7eb; padding:8px; border-radius:10px; box-shadow:0 8px 16px rgba(0,0,0,0.6); display:none; z-index:1000; min-width:160px;}
+.menu[aria-expanded="true"]{display:block;}
+.menuItem{height:32px; padding:8px 12px; cursor:pointer; display:flex; align-items:center; border-radius:6px;}
+.menuItem:hover, .menuItem:focus{background:#374151; outline:none;}
+.menuItem:active{background:#4b5563;}
+.submenu{display:none; margin-top:4px;}
+.menuItem[aria-haspopup="true"]:after{content:"›"; margin-left:auto;}
+.menuItem.expande + .submenu{display:block;}
+.separador{height:1px; background:rgba(255,255,255,0.08); margin:4px 0;}
+#modalDatos{position:fixed; inset:0; background:rgba(0,0,0,0.6); display:none; align-items:center; justify-content:center; z-index:1100;}
+#modalDatos.mostrar{display:flex;}
+#modalDatos .contenido{background:#1f2937; padding:16px; border-radius:8px; width:90%; max-width:400px; display:flex; flex-direction:column;}
+#modalDatos textarea{width:100%; height:200px; margin-bottom:8px;}
+#modalDatos button{margin-top:4px; padding:6px 10px; border:none; border-radius:6px; background:#374151; color:#e5e7eb;}
+/* Terrenos */
+.hex.terreno-pantano polygon.base{fill:url(#gradPantano); stroke:#223427;}
+.hex.terreno-pantano polygon.textura{fill:url(#patronPantano);}
+.hex.terreno-pastizal polygon.base{fill:url(#gradPastizal); stroke:#5c8e39;}
+.hex.terreno-pastizal polygon.textura{fill:url(#patronPastizal);}
+.hex.terreno-alta_montana polygon.base{fill:url(#gradAlta); stroke:#64727c;}
+.hex.terreno-alta_montana polygon.textura{fill:url(#patronAlta);}
+.hex.terreno-desierto polygon.base{fill:url(#gradDesierto); stroke:#caa952;}
+.hex.terreno-desierto polygon.textura{fill:url(#patronDesierto);}
+</style>
+</head>
+<body>
+<header>
+  <h1>Tablero Hex</h1>
+  <div class="acciones">
+    <button id="botonPanel" title="Mostrar u ocultar leyenda">Leyenda</button>
+    <button id="botonReiniciar" title="Reiniciar tablero">Reiniciar</button>
+    <button id="botonDatos" title="Exportar o importar datos">Exportar/Importar</button>
+  </div>
+</header>
+<div id="contenedor">
+  <aside id="panel" class="colapsado" aria-label="Leyenda de terrenos y fichas">
+    <button id="cerrarPanel">Cerrar</button>
+    <h2>Terrenos</h2>
+    <ul>
+      <li>Pantano: <span id="cantPantano">0</span></li>
+      <li>Pastizal: <span id="cantPastizal">0</span></li>
+      <li>Alta montaña: <span id="cantAlta">0</span></li>
+      <li>Desierto: <span id="cantDesierto">0</span></li>
+    </ul>
+    <h2>Fichas</h2>
+    <ul>
+      <li>Peón: <span id="cantPeon">0</span></li>
+      <li>Caballo: <span id="cantCaballo">0</span></li>
+      <li>Torre: <span id="cantTorre">0</span></li>
+    </ul>
+  </aside>
+  <div id="tablero"></div>
+</div>
+<div id="menuContextual" class="menu" role="menu" aria-expanded="false">
+  <div class="menuItem" role="menuitem" tabindex="0" data-accion="terreno" aria-haspopup="true">Cambiar terreno</div>
+  <div class="submenu" id="submenuTerreno" role="menu">
+    <div class="menuItem" role="menuitem" tabindex="0" data-terreno="pantano">Pantano</div>
+    <div class="menuItem" role="menuitem" tabindex="0" data-terreno="pastizal">Pastizal</div>
+    <div class="menuItem" role="menuitem" tabindex="0" data-terreno="alta_montana">Alta montaña</div>
+    <div class="menuItem" role="menuitem" tabindex="0" data-terreno="desierto">Desierto</div>
+  </div>
+  <div class="separador"></div>
+  <div class="menuItem" role="menuitem" tabindex="0" data-accion="ficha" aria-haspopup="true">Crear ficha</div>
+  <div class="submenu" id="submenuFicha" role="menu">
+    <div class="menuItem" role="menuitem" tabindex="0" data-ficha="peon">Peón</div>
+    <div class="menuItem" role="menuitem" tabindex="0" data-ficha="caballo">Caballo</div>
+    <div class="menuItem" role="menuitem" tabindex="0" data-ficha="torre">Torre</div>
+  </div>
+  <div class="separador"></div>
+  <div class="menuItem" role="menuitem" tabindex="0" data-accion="eliminar">Eliminar ficha</div>
+</div>
+<div id="modalDatos">
+  <div class="contenido">
+    <textarea id="areaDatos"></textarea>
+    <button id="guardarDatos">Guardar</button>
+    <button id="cerrarDatos">Cancelar</button>
+  </div>
+</div>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <!-- Gradientes -->
+    <radialGradient id="gradPantano" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#3a5f44" />
+      <stop offset="100%" stop-color="#274534" />
+    </radialGradient>
+    <radialGradient id="gradPastizal" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#a8d57a" />
+      <stop offset="100%" stop-color="#7dbf4a" />
+    </radialGradient>
+    <radialGradient id="gradAlta" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#b7c3cc" />
+      <stop offset="100%" stop-color="#8c9aa6" />
+    </radialGradient>
+    <radialGradient id="gradDesierto" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f0d58c" />
+      <stop offset="100%" stop-color="#e8c26a" />
+    </radialGradient>
+    <!-- Patrones -->
+    <pattern id="patronPantano" width="4" height="4" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="1" fill="#2b4533" opacity="0.12" />
+    </pattern>
+    <pattern id="patronPastizal" width="4" height="4" patternUnits="userSpaceOnUse">
+      <rect x="0" y="0" width="1" height="4" fill="#6ca93f" opacity="0.12" />
+    </pattern>
+    <pattern id="patronAlta" width="3" height="3" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="0.5" fill="#748391" opacity="0.1" />
+    </pattern>
+    <pattern id="patronDesierto" width="6" height="6" patternUnits="userSpaceOnUse">
+      <path d="M0 3 Q3 0 6 3 T12 3" stroke="#d9b45e" stroke-width="1" fill="none" opacity="0.12" />
+    </pattern>
+  </defs>
+</svg>
+<script>
+const tablero=document.getElementById('tablero');
+const menuContextual=document.getElementById('menuContextual');
+let hexMenu=null;
+let datosHexes=[];
+const tamanoHex=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tamanoHex'));
+const alturaHex=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--alturaHex'));
+function puntosHex(ancho){
+  const alto=Math.sqrt(3)/2*ancho;
+  return `${ancho/4},0 ${ancho*3/4},0 ${ancho},${alto/2} ${ancho*3/4},${alto} ${ancho/4},${alto} 0,${alto/2}`;
+}
+function inicializarDatos(){
+  let id=0;
+  for(let r=0;r<4;r++){
+    for(let q=0;q<5;q++){
+      datosHexes.push({id:id++, q, r, terreno:'pastizal', ficha:'ninguna'});
+    }
+  }
+}
+function crearHex(hex){
+  const fila=document.querySelector(`.fila[data-fila='${hex.r}']`);
+  const cont=document.createElement('div');
+  cont.className=`hex terreno-${hex.terreno}`;
+  cont.dataset.id=hex.id;
+  cont.setAttribute('tabindex','0');
+  const puntos=puntosHex(tamanoHex);
+  cont.innerHTML=`<svg viewBox="0 0 ${tamanoHex} ${alturaHex}">
+      <polygon class="base" points="${puntos}"></polygon>
+      <polygon class="textura" points="${puntos}"></polygon>
+      <polygon class="contorno" points="${puntos}"></polygon>
+    </svg>
+    <div class="ficha">${hex.ficha!=='ninguna'?svgFicha(hex.ficha,hex.terreno):''}</div>
+    <span class="badge">${hex.ficha!=='ninguna'?abrevFicha(hex.ficha):''}</span>`;
+  fila.appendChild(cont);
+}
+function dibujarTablero(){
+  tablero.innerHTML='';
+  for(let r=0;r<4;r++){
+    const fila=document.createElement('div');
+    fila.className='fila';
+    fila.dataset.fila=r;
+    if(r%2===1) fila.classList.add('offset');
+    tablero.appendChild(fila);
+  }
+  datosHexes.forEach(crearHex);
+}
+function abrevFicha(tipo){return tipo==='peon'?'P':tipo==='caballo'?'C':'T';}
+function svgFicha(tipo,terreno){
+  const claros=['pastizal','desierto','alta_montana'];
+  const esClaro=claros.includes(terreno);
+  const relleno=esClaro?'#f5f5f5':'#212121';
+  const borde=esClaro?'#212121':'#f5f5f5';
+  const trazo=`stroke='${borde}' stroke-width='1.25'`;
+  if(tipo==='peon'){
+    return `<svg viewBox='0 0 100 100' ${trazo} fill='${relleno}'><circle cx='50' cy='30' r='15'/><path d='M35 55h30l10 25H25z'/></svg>`;
+  }
+  if(tipo==='caballo'){
+    return `<svg viewBox='0 0 100 100' ${trazo} fill='${relleno}'><path d='M30 80h40v-40l-15-15h-10l-15 20z'/><path d='M45 25l10-10 15 15-10 10z'/></svg>`;
+  }
+  return `<svg viewBox='0 0 100 100' ${trazo} fill='${relleno}'><path d='M30 80h40v-10H30zm5-15h30V40H35zm-5-45h40v10H30z'/></svg>`;
+}
+function actualizarContadores(){
+  const terrenos={pantano:0,pastizal:0,alta_montana:0,desierto:0};
+  const fichas={peon:0,caballo:0,torre:0};
+  datosHexes.forEach(h=>{terrenos[h.terreno]++; if(h.ficha!=='ninguna') fichas[h.ficha]++;});
+  document.getElementById('cantPantano').textContent=terrenos.pantano;
+  document.getElementById('cantPastizal').textContent=terrenos.pastizal;
+  document.getElementById('cantAlta').textContent=terrenos.alta_montana;
+  document.getElementById('cantDesierto').textContent=terrenos.desierto;
+  document.getElementById('cantPeon').textContent=fichas.peon;
+  document.getElementById('cantCaballo').textContent=fichas.caballo;
+  document.getElementById('cantTorre').textContent=fichas.torre;
+}
+function guardarEstado(){localStorage.setItem('estadoHex', JSON.stringify(datosHexes));}
+function cargarEstado(){const guardado=localStorage.getItem('estadoHex'); if(guardado){datosHexes=JSON.parse(guardado);} else {inicializarDatos();}}
+function limpiarSeleccion(){document.querySelectorAll('.hex').forEach(h=>h.classList.remove('seleccionado'));}
+document.addEventListener('click',e=>{const hex=e.target.closest('.hex'); if(hex){if(hex.classList.contains('seleccionado')) hex.classList.remove('seleccionado'); else{limpiarSeleccion(); hex.classList.add('seleccionado');}} else if(!menuContextual.contains(e.target)){cerrarMenu();}});
+let temporizadorMenu=null; document.addEventListener('contextmenu',e=>{e.preventDefault();});
+document.addEventListener('pointerdown',e=>{const hex=e.target.closest('.hex'); if(hex){temporizadorMenu=setTimeout(()=>{abrirMenu(hex,e.clientX,e.clientY);},600);} });
+document.addEventListener('pointerup',()=>{clearTimeout(temporizadorMenu);});
+function abrirMenu(hex,x,y){hexMenu=hex; const tieneFicha=hex.querySelector('.ficha svg'); menuContextual.querySelector('[data-accion="eliminar"]').style.display=tieneFicha?'block':'none'; menuContextual.style.left=x+'px'; menuContextual.style.top=y+'px'; menuContextual.setAttribute('aria-expanded','true'); menuContextual.querySelector('.menuItem').focus();}
+function cerrarMenu(){menuContextual.setAttribute('aria-expanded','false'); hexMenu=null; document.querySelectorAll('.menuItem.expande').forEach(el=>el.classList.remove('expande'));}
+menuContextual.addEventListener('click',e=>{const item=e.target.closest('.menuItem'); if(!item) return; const accion=item.dataset.accion; if(accion==='terreno'||accion==='ficha'){item.classList.toggle('expande');} else if(item.dataset.terreno){cambiarTerreno(hexMenu,item.dataset.terreno); cerrarMenu();} else if(item.dataset.ficha){crearFicha(hexMenu,item.dataset.ficha); cerrarMenu();} else if(accion==='eliminar'){eliminarFicha(hexMenu); cerrarMenu();}});
+menuContextual.addEventListener('keydown',e=>{const items=[...menuContextual.querySelectorAll('.menuItem')]; let idx=items.indexOf(document.activeElement); if(e.key==='ArrowDown'){idx=(idx+1)%items.length; items[idx].focus(); e.preventDefault();} if(e.key==='ArrowUp'){idx=(idx-1+items.length)%items.length; items[idx].focus(); e.preventDefault();} if(e.key==='Escape'){cerrarMenu();}});
+function cambiarTerreno(hexElem,nuevo){const id=parseInt(hexElem.dataset.id); datosHexes[id].terreno=nuevo; hexElem.className=`hex terreno-${nuevo}`; if(datosHexes[id].ficha!=='ninguna'){hexElem.querySelector('.ficha').innerHTML=svgFicha(datosHexes[id].ficha,nuevo);} guardarEstado(); actualizarContadores();}
+function crearFicha(hexElem,tipo){const id=parseInt(hexElem.dataset.id); if(datosHexes[id].ficha!=='ninguna'){if(!confirm('Ya hay una ficha. ¿Reemplazar?')) return;} datosHexes[id].ficha=tipo; const terreno=datosHexes[id].terreno; hexElem.querySelector('.ficha').innerHTML=svgFicha(tipo,terreno); hexElem.querySelector('.badge').textContent=abrevFicha(tipo); guardarEstado(); actualizarContadores();}
+function eliminarFicha(hexElem){const id=parseInt(hexElem.dataset.id); datosHexes[id].ficha='ninguna'; hexElem.querySelector('.ficha').innerHTML=''; hexElem.querySelector('.badge').textContent=''; guardarEstado(); actualizarContadores();}
+let fichaArrastrando=null,hexOrigen=null,fantasma=null;
+function iniciarArrastre(e,ficha){fichaArrastrando=ficha; hexOrigen=ficha.parentElement; ficha.classList.add('arrastrando'); fantasma=ficha.cloneNode(true); fantasma.style.position='fixed'; fantasma.style.pointerEvents='none'; fantasma.style.opacity='0.9'; fantasma.style.zIndex='2000'; document.body.appendChild(fantasma); moverFantasma(e); document.addEventListener('pointermove',moverFantasma); document.addEventListener('pointerup',finArrastre);} 
+function moverFantasma(e){fantasma.style.left=e.clientX+'px'; fantasma.style.top=e.clientY+'px'; const elem=document.elementFromPoint(e.clientX,e.clientY); document.querySelectorAll('.hex').forEach(h=>h.classList.remove('hoverObjetivo','conflicto')); const hex=elem?elem.closest('.hex'):null; if(hex){hex.classList.add('hoverObjetivo'); if(hex.querySelector('.ficha svg') && hex!==hexOrigen) hex.classList.add('conflicto');}}
+function finArrastre(e){document.removeEventListener('pointermove',moverFantasma); document.removeEventListener('pointerup',finArrastre); fantasma.remove(); fichaArrastrando.classList.remove('arrastrando'); const hexDest=document.elementFromPoint(e.clientX,e.clientY)?.closest('.hex'); if(hexDest){ if(hexDest.querySelector('.ficha svg')){if(confirm('Reemplazar ficha existente?')){ moverFicha(hexOrigen,hexDest); } } else { moverFicha(hexOrigen,hexDest); } } document.querySelectorAll('.hex').forEach(h=>h.classList.remove('hoverObjetivo','conflicto')); fichaArrastrando=null;}
+function moverFicha(origen,destino){const idOrigen=parseInt(origen.dataset.id); const idDest=parseInt(destino.dataset.id); destino.querySelector('.ficha').innerHTML=origen.querySelector('.ficha').innerHTML; destino.querySelector('.badge').textContent=origen.querySelector('.badge').textContent; origen.querySelector('.ficha').innerHTML=''; origen.querySelector('.badge').textContent=''; datosHexes[idDest].ficha=datosHexes[idOrigen].ficha; datosHexes[idOrigen].ficha='ninguna'; guardarEstado(); actualizarContadores();}
+document.addEventListener('pointerdown',e=>{const ficha=e.target.closest('.ficha'); if(ficha && ficha.innerHTML.trim()!==''){iniciarArrastre(e,ficha);}});
+// Panel
+const botonPanel=document.getElementById('botonPanel');
+const panel=document.getElementById('panel');
+const cerrarPanel=document.getElementById('cerrarPanel');
+botonPanel.addEventListener('click',()=>{panel.classList.toggle('colapsado');});
+cerrarPanel.addEventListener('click',()=>{panel.classList.add('colapsado');});
+// Reiniciar y datos
+const botonReiniciar=document.getElementById('botonReiniciar');
+botonReiniciar.addEventListener('click',()=>{if(confirm('¿Reiniciar tablero?')){datosHexes.forEach(h=>{h.terreno='pastizal'; h.ficha='ninguna';}); dibujarTablero(); guardarEstado(); actualizarContadores();}});
+const botonDatos=document.getElementById('botonDatos');
+const modalDatos=document.getElementById('modalDatos');
+const areaDatos=document.getElementById('areaDatos');
+const guardarDatos=document.getElementById('guardarDatos');
+const cerrarDatos=document.getElementById('cerrarDatos');
+botonDatos.addEventListener('click',()=>{areaDatos.value=JSON.stringify(datosHexes,null,2); modalDatos.classList.add('mostrar');});
+guardarDatos.addEventListener('click',()=>{try{const nuevo=JSON.parse(areaDatos.value); if(Array.isArray(nuevo)&&nuevo.length===20){datosHexes=nuevo; dibujarTablero(); guardarEstado(); actualizarContadores(); modalDatos.classList.remove('mostrar');}}catch(err){alert('JSON inválido');}});
+cerrarDatos.addEventListener('click',()=>{modalDatos.classList.remove('mostrar');});
+// Inicialización
+cargarEstado(); dibujarTablero(); actualizarContadores();
+</script>
+</body>
+</html>
