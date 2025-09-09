@@ -97,9 +97,63 @@
       overflow: visible;
       pointer-events: none;
     }
+
+    /* Botón de ayuda */
+    #boton-ayuda {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      width: 32px;
+      height: 32px;
+      background-color: #007bff;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      cursor: pointer;
+      z-index: 1000;
+    }
+
+    /* Modal de ayuda */
+    #modal-ayuda {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+
+    #modal-ayuda .modal-contenido {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 300px;
+      text-align: center;
+    }
+
+    #modal-ayuda button {
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
+  <div id="boton-ayuda">?</div>
+  <div id="modal-ayuda">
+    <div class="modal-contenido">
+      <p>Al tocar un libro vas a ver una flecha que indica el anterior o el siguiente según el orden de publicación. También podés tocar el libro para alternar entre no leído, leyendo y leído.</p>
+      <button id="cerrar-modal">Cerrar</button>
+    </div>
+  </div>
+
   <h1>Libros de Brandon Sanderson</h1>
 
   <!-- Contenedor principal de las sagas -->
@@ -111,36 +165,40 @@
   <script>
     const datos = {
       "libros": [
-        {"id": 1, "title": "Elantris", "saga": "Elantris", "is_spinoff": false, "is_read": "read"},
-        {"id": 2, "title": "The Hope of Elantris", "saga": "Elantris", "is_spinoff": true, "is_read": "read"},
-        {"id": 3, "title": "The Final Empire", "saga": "Mistborn", "is_spinoff": false, "is_read": "read"},
-        {"id": 4, "title": "The Well of Ascension", "saga": "Mistborn", "is_spinoff": false, "is_read": "read"},
-        {"id": 5, "title": "The Hero of Ages", "saga": "Mistborn", "is_spinoff": false, "is_read": "read"},
-        {"id": 6, "title": "Warbreaker", "saga": "Warbreaker", "is_spinoff": false, "is_read": "read"},
-        {"id": 7, "title": "The Way of Kings", "saga": "Archivo de las Tormentas", "is_spinoff": false, "is_read": "read"},
-        {"id": 8, "title": "The Alloy of Law", "saga": "Mistborn", "is_spinoff": false, "is_read": "read"},
-        {"id": 9, "title": "The Eleventh Metal", "saga": "Mistborn", "is_spinoff": true, "is_read": "read"},
-        {"id": 10, "title": "The Emperor's Soul", "saga": "Elantris", "is_spinoff": true, "is_read": "read"},
-        {"id": 11, "title": "Shadows for Silence In the Forest of Hell", "saga": "Otros", "is_spinoff": true, "is_read": "read"},
-        {"id": 12, "title": "Words of Radiance", "saga": "Archivo de las Tormentas", "is_spinoff": false, "is_read": "read"},
-        {"id": 13, "title": "Allomancer Jak", "saga": "Mistborn", "is_spinoff": true, "is_read": "read"},
-        {"id": 14, "title": "Shadows of Self", "saga": "Mistborn", "is_spinoff": false, "is_read": "read"},
-        {"id": 15, "title": "The Bands of Mourning", "saga": "Mistborn", "is_spinoff": false, "is_read": "read"},
-        {"id": 16, "title": "Mistborn: Secret History", "saga": "Mistborn", "is_spinoff": true, "is_read": "read"},
-        {"id": 17, "title": "White Sand", "saga": "Otros", "is_spinoff": false, "is_read": "unread"},
-        {"id": 18, "title": "Arcanum Unbounded essays", "saga": "Otros", "is_spinoff": true, "is_read": "read"},
-        {"id": 19, "title": "Edgedancer", "saga": "Archivo de las Tormentas", "is_spinoff": true, "is_read": "read"},
-        {"id": 20, "title": "Oathbringer", "saga": "Archivo de las Tormentas", "is_spinoff": false, "is_read": "read"},
-        {"id": 21, "title": "Dawnshard", "saga": "Archivo de las Tormentas", "is_spinoff": true, "is_read": "read"},
-        {"id": 22, "title": "Rhythm of War", "saga": "Archivo de las Tormentas", "is_spinoff": false, "is_read": "read"},
-        {"id": 23, "title": "The Lost Metal", "saga": "Mistborn", "is_spinoff": false, "is_read": "currently-reading"},
-        {"id": 24, "title": "Tress of the Emerald Sea", "saga": "Otros", "is_spinoff": false, "is_read": "unread"},
-        {"id": 25, "title": "Yumi and the Nightmare Painter", "saga": "Otros", "is_spinoff": false, "is_read": "unread"},
-        {"id": 26, "title": "The Sunlit Man", "saga": "Archivo de las Tormentas", "is_spinoff": true, "is_read": "unread"},
-        {"id": 27, "title": "Wind and Truth", "saga": "Archivo de las Tormentas", "is_spinoff": false, "is_read": "unread"},
-        {"id": 28, "title": "Isles of the Emberdark", "saga": "Otros", "is_spinoff": true, "is_read": "unread"}
+        {"id": 1, "title": "Elantris", "saga": "Elantris", "esDerivado": false},
+        {"id": 2, "title": "The Hope of Elantris", "saga": "Elantris", "esDerivado": true},
+        {"id": 3, "title": "The Final Empire", "saga": "Mistborn", "esDerivado": false},
+        {"id": 4, "title": "The Well of Ascension", "saga": "Mistborn", "esDerivado": false},
+        {"id": 5, "title": "The Hero of Ages", "saga": "Mistborn", "esDerivado": false},
+        {"id": 6, "title": "Warbreaker", "saga": "Warbreaker", "esDerivado": false},
+        {"id": 7, "title": "The Way of Kings", "saga": "Archivo de las Tormentas", "esDerivado": false},
+        {"id": 8, "title": "The Alloy of Law", "saga": "Mistborn", "esDerivado": false},
+        {"id": 9, "title": "The Eleventh Metal", "saga": "Mistborn", "esDerivado": true},
+        {"id": 10, "title": "The Emperor's Soul", "saga": "Elantris", "esDerivado": true},
+        {"id": 11, "title": "Shadows for Silence In the Forest of Hell", "saga": "Otros", "esDerivado": true},
+        {"id": 12, "title": "Words of Radiance", "saga": "Archivo de las Tormentas", "esDerivado": false},
+        {"id": 13, "title": "Allomancer Jak", "saga": "Mistborn", "esDerivado": true},
+        {"id": 14, "title": "Shadows of Self", "saga": "Mistborn", "esDerivado": false},
+        {"id": 15, "title": "The Bands of Mourning", "saga": "Mistborn", "esDerivado": false},
+        {"id": 16, "title": "Mistborn: Secret History", "saga": "Mistborn", "esDerivado": true},
+        {"id": 17, "title": "White Sand", "saga": "Otros", "esDerivado": false},
+        {"id": 18, "title": "Arcanum Unbounded essays", "saga": "Otros", "esDerivado": true},
+        {"id": 19, "title": "Edgedancer", "saga": "Archivo de las Tormentas", "esDerivado": true},
+        {"id": 20, "title": "Oathbringer", "saga": "Archivo de las Tormentas", "esDerivado": false},
+        {"id": 21, "title": "Dawnshard", "saga": "Archivo de las Tormentas", "esDerivado": true},
+        {"id": 22, "title": "Rhythm of War", "saga": "Archivo de las Tormentas", "esDerivado": false},
+        {"id": 23, "title": "The Lost Metal", "saga": "Mistborn", "esDerivado": false},
+        {"id": 24, "title": "Tress of the Emerald Sea", "saga": "Otros", "esDerivado": false},
+        {"id": 25, "title": "Yumi and the Nightmare Painter", "saga": "Otros", "esDerivado": false},
+        {"id": 26, "title": "The Sunlit Man", "saga": "Archivo de las Tormentas", "esDerivado": true},
+        {"id": 27, "title": "Wind and Truth", "saga": "Archivo de las Tormentas", "esDerivado": false},
+        {"id": 28, "title": "Isles of the Emberdark", "saga": "Otros", "esDerivado": true}
       ]
     };
+
+    datos.libros.forEach(libro => {
+      libro.estadoLectura = 'unread';
+    });
 
     const claveEstado = 'estadoLecturaCosmere';
 
@@ -151,7 +209,7 @@
           const estadosGuardados = JSON.parse(guardado);
           datos.libros.forEach(libro => {
             if (estadosGuardados[libro.id]) {
-              libro.is_read = estadosGuardados[libro.id];
+              libro.estadoLectura = estadosGuardados[libro.id];
             }
           });
         } catch (error) {
@@ -163,7 +221,7 @@
     function guardarEstados() {
       const estados = {};
       datos.libros.forEach(libro => {
-        estados[libro.id] = libro.is_read;
+        estados[libro.id] = libro.estadoLectura;
       });
       localStorage.setItem(claveEstado, JSON.stringify(estados));
     }
@@ -200,37 +258,34 @@
       sagas[nombreSaga].forEach(libro => {
         const divLibro = document.createElement('div');
         divLibro.classList.add('book-item');
-        divLibro.textContent = `${libro.id} - ${libro.title}${libro.is_spinoff ? ' (Spin-off)' : ''}`;
+        divLibro.textContent = `${libro.id} - ${libro.title}${libro.esDerivado ? ' (Spin-off)' : ''}`;
 
-        // Agregamos la clase según el estado de lectura
-        if (libro.is_read === 'read') {
+        // Asignamos la clase según el estado de lectura
+        if (libro.estadoLectura === 'read') {
           divLibro.classList.add('read');
-        } else if (libro.is_read === 'currently-reading') {
+        } else if (libro.estadoLectura === 'currently-reading') {
           divLibro.classList.add('currently-reading');
         } else {
           divLibro.classList.add('unread');
         }
 
-        // Creamos el checkbox para actualizar el estado
-        const casilla = document.createElement('input');
-        casilla.type = 'checkbox';
-        casilla.checked = (libro.is_read === 'read');
-        casilla.addEventListener('change', () => {
-          if (casilla.checked) {
-            libro.is_read = 'read';
+        // Ciclar estado al tocar el libro
+        divLibro.addEventListener('click', () => {
+          if (libro.estadoLectura === 'unread') {
+            libro.estadoLectura = 'currently-reading';
+            divLibro.classList.remove('unread','read');
+            divLibro.classList.add('currently-reading');
+          } else if (libro.estadoLectura === 'currently-reading') {
+            libro.estadoLectura = 'read';
             divLibro.classList.remove('unread','currently-reading');
             divLibro.classList.add('read');
           } else {
-            // En este caso, si se desmarca, lo mandamos a "unread"
-            libro.is_read = 'unread';
+            libro.estadoLectura = 'unread';
             divLibro.classList.remove('read','currently-reading');
             divLibro.classList.add('unread');
           }
           guardarEstados();
         });
-
-        // Metemos el checkbox al final del div del libro
-        divLibro.appendChild(casilla);
 
         columnaSaga.appendChild(divLibro);
         elementosLibros[libro.id] = divLibro;
@@ -363,12 +418,9 @@
       elem.addEventListener('mouseleave', ocultarFlechas);
 
       // Mobile
-      elem.addEventListener('touchstart', (e) => {
-        if (e.target.tagName.toLowerCase() === 'input') return;
-        e.preventDefault();
+      elem.addEventListener('touchstart', () => {
         mostrarFlechas(libro.id);
       });
-      elem.addEventListener('touchend', ocultarFlechas);
     });
 
     // Ocultar flecha si clickeás fuera
@@ -380,6 +432,24 @@
 
     // Ocultar flecha si redimensionás
     window.addEventListener('resize', ocultarFlechas);
+
+    const botonAyuda = document.getElementById('boton-ayuda');
+    const modalAyuda = document.getElementById('modal-ayuda');
+    const cerrarModal = document.getElementById('cerrar-modal');
+
+    botonAyuda.addEventListener('click', () => {
+      modalAyuda.style.display = 'flex';
+    });
+
+    cerrarModal.addEventListener('click', () => {
+      modalAyuda.style.display = 'none';
+    });
+
+    modalAyuda.addEventListener('click', (e) => {
+      if (e.target === modalAyuda) {
+        modalAyuda.style.display = 'none';
+      }
+    });
   </script>
 </body>
 </html>
