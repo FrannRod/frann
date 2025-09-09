@@ -61,6 +61,23 @@
       transform: scale(1.02);
     }
 
+    .acciones-libro {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icono-ojo {
+      display: none;
+      cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+      .icono-ojo {
+        display: inline;
+      }
+    }
+
     /* Estados de lectura */
     .book-item.read {
       background-color: #d2f8d2; /* Leído */
@@ -159,7 +176,7 @@
   <div id="modalAyuda" class="modal">
     <div class="modal-contenido">
       <button id="cerrarModal" class="boton-cerrar" aria-label="Cerrar">&times;</button>
-      <p>Al tocar un libro aparece una flecha que señala el próximo o el anterior según el orden de publicación. También podés ciclar entre no leído, leyendo y leído tocándolo.</p>
+      <p>En la compu, al pasar el mouse por un libro aparece una flecha que señala el próximo o el anterior según el orden de publicación. En el celu tocá el ojito para ver lo mismo. Además podés ciclar entre no leído, leyendo y leído tocando el libro.</p>
     </div>
   </div>
 
@@ -318,12 +335,25 @@
           ciclarEstadoLectura(libro, divLibro, casilla);
         });
 
+        const iconoOjo = document.createElement('span');
+        iconoOjo.classList.add('icono-ojo');
+        iconoOjo.textContent = '👁️';
+        iconoOjo.addEventListener('click', (e) => {
+          e.stopPropagation();
+          mostrarFlechas(libro.id);
+        });
+
+        const contenedorAcciones = document.createElement('span');
+        contenedorAcciones.classList.add('acciones-libro');
+        contenedorAcciones.appendChild(iconoOjo);
+        contenedorAcciones.appendChild(casilla);
+
         divLibro.addEventListener('click', () => {
           ciclarEstadoLectura(libro, divLibro, casilla);
         });
 
         divLibro.appendChild(textoLibro);
-        divLibro.appendChild(casilla);
+        divLibro.appendChild(contenedorAcciones);
 
         columnaSaga.appendChild(divLibro);
         elementosLibros[libro.id] = divLibro;
@@ -446,21 +476,13 @@
       flechasActuales = [];
     }
 
-    // Eventos hover/touch en cada libro
+    // Eventos hover en cada libro
     librosOrdenados.forEach(libro => {
       const elem = elementosLibros[libro.id];
       if (!elem) return;
 
-      // Desktop
       elem.addEventListener('mouseenter', () => mostrarFlechas(libro.id));
       elem.addEventListener('mouseleave', ocultarFlechas);
-
-      // Mobile
-      elem.addEventListener('touchstart', (e) => {
-        if (e.target.tagName.toLowerCase() === 'input') return;
-        mostrarFlechas(libro.id);
-      });
-      elem.addEventListener('touchend', ocultarFlechas);
     });
 
     // Ocultar flecha si clickeás fuera
