@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Libros de Brandon Sanderson</title>
   <link rel="icon" href="favicon.ico" type="image/x-icon">
   <style>
@@ -231,19 +232,25 @@
       localStorage.setItem(claveEstado, JSON.stringify(estados));
     }
 
-    function ciclarEstadoLectura(libro, elemento) {
+    function ciclarEstadoLectura(libro, elemento, casilla) {
       if (libro.is_read === 'unread') {
         libro.is_read = 'currently-reading';
         elemento.classList.remove('unread', 'read');
         elemento.classList.add('currently-reading');
+        casilla.checked = false;
+        casilla.indeterminate = true;
       } else if (libro.is_read === 'currently-reading') {
         libro.is_read = 'read';
         elemento.classList.remove('unread', 'currently-reading');
         elemento.classList.add('read');
+        casilla.checked = true;
+        casilla.indeterminate = false;
       } else {
         libro.is_read = 'unread';
         elemento.classList.remove('read', 'currently-reading');
         elemento.classList.add('unread');
+        casilla.checked = false;
+        casilla.indeterminate = false;
       }
       guardarEstados();
     }
@@ -298,11 +305,25 @@
       sagas[nombreSaga].forEach(libro => {
         const divLibro = document.createElement('div');
         divLibro.classList.add('book-item', libro.is_read);
-        divLibro.textContent = `${libro.id} - ${libro.title}${libro.is_spinoff ? ' (Spin-off)' : ''}`;
+
+        const textoLibro = document.createElement('span');
+        textoLibro.textContent = `${libro.id} - ${libro.title}${libro.is_spinoff ? ' (Spin-off)' : ''}`;
+
+        const casilla = document.createElement('input');
+        casilla.type = 'checkbox';
+        casilla.checked = (libro.is_read === 'read');
+        casilla.indeterminate = (libro.is_read === 'currently-reading');
+        casilla.addEventListener('click', (e) => {
+          e.stopPropagation();
+          ciclarEstadoLectura(libro, divLibro, casilla);
+        });
 
         divLibro.addEventListener('click', () => {
-          ciclarEstadoLectura(libro, divLibro);
+          ciclarEstadoLectura(libro, divLibro, casilla);
         });
+
+        divLibro.appendChild(textoLibro);
+        divLibro.appendChild(casilla);
 
         columnaSaga.appendChild(divLibro);
         elementosLibros[libro.id] = divLibro;
@@ -435,9 +456,11 @@
       elem.addEventListener('mouseleave', ocultarFlechas);
 
       // Mobile
-      elem.addEventListener('touchstart', () => {
+      elem.addEventListener('touchstart', (e) => {
+        if (e.target.tagName.toLowerCase() === 'input') return;
         mostrarFlechas(libro.id);
       });
+      elem.addEventListener('touchend', ocultarFlechas);
     });
 
     // Ocultar flecha si clickeás fuera
