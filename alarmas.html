@@ -202,119 +202,24 @@
             </tr>
           </thead>
           <tbody>
-              <tr class="fixed">
-                <td>Hora de inicio
-                <button class="add-btn-inline">+</button></td>
-                <td><input type="time" id="start-time"></td>
-                <td>-</td>
-              </tr>
-            <!-- Actividades iniciales -->
-              <tr class="activity-row">
-                <td class="activity-cell">
-                  <button class="delete-btn" data-target="alarma1"><i class="fas fa-trash-alt"></i></button>
-                  <div contenteditable="true" class="activity-name editable">Alarma 1</div>
-                  <button class="add-btn-inline">+</button>
-                </td>
-                <td id="start-alarma1"></td>
-                <td><input type="number" id="alarma1" value="7"></td>
-              </tr>
-              <tr class="activity-row">
-                <td class="activity-cell">
-                  <button class="delete-btn" data-target="alarma2"><i class="fas fa-trash-alt"></i></button>
-                  <div contenteditable="true" class="activity-name editable">Alarma 2</div>
-                  <button class="add-btn-inline">+</button>
-                </td>
-                <td id="start-alarma2"></td>
-                <td><input type="number" id="alarma2" value="8"></td>
-              </tr>
-              <tr class="activity-row">
-                <td class="activity-cell">
-                  <button class="delete-btn" data-target="luces"><i class="fas fa-trash-alt"></i></button>
-                  <div contenteditable="true" class="activity-name editable">Luces</div>
-                  <button class="add-btn-inline">+</button>
-                </td>
-                <td id="start-luces"></td>
-                <td><input type="number" id="luces" value="1"></td>
-              </tr>
-              <tr class="activity-row">
-                <td class="activity-cell">
-                  <button class="delete-btn" data-target="alarma3"><i class="fas fa-trash-alt"></i></button>
-                  <div contenteditable="true" class="activity-name editable">Alarma 3</div>
-                  <button class="add-btn-inline">+</button>
-                </td>
-                <td id="start-alarma3"></td>
-                <td><input type="number" id="alarma3" value="2"></td>
-              </tr>
-              <tr class="activity-row">
-                <td class="activity-cell">
-                  <button class="delete-btn" data-target="despejarse"><i class="fas fa-trash-alt"></i></button>
-                  <div contenteditable="true" class="activity-name editable">Despejarse</div>
-                  <button class="add-btn-inline">+</button>
-                </td>
-                <td id="start-despejarse"></td>
-                <td><input type="number" id="despejarse" value="15"></td>
-              </tr>
-              <tr class="activity-row">
-                <td class="activity-cell">
-                  <button class="delete-btn" data-target="bañarse"><i class="fas fa-trash-alt"></i></button>
-                  <div contenteditable="true" class="activity-name editable">Bañarse</div>
-                  <button class="add-btn-inline">+</button>
-                </td>
-                <td id="start-bañarse"></td>
-                <td><input type="number" id="bañarse" value="30"></td>
-              </tr>
-              <tr class="activity-row">
-                <td class="activity-cell">
-                  <button class="delete-btn" data-target="afeitarse"><i class="fas fa-trash-alt"></i></button>
-                  <div contenteditable="true" class="activity-name editable">Afeitarse</div>
-                  <button class="add-btn-inline">+</button>
-                </td>
-                <td id="start-afeitarse"></td>
-                <td><input type="number" id="afeitarse" value="7"></td>
-              </tr>
-              <tr class="activity-row">
-                <td class="activity-cell">
-                  <button class="delete-btn" data-target="cambiarse"><i class="fas fa-trash-alt"></i></button>
-                  <div contenteditable="true" class="activity-name editable">Cambiarse</div>
-                  <button class="add-btn-inline">+</button>
-                </td>
-                <td id="start-cambiarse"></td>
-                <td><input type="number" id="cambiarse" value="15"></td>
-              </tr>
-              <tr class="activity-row">
-                <td class="activity-cell">
-                  <button class="delete-btn" data-target="prepararse"><i class="fas fa-trash-alt"></i></button>
-                  <div contenteditable="true" class="activity-name editable">Prepararse</div>
-                  <button class="add-btn-inline">+</button>
-                </td>
-                <td id="start-prepararse"></td>
-                <td><input type="number" id="prepararse" value="15"></td>
-              </tr>
-              <tr class="activity-row">
-                <td class="activity-cell">
-                  <button class="delete-btn" data-target="viaje"><i class="fas fa-trash-alt"></i></button>
-                  <div contenteditable="true" class="activity-name editable">Viaje</div>
-                  <button class="add-btn-inline">+</button>
-                </td>
-                <td id="start-viaje"></td>
-                <td><input type="number" id="viaje" value="45"></td>
-              </tr>
-              <tr class="activity-row">
-                <td class="activity-cell">
-                  <button class="delete-btn" data-target="cafe"><i class="fas fa-trash-alt"></i></button>
-                  <div contenteditable="true" class="activity-name editable">Comprar café</div>
-                  <button class="add-btn-inline">+</button>
-                </td>
-                <td id="start-cafe"></td>
-                <td><input type="number" id="cafe" value="15"></td>
-              </tr>
-              <tr class="fixed">
-                <td>Hora de fin</td>
-                <td><input type="time" id="end-time" value="09:30"></td>
-                <td>-</td>
-              </tr>
+            <tr class="fixed">
+              <td>Hora de inicio<button class="add-btn-inline">+</button></td>
+              <td><input type="time" id="start-time"></td>
+              <td>-</td>
+            </tr>
+            <tr class="fixed">
+              <td>Hora de fin</td>
+              <td><input type="time" id="end-time" value="08:15"></td>
+              <td>-</td>
+            </tr>
           </tbody>
         </table>
+      </div>
+      <div class="form-group">
+        <button id="boton-exportar" class="button small">Exportar</button>
+        <button id="boton-importar" class="button small">Importar</button>
+        <input type="file" id="archivo-importar" accept="application/json" style="display:none">
+        <button id="boton-reiniciar" class="button small">Reiniciar</button>
       </div>
       <div class="form-group">
         <label for="total-duration">Duración total:</label>
@@ -336,143 +241,224 @@
 
   <script>
     $(document).ready(function () {
-      const $startTimeInput = $('#start-time');
-      const $endTimeInput = $('#end-time');
-      const $totalDurationLabel = $('#total-duration');
-      const $activityTable = $('#activity-table tbody');
-      const $helpModal = $('#help-modal');
-      const $helpButton = $('#help-button');
-      const $closeHelp = $('#close-help');
+      const $entradaInicio = $('#start-time');
+      const $entradaFin = $('#end-time');
+      const $etiquetaDuracionTotal = $('#total-duration');
+      const $tablaActividades = $('#activity-table tbody');
+      const $modalAyuda = $('#help-modal');
+      const $botonAyuda = $('#help-button');
+      const $cerrarAyuda = $('#close-help');
+      const $botonExportar = $('#boton-exportar');
+      const $botonImportar = $('#boton-importar');
+      const $archivoImportar = $('#archivo-importar');
+      const $botonReiniciar = $('#boton-reiniciar');
+      const claveActividades = 'planDeActividades';
 
-      $helpButton.on('click', function () {
-        $helpModal.fadeIn();
+      $botonAyuda.on('click', function () {
+        $modalAyuda.fadeIn();
       });
 
-      $closeHelp.on('click', function () {
-        $helpModal.fadeOut();
+      $cerrarAyuda.on('click', function () {
+        $modalAyuda.fadeOut();
       });
 
       $(window).on('click', function (e) {
-        if ($(e.target).is($helpModal)) {
-          $helpModal.fadeOut();
+        if ($(e.target).is($modalAyuda)) {
+          $modalAyuda.fadeOut();
         }
       });
 
-      function setInitialTimes() {
-        $startTimeInput.val("07:00");
-        $endTimeInput.val("09:30");
-        calculateStartTimeFromEnd();
+      function crearFilaActividad(nombre, duracion, inicio) {
+        return `
+        <tr class="activity-row">
+          <td class="activity-cell">
+            <button class="delete-btn"><i class="fas fa-trash-alt"></i></button>
+            <div contenteditable="true" class="activity-name editable">${nombre}</div>
+            <button class="add-btn-inline">+</button>
+          </td>
+          <td>${inicio || ''}</td>
+          <td><input type="number" value="${duracion}"></td>
+        </tr>`;
       }
 
-      function calculateTotalDuration() {
-        let totalMinutes = 0;
-        $activityTable.find('tr').not('.fixed').find('input[type="number"]').each(function () {
-          const value = parseInt($(this).val(), 10);
-          if (!isNaN(value)) {
-            totalMinutes += value;
+      function guardarDatos() {
+        const actividades = [];
+        $tablaActividades.find('tr.activity-row').each(function () {
+          const nombre = $(this).find('.activity-name').text().trim();
+          const inicio = $(this).find('td').eq(1).text().trim();
+          const duracion = parseInt($(this).find('input[type="number"]').val(), 10) || 0;
+          actividades.push({ nombre, inicio, duracion });
+        });
+        const datos = {
+          inicio: $entradaInicio.val(),
+          fin: $entradaFin.val(),
+          actividades
+        };
+        localStorage.setItem(claveActividades, JSON.stringify(datos));
+      }
+
+      function cargarDatos() {
+        const guardado = localStorage.getItem(claveActividades);
+        $tablaActividades.find('tr.activity-row').remove();
+        if (guardado) {
+          const datos = JSON.parse(guardado);
+          if (datos.inicio) $entradaInicio.val(datos.inicio);
+          if (datos.fin) $entradaFin.val(datos.fin);
+          if (Array.isArray(datos.actividades)) {
+            datos.actividades.forEach(act => {
+              const fila = crearFilaActividad(act.nombre, act.duracion, act.inicio);
+              $tablaActividades.find('tr').last().before(fila);
+            });
+          }
+        } else {
+          const ejemplo = [
+            { nombre: 'Alarma', duracion: 0 },
+            { nombre: 'Bañarse', duracion: 30 },
+            { nombre: 'Cambiarse', duracion: 15 },
+            { nombre: 'Viaje', duracion: 30 }
+          ];
+          ejemplo.forEach(act => {
+            const fila = crearFilaActividad(act.nombre, act.duracion, '');
+            $tablaActividades.find('tr').last().before(fila);
+          });
+          $entradaFin.val('08:15');
+        }
+        calcularHoraInicioDesdeFin();
+        guardarDatos();
+      }
+
+      function calcularDuracionTotal() {
+        let minutosTotales = 0;
+        $tablaActividades.find('tr').not('.fixed').find('input[type="number"]').each(function () {
+          const valor = parseInt($(this).val(), 10);
+          if (!isNaN(valor)) {
+            minutosTotales += valor;
           }
         });
-        const hours = Math.floor(totalMinutes / 60);
-        const minutes = totalMinutes % 60;
-        $totalDurationLabel.text(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`);
-        return totalMinutes;
+        const horas = Math.floor(minutosTotales / 60);
+        const minutos = minutosTotales % 60;
+        $etiquetaDuracionTotal.text(`${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}`);
+        return minutosTotales;
       }
 
-      function calculateTimesFromStart() {
-        const startTime = $startTimeInput.val().split(':');
-        let startHour = parseInt(startTime[0], 10);
-        let startMinute = parseInt(startTime[1], 10);
-        let currentTime = new Date(0, 0, 0, startHour, startMinute, 0);
+      function calcularHorasDesdeInicio() {
+        const tiempoInicio = $entradaInicio.val().split(':');
+        let horaInicio = parseInt(tiempoInicio[0], 10);
+        let minutoInicio = parseInt(tiempoInicio[1], 10);
+        let horaActual = new Date(0, 0, 0, horaInicio, minutoInicio, 0);
 
-        $activityTable.find('tr').not('.fixed').each(function () {
-          const $activityStart = $(this).find('td').eq(1);
-          const duration = parseInt($(this).find('input[type="number"]').val(), 10);
-          if (!isNaN(duration)) {
-            $activityStart.text(currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
-            currentTime.setMinutes(currentTime.getMinutes() + duration);
+        $tablaActividades.find('tr').not('.fixed').each(function () {
+          const $inicioActividad = $(this).find('td').eq(1);
+          const duracion = parseInt($(this).find('input[type="number"]').val(), 10);
+          if (!isNaN(duracion)) {
+            $inicioActividad.text(horaActual.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
+            horaActual.setMinutes(horaActual.getMinutes() + duracion);
           } else {
-            $activityStart.text('NaN');
+            $inicioActividad.text('NaN');
           }
         });
 
-        $endTimeInput.val(currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
+        $entradaFin.val(horaActual.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
       }
 
-      function calculateStartTimeFromEnd() {
-        const endTime = $endTimeInput.val().split(':');
-        let endHour = parseInt(endTime[0], 10);
-        let endMinute = parseInt(endTime[1], 10);
-        let endTimeDate = new Date(0, 0, 0, endHour, endMinute, 0);
+      function calcularHoraInicioDesdeFin() {
+        const tiempoFin = $entradaFin.val().split(':');
+        let horaFin = parseInt(tiempoFin[0], 10);
+        let minutoFin = parseInt(tiempoFin[1], 10);
+        let fechaFin = new Date(0, 0, 0, horaFin, minutoFin, 0);
 
-        const totalDurationMinutes = calculateTotalDuration();
-        endTimeDate.setMinutes(endTimeDate.getMinutes() - totalDurationMinutes);
+        const duracionTotalMinutos = calcularDuracionTotal();
+        fechaFin.setMinutes(fechaFin.getMinutes() - duracionTotalMinutos);
 
-        const newStartHour = endTimeDate.getHours().toString().padStart(2, '0');
-        const newStartMinute = endTimeDate.getMinutes().toString().padStart(2, '0');
-        $startTimeInput.val(`${newStartHour}:${newStartMinute}`);
+        const nuevaHoraInicio = fechaFin.getHours().toString().padStart(2, '0');
+        const nuevoMinutoInicio = fechaFin.getMinutes().toString().padStart(2, '0');
+        $entradaInicio.val(`${nuevaHoraInicio}:${nuevoMinutoInicio}`);
 
-        calculateTimesFromStart();
+        calcularHorasDesdeInicio();
       }
 
       $(document).on('input change blur focusout', '#activity-table input[type="number"]', function () {
-        calculateStartTimeFromEnd();
+        calcularHoraInicioDesdeFin();
+        guardarDatos();
       });
 
-      $startTimeInput.on('input change blur focusout', function () {
-        calculateTimesFromStart();
+      $entradaInicio.on('input change blur focusout', function () {
+        calcularHorasDesdeInicio();
+        guardarDatos();
       });
 
-      $endTimeInput.on('input change blur focusout', function () {
-        calculateStartTimeFromEnd();
+      $entradaFin.on('input change blur focusout', function () {
+        calcularHoraInicioDesdeFin();
+        guardarDatos();
       });
 
       $(document).on('click', '.delete-btn', function () {
-        const $activityRow = $(this).closest('tr');
-        $activityRow.remove();
-        calculateStartTimeFromEnd();
+        $(this).closest('tr').remove();
+        calcularHoraInicioDesdeFin();
+        guardarDatos();
       });
 
       $(document).on('click', '.add-btn-inline', function () {
-        const $currentRow = $(this).closest('tr');
-        const newRow = `
-          <tr class="activity-row">
-            <td class="activity-cell">
-              <button class="delete-btn"><i class="fas fa-trash-alt"></i></button>
-              <div contenteditable="true" class="activity-name editable">Nueva Actividad</div>
-              <button class="add-btn-inline">+</button>
-            </td>
-            <td></td>
-            <td><input type="number" value="0"></td>
-          </tr>`;
-        $currentRow.after(newRow);
-        const $newActivityName = $currentRow.next().find('.activity-name');
-        $newActivityName.focus();
-        calculateStartTimeFromEnd();
+        const $filaActual = $(this).closest('tr');
+        const nuevaFila = crearFilaActividad('Nueva actividad', 0, '');
+        $filaActual.after(nuevaFila);
+        $filaActual.next().find('.activity-name').focus();
+        calcularHoraInicioDesdeFin();
+        guardarDatos();
       });
 
-      $(document).on('focus', '.activity-name', function () {
-        const element = this;
-        setTimeout(() => {
-          const range = document.createRange();
-          range.selectNodeContents(element);
-          const selection = window.getSelection();
-          selection.removeAllRanges();
-          selection.addRange(range);
-        }, 0);
+      $(document).on('blur', '.activity-name', function () {
+        guardarDatos();
       });
 
-      $(document).on('focus', 'input[type="number"]', function () {
-        this.select();
+      $botonExportar.on('click', function () {
+        guardarDatos();
+        const datos = localStorage.getItem(claveActividades);
+        const blob = new Blob([datos], { type: 'application/json' });
+        const enlace = document.createElement('a');
+        enlace.href = URL.createObjectURL(blob);
+        enlace.download = 'actividades.json';
+        enlace.click();
+        URL.revokeObjectURL(enlace.href);
       });
 
-      setInitialTimes();
+      $botonImportar.on('click', function () {
+        $archivoImportar.click();
+      });
+
+      $archivoImportar.on('change', function (e) {
+        const archivo = e.target.files[0];
+        if (!archivo) return;
+        const lector = new FileReader();
+        lector.onload = evento => {
+          try {
+            const datos = JSON.parse(evento.target.result);
+            if (datos && Array.isArray(datos.actividades)) {
+              localStorage.setItem(claveActividades, evento.target.result);
+              cargarDatos();
+            }
+          } catch (error) {
+            alert('No se pudo importar el archivo');
+          }
+        };
+        lector.readAsText(archivo);
+        $archivoImportar.val('');
+      });
+
+      $botonReiniciar.on('click', function () {
+        if (confirm('¿Querés reiniciar la lista?')) {
+          localStorage.removeItem(claveActividades);
+          cargarDatos();
+        }
+      });
 
       $('#start-time').flatpickr({
         enableTime: true,
         noCalendar: true,
         dateFormat: "H:i",
         onChange: function () {
-          calculateTimesFromStart();
+          calcularHorasDesdeInicio();
+          guardarDatos();
         }
       });
 
@@ -481,9 +467,12 @@
         noCalendar: true,
         dateFormat: "H:i",
         onChange: function () {
-          calculateStartTimeFromEnd();
+          calcularHoraInicioDesdeFin();
+          guardarDatos();
         }
       });
+
+      cargarDatos();
     });
   </script>
   <button id="to-top" class="to-top" aria-label="Volver arriba">&#8679;</button>
