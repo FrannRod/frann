@@ -112,6 +112,31 @@
         margin-bottom: 20px;
       }
 
+      .modal-content input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 1em;
+        box-sizing: border-box;
+        margin-top: 10px;
+      }
+
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 20px;
+      }
+
+      .button.secondary {
+        background: #6c757d;
+      }
+
+      .button.secondary:hover {
+        background: #5a6268;
+      }
+
 
     /* Modal styles for help section */
     .modal {
@@ -201,6 +226,7 @@
       <h2>Configuración de Actividades <button id="help-button" class="button small">?</button></h2>
         <div class="controles-archivo">
           <button id="boton-exportar" class="button small">Exportar</button>
+          <button id="boton-exportar-calendario" class="button small">Exportar a Google Calendar</button>
           <button id="boton-importar" class="button small">Importar</button>
           <input type="file" id="archivo-importar" accept="application/json" style="display:none">
           <button id="boton-reiniciar" class="button small">Reiniciar</button>
@@ -247,6 +273,22 @@
         </p>
       </div>
     </div>
+
+    <div id="calendario-modal" class="modal">
+      <div class="modal-content">
+        <span id="cerrar-calendario" class="close">&times;</span>
+        <h3>Exportar a Google Calendar</h3>
+        <p style="text-align: justify; font-size: 1em; line-height: 1.5;">
+          Elegí la fecha base para crear los eventos con los horarios que armás acá.
+        </p>
+        <label for="fecha-calendario" style="display:block; text-align:left; margin-top:10px;">Fecha</label>
+        <input type="text" id="fecha-calendario" placeholder="Elegí la fecha">
+        <div class="modal-actions">
+          <button id="cancelar-calendario" class="button small secondary">Cancelar</button>
+          <button id="confirmar-calendario" class="button small">Exportar</button>
+        </div>
+      </div>
+    </div>
   </main>
 
     <script>
@@ -259,9 +301,16 @@
         const $botonAyuda = $('#help-button');
         const $cerrarAyuda = $('#close-help');
         const $botonExportar = $('#boton-exportar');
+        const $botonExportarCalendario = $('#boton-exportar-calendario');
         const $botonImportar = $('#boton-importar');
         const $archivoImportar = $('#archivo-importar');
         const $botonReiniciar = $('#boton-reiniciar');
+        const $modalCalendario = $('#calendario-modal');
+        const $cerrarCalendario = $('#cerrar-calendario');
+        const $botonCancelarCalendario = $('#cancelar-calendario');
+        const $botonConfirmarCalendario = $('#confirmar-calendario');
+        const $fechaCalendario = $('#fecha-calendario');
+        let selectorFechaCalendario = null;
 
         $botonAyuda.on('click', function () {
           $modalAyuda.fadeIn();
@@ -274,6 +323,9 @@
         $(window).on('click', function (e) {
           if ($(e.target).is($modalAyuda)) {
             $modalAyuda.fadeOut();
+          }
+          if ($(e.target).is($modalCalendario)) {
+            cerrarModalCalendario();
           }
         });
 
@@ -383,6 +435,13 @@
 
         function exportarDatos() {
           guardarEnLocal();
+          let nombreArchivo = prompt('Elegí un nombre para el archivo', 'actividades');
+          if (nombreArchivo === null) {
+            return;
+          }
+          nombreArchivo = nombreArchivo.trim() || 'actividades';
+          const nombreArchivoFinal = nombreArchivo.toLowerCase().endsWith('.json') ? nombreArchivo : `${nombreArchivo}.json`;
+
           const datos = {
             horaInicio: $horaInicioInput.val(),
             horaFin: $horaFinInput.val(),
@@ -397,9 +456,11 @@
           const blob = new Blob([JSON.stringify(datos, null, 2)], { type: 'application/json' });
           const enlace = document.createElement('a');
           enlace.href = URL.createObjectURL(blob);
-          enlace.download = 'actividades.json';
+          enlace.download = nombreArchivoFinal;
+          document.body.appendChild(enlace);
           enlace.click();
-          URL.revokeObjectURL(enlace.href);
+          document.body.removeChild(enlace);
+          setTimeout(() => URL.revokeObjectURL(enlace.href), 0);
         }
 
         function importarArchivo(e) {
@@ -429,6 +490,104 @@
             localStorage.clear();
             location.reload();
           }
+        }
+
+        function obtenerFechaSugerida() {
+          const ahora = new Date();
+          if (ahora.getHours() >= 22) {
+            ahora.setDate(ahora.getDate() + 1);
+          }
+          const anio = ahora.getFullYear();
+          const mes = (ahora.getMonth() + 1).toString().padStart(2, '0');
+          const dia = ahora.getDate().toString().padStart(2, '0');
+          return `${anio}-${mes}-${dia}`;
+        }
+
+        function abrirModalCalendario() {
+          const fechaSugerida = obtenerFechaSugerida();
+          if (selectorFechaCalendario) {
+            selectorFechaCalendario.setDate(fechaSugerida, true);
+          } else {
+            $fechaCalendario.val(fechaSugerida);
+          }
+          $modalCalendario.fadeIn();
+          setTimeout(() => {
+            $fechaCalendario.trigger('focus');
+          }, 100);
+        }
+
+        function cerrarModalCalendario() {
+          $modalCalendario.fadeOut();
+        }
+
+        function exportarEventosACalendarioGoogle(fechaBase) {
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaBase)) {
+            alert('La fecha seleccionada no es válida.');
+            return false;
+          }
+          calcularHorariosDesdeInicio();
+          const actividades = [];
+          $tablaActividades.find('tr').not('.fixed').each(function () {
+            const nombre = $(this).find('.activity-name').text().trim() || 'Actividad';
+            const inicioTexto = $(this).find('td').eq(1).text().trim();
+            const minutos = parseInt($(this).find('input[type="number"]').val(), 10);
+            if (isNaN(minutos) || minutos <= 0 || !/^\d{2}:\d{2}$/.test(inicioTexto)) {
+              return;
+            }
+            actividades.push({ nombre, inicio: inicioTexto, minutos });
+          });
+
+          if (!actividades.length) {
+            alert('No hay actividades con horarios y duración válidos para exportar.');
+            return false;
+          }
+
+          const contenidoCalendario = generarArchivoCalendarioParaActividades(actividades, fechaBase);
+          const blobCalendario = new Blob([contenidoCalendario], { type: 'text/calendar;charset=utf-8' });
+          const enlaceCalendario = document.createElement('a');
+          enlaceCalendario.href = URL.createObjectURL(blobCalendario);
+          enlaceCalendario.download = `planificador-${fechaBase}.ics`;
+          document.body.appendChild(enlaceCalendario);
+          enlaceCalendario.click();
+          document.body.removeChild(enlaceCalendario);
+          setTimeout(() => URL.revokeObjectURL(enlaceCalendario.href), 0);
+          alert('Descargamos un archivo .ics con tus actividades. Subilo a tu Google Calendar para completar el proceso.');
+          return true;
+        }
+
+        function generarArchivoCalendarioParaActividades(actividades, fechaBase) {
+          const marcaTemporal = formatearFechaParaCalendario(new Date());
+          const baseUid = Date.now();
+          const [anio, mes, dia] = fechaBase.split('-').map(numero => parseInt(numero, 10));
+          let contenido = 'BEGIN:VCALENDAR\r\n';
+          contenido += 'VERSION:2.0\r\n';
+          contenido += 'PRODID:-//Planificador de Tiempo//ES\r\n';
+          contenido += 'CALSCALE:GREGORIAN\r\n';
+          contenido += 'METHOD:PUBLISH\r\n';
+
+          actividades.forEach((actividad, indice) => {
+            const [hora, minuto] = actividad.inicio.split(':').map(numero => parseInt(numero, 10));
+            const inicio = new Date(anio, mes - 1, dia, hora, minuto, 0);
+            const fin = new Date(inicio.getTime() + actividad.minutos * 60000);
+            contenido += 'BEGIN:VEVENT\r\n';
+            contenido += `UID:${baseUid + indice}@planificador-tiempo\r\n`;
+            contenido += `DTSTAMP:${marcaTemporal}\r\n`;
+            contenido += `SUMMARY:${escaparTextoParaCalendario(actividad.nombre)}\r\n`;
+            contenido += `DTSTART:${formatearFechaParaCalendario(inicio)}\r\n`;
+            contenido += `DTEND:${formatearFechaParaCalendario(fin)}\r\n`;
+            contenido += 'END:VEVENT\r\n';
+          });
+
+          contenido += 'END:VCALENDAR\r\n';
+          return contenido;
+        }
+
+        function formatearFechaParaCalendario(fecha) {
+          return fecha.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+        }
+
+        function escaparTextoParaCalendario(texto) {
+          return (texto || '').replace(/\\/g, '\\\\').replace(/,/g, '\\,').replace(/;/g, '\\;').replace(/\r?\n/g, '\\n');
         }
 
         $(document).on('input change blur focusout', '#activity-table input[type="number"]', function () {
@@ -490,6 +649,20 @@
           this.select();
         });
 
+        $botonExportarCalendario.on('click', abrirModalCalendario);
+        $cerrarCalendario.on('click', cerrarModalCalendario);
+        $botonCancelarCalendario.on('click', cerrarModalCalendario);
+        $botonConfirmarCalendario.on('click', function () {
+          const fechaSeleccionada = $fechaCalendario.val();
+          if (!fechaSeleccionada) {
+            alert('Seleccioná una fecha para exportar.');
+            return;
+          }
+          if (exportarEventosACalendarioGoogle(fechaSeleccionada)) {
+            cerrarModalCalendario();
+          }
+        });
+
         $botonExportar.on('click', exportarDatos);
         $botonImportar.on('click', () => $archivoImportar.click());
         $archivoImportar.on('change', importarArchivo);
@@ -497,6 +670,11 @@
 
         renderizarActividades(cargarDesdeLocal());
         establecerTiemposIniciales();
+
+        selectorFechaCalendario = $fechaCalendario.flatpickr({
+          dateFormat: 'Y-m-d',
+          defaultDate: obtenerFechaSugerida()
+        });
 
         $('#start-time').flatpickr({
           enableTime: true,
