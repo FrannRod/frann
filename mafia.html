@@ -962,7 +962,7 @@
         const input = document.createElement('input');
         input.type = 'text';
         input.id = `nombre-${i}`;
-        input.placeholder = 'Ingresa el nombre';
+        input.placeholder = 'Poné el nombre';
         input.value = estado.jugadores[i]?.nombre || '';
         input.addEventListener('input', validarNombres);
 
@@ -972,6 +972,8 @@
       }
 
       validarNombres();
+      mostrarPantalla('NOMBRES');
+      guardarEstado();
     }
 
     // Validar nombres
@@ -1767,24 +1769,24 @@
       const botonNuevaNoche = document.getElementById('boton-nueva-noche');
 
       if (ganador === 'CIVILES') {
-        titulo.textContent = '¡Civiles Ganaron!';
+        titulo.textContent = '¡Ganaron los civiles!';
         mensaje.className = 'mensaje mensaje-exito';
-        mensaje.textContent = 'Todos los mafias fueron eliminados. Los civiles ganaron la partida.';
+        mensaje.textContent = 'No queda ningún mafia. Ganaron los civiles.';
         botonNuevaNoche.style.display = 'none';
       } else if (ganador === 'MAFIAS') {
-        titulo.textContent = '¡Mafias Ganaron!';
+        titulo.textContent = '¡Ganó la mafia!';
         mensaje.className = 'mensaje mensaje-peligro';
-        mensaje.textContent = 'Los mafias son iguales o superan en número a los civiles. Los mafias ganaron la partida.';
+        mensaje.textContent = 'La mafia iguala o supera en número a los civiles. Ganó la mafia.';
         botonNuevaNoche.style.display = 'none';
       } else if (ganador === 'LOCO') {
-        titulo.textContent = '¡Loco Ganó!';
+        titulo.textContent = '¡Ganó el loco!';
         mensaje.className = 'mensaje mensaje-exito';
-        mensaje.textContent = 'El loco fue votado. El loco ganó la partida.';
+        mensaje.textContent = 'Votaron al loco. Ganó el loco.';
         botonNuevaNoche.style.display = 'none';
       } else {
-        titulo.textContent = 'Continúa la Partida';
+        titulo.textContent = 'Sigue la partida';
         mensaje.className = 'mensaje mensaje-info';
-        mensaje.textContent = 'La partida continúa. Todos duermen y comienza una nueva noche.';
+        mensaje.textContent = 'Sigue la partida. Todos duermen y arranca una nueva noche.';
         botonNuevaNoche.style.display = 'block';
       }
 
@@ -1801,7 +1803,7 @@
 
     // Nuevo juego
     function nuevoJuego() {
-      if (confirm('¿Estás seguro de que querés empezar un nuevo juego? Se perderá todo el progreso.')) {
+      if (confirm('¿Seguro que querés arrancar un juego nuevo? Se pierde todo el progreso.')) {
         sessionStorage.removeItem('estadoMafia');
         location.reload();
       }
@@ -1824,7 +1826,7 @@
       contenido.innerHTML = '';
       
       if (estado.historial.length === 0) {
-        contenido.innerHTML = '<p>No hay eventos registrados aún.</p>';
+        contenido.innerHTML = '<p>Todavía no hay eventos.</p>';
       } else {
         estado.historial.forEach(evento => {
           const div = document.createElement('div');
