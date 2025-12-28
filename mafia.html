@@ -462,6 +462,11 @@
         </select>
       </div>
 
+      <div class="input-grupo">
+        <label for="cantidad-civiles">Civiles (automático)</label>
+        <input type="text" id="cantidad-civiles" readonly style="background-color: #e9ecef; cursor: not-allowed;">
+      </div>
+
       <div id="mensaje-validacion" class="mensaje" style="display: none;"></div>
 
       <button class="boton" id="boton-continuar-config">Continuar</button>
@@ -637,7 +642,8 @@
         detective: 0,
         trabajadora: 0,
         medico: 0,
-        loco: 0
+        loco: 0,
+        civiles: 0
       },
       estadoActual: 'CONFIGURACION',
       indicePase: 0,
@@ -661,7 +667,8 @@
       detective: 'Eres Detective. Por la noche, podrás investigar a un jugador y Dios te dirá si es mafia o no.',
       trabajadora: 'Eres Trabajadora Nocturna. Por la noche, podrás distraer a un jugador, anulando su acción esa noche. Si distraes a alguien que va a morir, también morirás.',
       medico: 'Eres Médico. Por la noche, podrás salvar a un jugador de la muerte. No puedes salvar dos veces seguidas a la misma persona.',
-      loco: 'Eres Loco. No tienes acción nocturna. Ganas si te votan durante el día.'
+      loco: 'Eres Loco. No tienes acción nocturna. Ganas si te votan durante el día.',
+      civil: 'Eres Civil. No tienes acción nocturna. Tu objetivo es descubrir y eliminar a los mafias durante el día mediante el debate y la votación.'
     };
 
     // Inicialización
@@ -746,6 +753,8 @@
     function actualizarConfiguracion() {
       const cantidad = parseInt(document.getElementById('cantidad-jugadores').value) || 0;
       estado.configuracion.cantidadJugadores = cantidad;
+      // Limpiar configuración de civiles al cambiar cantidad de jugadores
+      estado.configuracion.civiles = 0;
       validarConfiguracion();
       guardarEstado();
     }
@@ -764,27 +773,43 @@
       estado.configuracion.medico = medico;
       estado.configuracion.loco = loco;
 
-      const total = mafia + detective + trabajadora + medico + loco;
+      const totalRolesEspeciales = mafia + detective + trabajadora + medico + loco;
       const cantidadJugadores = estado.configuracion.cantidadJugadores;
 
       const mensaje = document.getElementById('mensaje-validacion');
       const boton = document.getElementById('boton-continuar-config');
+      const inputCiviles = document.getElementById('cantidad-civiles');
 
       if (cantidadJugadores === 0) {
         mensaje.style.display = 'none';
+        inputCiviles.value = '';
         boton.disabled = true;
         return;
       }
 
-      if (total === cantidadJugadores) {
-        mensaje.style.display = 'none';
-        mensaje.className = 'mensaje';
-        boton.disabled = false;
-      } else {
+      // Calcular civiles automáticamente
+      const civiles = cantidadJugadores - totalRolesEspeciales;
+      estado.configuracion.civiles = Math.max(0, civiles);
+
+      if (civiles < 0) {
+        // Hay más roles especiales que jugadores
         mensaje.style.display = 'block';
         mensaje.className = 'mensaje mensaje-peligro';
-        mensaje.textContent = `Total de roles: ${total}. Debe ser igual a ${cantidadJugadores} jugadores.`;
+        mensaje.textContent = `Tienes ${totalRolesEspeciales} roles especiales pero solo ${cantidadJugadores} jugadores. Reduce la cantidad de roles especiales.`;
+        inputCiviles.value = '';
         boton.disabled = true;
+      } else if (civiles === 0) {
+        // Exactamente la cantidad correcta, sin civiles
+        mensaje.style.display = 'none';
+        inputCiviles.value = '0';
+        boton.disabled = false;
+      } else {
+        // Hay civiles automáticos
+        mensaje.style.display = 'block';
+        mensaje.className = 'mensaje mensaje-info';
+        mensaje.textContent = `Se agregarán ${civiles} civil${civiles !== 1 ? 'es' : ''} automáticamente para completar los ${cantidadJugadores} jugadores.`;
+        inputCiviles.value = civiles;
+        boton.disabled = false;
       }
 
       guardarEstado();
@@ -868,6 +893,8 @@
       for (let i = 0; i < estado.configuracion.trabajadora; i++) roles.push('trabajadora');
       for (let i = 0; i < estado.configuracion.medico; i++) roles.push('medico');
       for (let i = 0; i < estado.configuracion.loco; i++) roles.push('loco');
+      // Agregar civiles automáticamente
+      for (let i = 0; i < (estado.configuracion.civiles || 0); i++) roles.push('civil');
 
       // Mezclar aleatoriamente
       for (let i = roles.length - 1; i > 0; i--) {
