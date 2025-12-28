@@ -152,7 +152,7 @@
     /* Botón reiniciar (siempre visible) */
     .boton-reiniciar {
       position: fixed;
-      top: 16px;
+      bottom: 16px;
       left: 16px;
       z-index: 3000;
       width: auto;
@@ -422,7 +422,7 @@
       }
 
       .boton-reiniciar {
-        top: 10px;
+        bottom: 10px;
         left: 10px;
         padding: 10px 12px;
         font-size: 0.9rem;
@@ -560,6 +560,16 @@
       <div class="mensaje mensaje-info" id="rol-nombre"></div>
       <div id="rol-descripcion"></div>
       <button class="boton" id="boton-ya-vi-rol">Ya vi mi rol</button>
+    </div>
+  </div>
+
+  <!-- Pantalla de Pase a Dios -->
+  <div class="pantalla pantalla-pase-dios">
+    <div class="card">
+      <div class="mensaje mensaje-info">
+        Listo. Pasale el celu a Dios.
+      </div>
+      <button class="boton" id="boton-ya-lo-tengo">Dios, ya lo tengo</button>
     </div>
   </div>
 
@@ -782,6 +792,7 @@
       // Pase de roles
       document.getElementById('boton-ver-rol').addEventListener('click', mostrarRolIndividual);
       document.getElementById('boton-ya-vi-rol').addEventListener('click', siguientePase);
+      document.getElementById('boton-ya-lo-tengo').addEventListener('click', irAVistaDios);
 
       // Vista de Dios
       document.getElementById('boton-arrancar-noche').addEventListener('click', arrancarNoche);
@@ -811,6 +822,12 @@
       document.getElementById('modal-historial').addEventListener('click', (e) => {
         if (e.target.id === 'modal-historial') cerrarHistorial();
       });
+    }
+
+    function irAVistaDios() {
+      cambiarEstado('VISTA_DIOS');
+      mostrarVistaDios();
+      guardarEstado();
     }
 
     function reiniciarJuego() {
@@ -1039,8 +1056,9 @@
     // Mostrar pantalla de pase
     function mostrarPantallaPase() {
       if (estado.indicePase >= estado.jugadores.length) {
-        cambiarEstado('VISTA_DIOS');
-        mostrarVistaDios();
+        cambiarEstado('PASO_DIOS');
+        mostrarPantalla('PASO_DIOS');
+        guardarEstado();
         return;
       }
 
@@ -1095,27 +1113,17 @@
       estado.distraidos = [];
       estado.medicoUltimoSalvado = null;
 
-      // Determinar orden de turnos
-      const tieneMafia = estado.jugadores.some(j => j.rol === 'mafia' && j.vivo);
-      const tieneTrabajadora = estado.jugadores.some(j => j.rol === 'trabajadora' && j.vivo);
-      const tieneDetective = estado.jugadores.some(j => j.rol === 'detective' && j.vivo);
-      const tieneMedico = estado.jugadores.some(j => j.rol === 'medico' && j.vivo);
-
-      if (tieneMafia) {
-        cambiarEstado('NOCHE_TURNO_MAFIA');
-        mostrarTurnoMafia();
-      } else if (tieneTrabajadora) {
-        cambiarEstado('NOCHE_TURNO_TRABAJADORA');
-        mostrarTurnoTrabajadora();
-      } else if (tieneDetective) {
-        cambiarEstado('NOCHE_TURNO_DETECTIVE');
-        mostrarTurnoDetective();
-      } else if (tieneMedico) {
-        cambiarEstado('NOCHE_TURNO_MEDICO');
-        mostrarTurnoMedico();
-      } else {
-        calcularMuertesNocturnas();
+      // Determinar orden de turnos (sin spoilear por roles muertos)
+      // La mafia solo actúa si hay al menos un mafia vivo; lo demás depende de la configuración del juego.
+      const mafiasVivas = estado.jugadores.filter(j => j.rol === 'mafia' && j.vivo).length;
+      if (mafiasVivas === 0) {
+        // Por consistencia del juego: si no hay mafia, ya ganaron los civiles
+        mostrarVictoria('CIVILES');
+        return;
       }
+
+      cambiarEstado('NOCHE_TURNO_MAFIA');
+      mostrarTurnoMafia();
 
       document.body.classList.add('tema-oscuro');
       guardarEstado();
@@ -1151,17 +1159,17 @@
           agregarHistorial('NOCHE', `Mafia eligió a ${seleccionado}`);
           
           // Continuar con siguiente turno
-          const tieneTrabajadora = estado.jugadores.some(j => j.rol === 'trabajadora' && j.vivo);
-          const tieneDetective = estado.jugadores.some(j => j.rol === 'detective' && j.vivo);
-          const tieneMedico = estado.jugadores.some(j => j.rol === 'medico' && j.vivo);
+          const hayTrabajadora = (estado.configuracion.trabajadora || 0) > 0;
+          const hayDetective = (estado.configuracion.detective || 0) > 0;
+          const hayMedico = (estado.configuracion.medico || 0) > 0;
 
-          if (tieneTrabajadora) {
+          if (hayTrabajadora) {
             cambiarEstado('NOCHE_TURNO_TRABAJADORA');
             mostrarTurnoTrabajadora();
-          } else if (tieneDetective) {
+          } else if (hayDetective) {
             cambiarEstado('NOCHE_TURNO_DETECTIVE');
             mostrarTurnoDetective();
-          } else if (tieneMedico) {
+          } else if (hayMedico) {
             cambiarEstado('NOCHE_TURNO_MEDICO');
             mostrarTurnoMedico();
           } else {
@@ -1177,26 +1185,37 @@
     // Mostrar turno trabajadora
     function mostrarTurnoTrabajadora() {
       const trabajadora = estado.jugadores.find(j => j.rol === 'trabajadora' && j.vivo);
-      if (!trabajadora) {
-        // Saltar si no hay trabajadora viva
-        const tieneDetective = estado.jugadores.some(j => j.rol === 'detective' && j.vivo);
-        const tieneMedico = estado.jugadores.some(j => j.rol === 'medico' && j.vivo);
-        if (tieneDetective) {
-          cambiarEstado('NOCHE_TURNO_DETECTIVE');
-          mostrarTurnoDetective();
-        } else if (tieneMedico) {
-          cambiarEstado('NOCHE_TURNO_MEDICO');
-          mostrarTurnoMedico();
-        } else {
-          calcularMuertesNocturnas();
-        }
-        return;
-      }
+      const hayDetective = (estado.configuracion.detective || 0) > 0;
+      const hayMedico = (estado.configuracion.medico || 0) > 0;
 
       const objetivos = estado.jugadores.filter(j => j.vivo);
       const contenedor = document.getElementById('lista-jugadores-trabajadora');
       contenedor.innerHTML = '';
       let seleccionado = null;
+
+      if (!trabajadora) {
+        // No spoilear: igual mostramos el turno, pero no hay acción para registrar
+        contenedor.style.display = 'none';
+        const boton = document.getElementById('boton-confirmar-trabajadora');
+        boton.textContent = 'Seguir';
+        boton.onclick = () => {
+          agregarHistorial('NOCHE', 'Turno trabajadora nocturna: no quedó nadie vivo con ese rol');
+          if (hayDetective) {
+            cambiarEstado('NOCHE_TURNO_DETECTIVE');
+            mostrarTurnoDetective();
+          } else if (hayMedico) {
+            cambiarEstado('NOCHE_TURNO_MEDICO');
+            mostrarTurnoMedico();
+          } else {
+            calcularMuertesNocturnas();
+          }
+          guardarEstado();
+        };
+        mostrarPantalla('NOCHE_TURNO_TRABAJADORA');
+        return;
+      } else {
+        contenedor.style.display = 'block';
+      }
 
       objetivos.forEach(jugador => {
         const card = document.createElement('div');
@@ -1220,13 +1239,10 @@
           agregarHistorial('NOCHE', `Trabajadora nocturna distrajo a ${seleccionado}`);
           
           // Continuar con siguiente turno
-          const tieneDetective = estado.jugadores.some(j => j.rol === 'detective' && j.vivo);
-          const tieneMedico = estado.jugadores.some(j => j.rol === 'medico' && j.vivo);
-
-          if (tieneDetective) {
+          if (hayDetective) {
             cambiarEstado('NOCHE_TURNO_DETECTIVE');
             mostrarTurnoDetective();
-          } else if (tieneMedico) {
+          } else if (hayMedico) {
             cambiarEstado('NOCHE_TURNO_MEDICO');
             mostrarTurnoMedico();
           } else {
@@ -1242,34 +1258,44 @@
     // Mostrar turno detective
     function mostrarTurnoDetective() {
       const detective = estado.jugadores.find(j => j.rol === 'detective' && j.vivo);
-      if (!detective) {
-        // Saltar si no hay detective vivo
-        const tieneMedico = estado.jugadores.some(j => j.rol === 'medico' && j.vivo);
-        if (tieneMedico) {
-          cambiarEstado('NOCHE_TURNO_MEDICO');
-          mostrarTurnoMedico();
-        } else {
-          calcularMuertesNocturnas();
-        }
-        return;
-      }
+      const hayMedico = (estado.configuracion.medico || 0) > 0;
 
-      const fueDistraido = estado.distraidos.includes(detective.nombre);
+      const fueDistraido = detective ? estado.distraidos.includes(detective.nombre) : false;
       const mensaje = document.getElementById('mensaje-detective');
       const resultado = document.getElementById('resultado-detective');
       const lista = document.getElementById('lista-jugadores-detective');
       const boton = document.getElementById('boton-confirmar-detective');
 
+      if (!detective) {
+        // No spoilear: igual mostramos el turno, aunque no quede detective vivo
+        mensaje.className = 'mensaje mensaje-info';
+        mensaje.textContent = 'Decile al detective que se despierte y elija a quién investigar.';
+        lista.style.display = 'none';
+        resultado.style.display = 'none';
+        boton.textContent = 'Seguir';
+        boton.onclick = () => {
+          agregarHistorial('NOCHE', 'Turno detective: no quedó nadie vivo con ese rol');
+          if (hayMedico) {
+            cambiarEstado('NOCHE_TURNO_MEDICO');
+            mostrarTurnoMedico();
+          } else {
+            calcularMuertesNocturnas();
+          }
+          guardarEstado();
+        };
+        mostrarPantalla('NOCHE_TURNO_DETECTIVE');
+        return;
+      }
+
       if (fueDistraido) {
         mensaje.className = 'mensaje mensaje-peligro';
-        mensaje.textContent = `${detective.nombre} fue distraído por la trabajadora nocturna. No puede investigar esta noche.`;
+        mensaje.textContent = `${detective.nombre} fue distraído por la trabajadora nocturna. Esta noche no puede investigar.`;
         lista.style.display = 'none';
         resultado.style.display = 'none';
         boton.textContent = 'Seguir';
         boton.onclick = () => {
           agregarHistorial('NOCHE', `Detective (${detective.nombre}) fue distraído y no pudo investigar`);
-          const tieneMedico = estado.jugadores.some(j => j.rol === 'medico' && j.vivo);
-          if (tieneMedico) {
+          if (hayMedico) {
             cambiarEstado('NOCHE_TURNO_MEDICO');
             mostrarTurnoMedico();
           } else {
@@ -1320,8 +1346,7 @@
             estado.accionesNocturnas.detective = seleccionado;
             agregarHistorial('NOCHE', `Detective investigó a ${seleccionado}: ${objetivo.rol === 'mafia' ? 'ES MAFIA' : 'NO ES MAFIA'}`);
             
-            const tieneMedico = estado.jugadores.some(j => j.rol === 'medico' && j.vivo);
-            if (tieneMedico) {
+            if (hayMedico) {
               cambiarEstado('NOCHE_TURNO_MEDICO');
               mostrarTurnoMedico();
             } else {
@@ -1339,7 +1364,23 @@
     function mostrarTurnoMedico() {
       const medico = estado.jugadores.find(j => j.rol === 'medico' && j.vivo);
       if (!medico) {
-        calcularMuertesNocturnas();
+        // No spoilear: igual mostramos el turno, aunque no quede médico vivo
+        const mensajeSalvado = document.getElementById('mensaje-medico-salvado');
+        const contenedor = document.getElementById('lista-jugadores-medico');
+        const boton = document.getElementById('boton-confirmar-medico');
+
+        mensajeSalvado.style.display = 'block';
+        mensajeSalvado.className = 'mensaje mensaje-info';
+        mensajeSalvado.textContent = 'Decile al médico que se despierte y elija a quién salvar.';
+        contenedor.style.display = 'none';
+        boton.textContent = 'Seguir';
+        boton.onclick = () => {
+          agregarHistorial('NOCHE', 'Turno médico: no quedó nadie vivo con ese rol');
+          calcularMuertesNocturnas();
+          guardarEstado();
+        };
+
+        mostrarPantalla('NOCHE_TURNO_MEDICO');
         return;
       }
 
@@ -1351,7 +1392,7 @@
       if (fueDistraido) {
         mensajeSalvado.style.display = 'block';
         mensajeSalvado.className = 'mensaje mensaje-peligro';
-        mensajeSalvado.textContent = `${medico.nombre} fue distraído por la trabajadora nocturna. No puede salvar esta noche.`;
+        mensajeSalvado.textContent = `${medico.nombre} fue distraído por la trabajadora nocturna. Esta noche no puede salvar.`;
         contenedor.style.display = 'none';
         boton.textContent = 'Seguir';
         boton.onclick = () => {
@@ -1694,23 +1735,30 @@
       });
 
       let maxVotos = 0;
-      let masVotado = null;
-      let empate = false;
-      Object.entries(conteo).forEach(([nombre, votos]) => {
-        if (votos > maxVotos) {
-          maxVotos = votos;
-          masVotado = nombre;
-          empate = false;
-        } else if (votos === maxVotos && nombre !== masVotado) {
-          empate = true;
-        }
-      });
+      Object.values(conteo).forEach(v => { if (v > maxVotos) maxVotos = v; });
+      const empatados = Object.entries(conteo)
+        .filter(([, v]) => v === maxVotos)
+        .map(([n]) => n);
 
-      if (empate) {
-        alert('Hay un empate en la votación. Revisá los votos.');
+      if (empatados.length > 1) {
+        const confirmarEmpate = confirm(
+          `Hay empate entre ${empatados.join(' y ')} con ${maxVotos} voto${maxVotos !== 1 ? 's' : ''}.\n\n` +
+          `Si siguen con empate, no muere nadie. ¿Quieren seguir igual?`
+        );
+        if (!confirmarEmpate) return;
+
+        estado.resultadoVotacion = null;
+        estado.empateVotacion = true;
+        estado.empatadosVotacion = empatados;
+        mostrarResultadoVotacion(conteo, null);
+        cambiarEstado('RESULTADO_VOTACION');
+        guardarEstado();
         return;
       }
 
+      const masVotado = empatados[0] || null;
+      estado.empateVotacion = false;
+      estado.empatadosVotacion = [];
       mostrarResultadoVotacion(conteo, masVotado);
       cambiarEstado('RESULTADO_VOTACION');
       guardarEstado();
@@ -1720,9 +1768,19 @@
     function mostrarResultadoVotacion(conteo, masVotado) {
       const contenedor = document.getElementById('resultado-votacion');
       const contenedorConteo = document.getElementById('conteo-votos');
+      const botonAplicar = document.getElementById('boton-aplicar-muerte');
 
-      contenedor.className = 'mensaje mensaje-peligro';
-      contenedor.textContent = `El más votado es: ${masVotado} (${conteo[masVotado]} votos)`;
+      if (!masVotado) {
+        contenedor.className = 'mensaje mensaje-info';
+        const maxVotos = Math.max(...Object.values(conteo));
+        const empatados = Object.entries(conteo).filter(([, v]) => v === maxVotos).map(([n]) => n);
+        contenedor.textContent = `Empate entre ${empatados.join(' y ')} (${maxVotos} voto${maxVotos !== 1 ? 's' : ''}). No muere nadie.`;
+        botonAplicar.textContent = 'Seguir';
+      } else {
+        contenedor.className = 'mensaje mensaje-peligro';
+        contenedor.textContent = `El más votado es: ${masVotado} (${conteo[masVotado]} voto${conteo[masVotado] !== 1 ? 's' : ''})`;
+        botonAplicar.textContent = 'Confirmar eliminación';
+      }
 
       contenedorConteo.innerHTML = '<h3>Conteo de votos:</h3><ul>';
       Object.entries(conteo).sort((a, b) => b[1] - a[1]).forEach(([nombre, votos]) => {
@@ -1736,6 +1794,22 @@
 
     // Aplicar muerte por votación
     function aplicarMuerteVotacion() {
+      // Empate: no muere nadie
+      if (!estado.resultadoVotacion) {
+        agregarHistorial('DIA', 'Votación empatada: no muere nadie');
+
+        const mafiasVivas = estado.jugadores.filter(j => j.rol === 'mafia' && j.vivo).length;
+        const civilesVivos = estado.jugadores.filter(j => j.rol !== 'mafia' && j.vivo).length;
+        if (mafiasVivas === 0) {
+          mostrarVictoria('CIVILES');
+        } else if (mafiasVivas >= civilesVivos) {
+          mostrarVictoria('MAFIAS');
+        } else {
+          mostrarVictoria('CONTINUA');
+        }
+        return;
+      }
+
       const votado = estado.jugadores.find(j => j.nombre === estado.resultadoVotacion);
       if (votado) {
         votado.vivo = false;
@@ -1852,6 +1926,7 @@
 
       const mapeoPantallas = {
         PASO_ROLES: 'pase-roles',
+        PASO_DIOS: 'pase-dios',
         ROL_INDIVIDUAL: 'rol-individual',
         VISTA_DIOS: 'vista-dios',
         NOCHE_TURNO_MAFIA: 'noche-mafia',
@@ -1879,7 +1954,7 @@
       // Ocultar botón de historial durante pase de roles
       const botonHistorial = document.getElementById('boton-historial-flotante');
       if (botonHistorial) {
-        if (pantalla === 'PASO_ROLES' || pantalla === 'ROL_INDIVIDUAL') {
+        if (pantalla === 'PASO_ROLES' || pantalla === 'ROL_INDIVIDUAL' || pantalla === 'PASO_DIOS') {
           botonHistorial.classList.add('oculto');
         } else {
           botonHistorial.classList.remove('oculto');
