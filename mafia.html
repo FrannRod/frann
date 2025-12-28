@@ -1,0 +1,1693 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mafia - Juego de Roles</title>
+  <style>
+    /* Reset y variables */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --color-fondo-claro: #f5f5f5;
+      --color-fondo-oscuro: #1a1a1a;
+      --color-texto-claro: #333;
+      --color-texto-oscuro: #fff;
+      --color-boton: #0069d9;
+      --color-boton-hover: #0053a4;
+      --color-boton-peligro: #dc3545;
+      --color-boton-exito: #28a745;
+      --color-card: #fff;
+      --color-card-oscuro: #2d2d2d;
+      --sombra: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --sombra-oscura: 0 4px 6px rgba(0, 0, 0, 0.5);
+      --transicion: all 0.3s ease;
+    }
+
+    body {
+      font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: var(--color-fondo-claro);
+      color: var(--color-texto-claro);
+      transition: var(--transicion);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    body.tema-oscuro {
+      background-color: var(--color-fondo-oscuro);
+      color: var(--color-texto-oscuro);
+    }
+
+    /* Pantallas */
+    .pantalla {
+      display: none;
+      max-width: 600px;
+      margin: 0 auto;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .pantalla.activa {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding: 15px;
+      background: var(--color-card);
+      border-radius: 10px;
+      box-shadow: var(--sombra);
+    }
+
+    body.tema-oscuro .header {
+      background: var(--color-card-oscuro);
+      box-shadow: var(--sombra-oscura);
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      margin: 0;
+    }
+
+    /* Botones */
+    .boton {
+      background: var(--color-boton);
+      color: #fff;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transicion);
+      width: 100%;
+      margin-top: 20px;
+      box-shadow: var(--sombra);
+    }
+
+    .boton:hover {
+      background: var(--color-boton-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .boton:active {
+      transform: translateY(0);
+    }
+
+    .boton:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .boton-secundario {
+      background: #6c757d;
+    }
+
+    .boton-secundario:hover {
+      background: #5a6268;
+    }
+
+    .boton-peligro {
+      background: var(--color-boton-peligro);
+    }
+
+    .boton-peligro:hover {
+      background: #c82333;
+    }
+
+    .boton-exito {
+      background: var(--color-boton-exito);
+    }
+
+    .boton-exito:hover {
+      background: #218838;
+    }
+
+    .boton-pequeno {
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      width: auto;
+      margin-top: 0;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--color-card);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: var(--sombra);
+      margin-bottom: 20px;
+    }
+
+    body.tema-oscuro .card {
+      background: var(--color-card-oscuro);
+      box-shadow: var(--sombra-oscura);
+    }
+
+    /* Inputs */
+    .input-grupo {
+      margin-bottom: 20px;
+    }
+
+    .input-grupo label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .input-grupo input,
+    .input-grupo select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: var(--transicion);
+    }
+
+    body.tema-oscuro .input-grupo input,
+    body.tema-oscuro .input-grupo select {
+      background: #333;
+      border-color: #555;
+      color: var(--color-texto-oscuro);
+    }
+
+    .input-grupo input:focus,
+    .input-grupo select:focus {
+      outline: none;
+      border-color: var(--color-boton);
+    }
+
+    /* Lista de jugadores */
+    .lista-jugadores {
+      display: grid;
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .jugador-card {
+      background: var(--color-card);
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: var(--sombra);
+      cursor: pointer;
+      transition: var(--transicion);
+      border: 2px solid transparent;
+    }
+
+    body.tema-oscuro .jugador-card {
+      background: var(--color-card-oscuro);
+      box-shadow: var(--sombra-oscura);
+    }
+
+    .jugador-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .jugador-card.seleccionado {
+      border-color: var(--color-boton);
+      background: rgba(0, 105, 217, 0.1);
+    }
+
+    .jugador-card.muerto {
+      opacity: 0.5;
+      text-decoration: line-through;
+    }
+
+    .jugador-card .nombre {
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 5px;
+    }
+
+    .jugador-card .rol {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    body.tema-oscuro .jugador-card .rol {
+      color: #aaa;
+    }
+
+    /* Timer */
+    .timer {
+      text-align: center;
+      font-size: 4rem;
+      font-weight: bold;
+      margin: 30px 0;
+      color: var(--color-boton);
+    }
+
+    body.tema-oscuro .timer {
+      color: #4da3ff;
+    }
+
+    .timer.terminado {
+      color: var(--color-boton-peligro);
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+    }
+
+    /* Mensajes */
+    .mensaje {
+      text-align: center;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+      font-size: 1.2rem;
+    }
+
+    .mensaje-info {
+      background: rgba(0, 105, 217, 0.1);
+      border: 2px solid var(--color-boton);
+    }
+
+    .mensaje-exito {
+      background: rgba(40, 167, 69, 0.1);
+      border: 2px solid var(--color-boton-exito);
+    }
+
+    .mensaje-peligro {
+      background: rgba(220, 53, 69, 0.1);
+      border: 2px solid var(--color-boton-peligro);
+    }
+
+    /* Historial */
+    .boton-historial {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--color-boton);
+      color: #fff;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transition: var(--transicion);
+      z-index: 1000;
+    }
+
+    .boton-historial:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    .modal-historial {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 2000;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal-historial.activo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-contenido {
+      background: var(--color-card);
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    body.tema-oscuro .modal-contenido {
+      background: var(--color-card-oscuro);
+    }
+
+    .modal-contenido h2 {
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+    }
+
+    .evento-historial {
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      border-left: 4px solid var(--color-boton);
+      background: rgba(0, 105, 217, 0.05);
+    }
+
+    body.tema-oscuro .evento-historial {
+      background: rgba(0, 105, 217, 0.1);
+    }
+
+    .evento-historial .tipo {
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .evento-historial .detalle {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    body.tema-oscuro .evento-historial .detalle {
+      color: #aaa;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+
+      .header h1 {
+        font-size: 1.2rem;
+      }
+
+      .timer {
+        font-size: 3rem;
+      }
+
+      .boton {
+        padding: 12px 24px;
+        font-size: 1rem;
+      }
+    }
+
+    /* Ocultar botón historial en pase de roles */
+    .boton-historial.oculto {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Pantalla de Configuración -->
+  <div class="pantalla pantalla-configuracion activa">
+    <div class="card">
+      <h2>Configuración del Juego</h2>
+      
+      <div class="input-grupo">
+        <label for="cantidad-jugadores">Cantidad de Jugadores</label>
+        <select id="cantidad-jugadores">
+          <option value="">Selecciona...</option>
+        </select>
+      </div>
+
+      <div class="input-grupo">
+        <label for="cantidad-mafia">Mafia</label>
+        <select id="cantidad-mafia">
+          <option value="0">0</option>
+        </select>
+      </div>
+
+      <div class="input-grupo">
+        <label for="cantidad-detective">Detective</label>
+        <select id="cantidad-detective">
+          <option value="0">0</option>
+        </select>
+      </div>
+
+      <div class="input-grupo">
+        <label for="cantidad-trabajadora">Trabajadora Nocturna</label>
+        <select id="cantidad-trabajadora">
+          <option value="0">0</option>
+        </select>
+      </div>
+
+      <div class="input-grupo">
+        <label for="cantidad-medico">Médico</label>
+        <select id="cantidad-medico">
+          <option value="0">0</option>
+        </select>
+      </div>
+
+      <div class="input-grupo">
+        <label for="cantidad-loco">Loco</label>
+        <select id="cantidad-loco">
+          <option value="0">0</option>
+        </select>
+      </div>
+
+      <div id="mensaje-validacion" class="mensaje" style="display: none;"></div>
+
+      <button class="boton" id="boton-continuar-config">Continuar</button>
+    </div>
+  </div>
+
+  <!-- Pantalla de Nombres -->
+  <div class="pantalla pantalla-nombres">
+    <div class="card">
+      <h2>Nombres de los Jugadores</h2>
+      <div id="contenedor-nombres"></div>
+      <button class="boton" id="boton-continuar-nombres">Continuar</button>
+    </div>
+  </div>
+
+  <!-- Pantalla de Pase de Roles -->
+  <div class="pantalla pantalla-pase-roles">
+    <div class="card">
+      <div class="mensaje mensaje-info" id="mensaje-pase">
+        Pásale el celular a <strong id="nombre-pase"></strong>
+      </div>
+      <button class="boton" id="boton-ver-rol">Ver Rol</button>
+    </div>
+  </div>
+
+  <!-- Pantalla de Rol Individual -->
+  <div class="pantalla pantalla-rol-individual">
+    <div class="card">
+      <h2>Tu Rol</h2>
+      <div class="mensaje mensaje-info" id="rol-nombre"></div>
+      <div id="rol-descripcion"></div>
+      <button class="boton" id="boton-ya-vi-rol">Ya vi mi rol</button>
+    </div>
+  </div>
+
+  <!-- Vista de Dios -->
+  <div class="pantalla pantalla-vista-dios">
+    <div class="header">
+      <h1>Vista de Dios</h1>
+      <button class="boton boton-pequeno" id="boton-ver-historial">Historial</button>
+    </div>
+    <div class="card">
+      <h2>Jugadores y Roles</h2>
+      <div id="lista-jugadores-dios" class="lista-jugadores"></div>
+      <button class="boton" id="boton-arrancar-noche">Arrancar la Noche</button>
+    </div>
+  </div>
+
+  <!-- Fase Nocturna - Turno Mafia -->
+  <div class="pantalla pantalla-noche-mafia">
+    <div class="card">
+      <h2>Fase Nocturna - Mafia</h2>
+      <div class="mensaje mensaje-info">
+        Dile a los mafias que se despierten y elijan una víctima
+      </div>
+      <div id="lista-jugadores-mafia" class="lista-jugadores"></div>
+      <button class="boton" id="boton-confirmar-mafia">Confirmar Víctima</button>
+    </div>
+  </div>
+
+  <!-- Fase Nocturna - Turno Trabajadora -->
+  <div class="pantalla pantalla-noche-trabajadora">
+    <div class="card">
+      <h2>Fase Nocturna - Trabajadora Nocturna</h2>
+      <div class="mensaje mensaje-info">
+        Dile a la trabajadora nocturna que se despierte y elija a quién distraer
+      </div>
+      <div id="lista-jugadores-trabajadora" class="lista-jugadores"></div>
+      <button class="boton" id="boton-confirmar-trabajadora">Confirmar Distracción</button>
+    </div>
+  </div>
+
+  <!-- Fase Nocturna - Turno Detective -->
+  <div class="pantalla pantalla-noche-detective">
+    <div class="card">
+      <h2>Fase Nocturna - Detective</h2>
+      <div class="mensaje" id="mensaje-detective"></div>
+      <div id="lista-jugadores-detective" class="lista-jugadores"></div>
+      <div id="resultado-detective" class="mensaje" style="display: none;"></div>
+      <button class="boton" id="boton-confirmar-detective">Confirmar Investigación</button>
+    </div>
+  </div>
+
+  <!-- Fase Nocturna - Turno Médico -->
+  <div class="pantalla pantalla-noche-medico">
+    <div class="card">
+      <h2>Fase Nocturna - Médico</h2>
+      <div class="mensaje mensaje-info">
+        Dile al médico que se despierte y elija a quién salvar
+      </div>
+      <div id="mensaje-medico-salvado" class="mensaje" style="display: none;"></div>
+      <div id="lista-jugadores-medico" class="lista-jugadores"></div>
+      <button class="boton" id="boton-confirmar-medico">Confirmar Salvación</button>
+    </div>
+  </div>
+
+  <!-- Resultado de la Noche -->
+  <div class="pantalla pantalla-resultado-noche">
+    <div class="card">
+      <h2>Resultado de la Noche</h2>
+      <div id="muertes-noche" class="mensaje"></div>
+      <div id="acciones-noche"></div>
+      <button class="boton" id="boton-continuar-dia">Continuar al Día</button>
+    </div>
+  </div>
+
+  <!-- Fase Diurna - Debate -->
+  <div class="pantalla pantalla-dia-debate">
+    <div class="card">
+      <h2>Fase Diurna - Debate</h2>
+      <div class="timer" id="timer-debate">05:00</div>
+      <div class="mensaje mensaje-info">
+        Tienen 5 minutos para debatir. Al terminar el tiempo, procederán a votar.
+      </div>
+      <button class="boton" id="boton-iniciar-debate">Iniciar Debate</button>
+      <button class="boton boton-secundario" id="boton-saltar-debate" style="display: none;">Saltar al Voto</button>
+    </div>
+  </div>
+
+  <!-- Fase Diurna - Votación -->
+  <div class="pantalla pantalla-dia-votacion">
+    <div class="card">
+      <h2>Fase Diurna - Votación</h2>
+      <div class="mensaje mensaje-info">
+        Cada jugador vivo debe votar. Dios registra los votos.
+      </div>
+      <div id="lista-jugadores-votacion" class="lista-jugadores"></div>
+      <div id="votos-registrados"></div>
+      <button class="boton" id="boton-confirmar-voto">Confirmar Voto</button>
+      <button class="boton boton-exito" id="boton-finalizar-votacion" style="display: none;">Finalizar Votación</button>
+    </div>
+  </div>
+
+  <!-- Resultado de Votación -->
+  <div class="pantalla pantalla-resultado-votacion">
+    <div class="card">
+      <h2>Resultado de la Votación</h2>
+      <div id="resultado-votacion" class="mensaje"></div>
+      <div id="conteo-votos"></div>
+      <button class="boton" id="boton-aplicar-muerte">Aplicar Muerte</button>
+    </div>
+  </div>
+
+  <!-- Pantalla de Victoria -->
+  <div class="pantalla pantalla-victoria">
+    <div class="card">
+      <h2 id="titulo-victoria"></h2>
+      <div id="mensaje-victoria" class="mensaje"></div>
+      <button class="boton" id="boton-nuevo-juego">Nuevo Juego</button>
+      <button class="boton boton-secundario" id="boton-nueva-noche" style="display: none;">Nueva Noche</button>
+    </div>
+  </div>
+
+  <!-- Botón Historial Flotante -->
+  <button class="boton-historial" id="boton-historial-flotante" title="Ver historial">📋</button>
+
+  <!-- Modal Historial -->
+  <div class="modal-historial" id="modal-historial">
+    <div class="modal-contenido">
+      <h2>Historial de Acciones</h2>
+      <div id="contenido-historial"></div>
+      <button class="boton boton-secundario" id="boton-cerrar-historial">Cerrar</button>
+    </div>
+  </div>
+
+  <script>
+    // Estado del juego
+    const estado = {
+      jugadores: [],
+      configuracion: {
+        cantidadJugadores: 0,
+        mafia: 0,
+        detective: 0,
+        trabajadora: 0,
+        medico: 0,
+        loco: 0
+      },
+      estadoActual: 'CONFIGURACION',
+      indicePase: 0,
+      accionesNocturnas: {
+        mafia: null,
+        trabajadora: null,
+        detective: null,
+        medico: null
+      },
+      distraidos: [],
+      medicoUltimoSalvado: null,
+      votos: {},
+      historial: [],
+      timerDebate: null,
+      tiempoRestante: 300
+    };
+
+    // Descripciones de roles
+    const descripcionesRoles = {
+      mafia: 'Eres Mafia. Por la noche, te despertarás junto con los otros mafias (si los hay) y elegirán a quién matar.',
+      detective: 'Eres Detective. Por la noche, podrás investigar a un jugador y Dios te dirá si es mafia o no.',
+      trabajadora: 'Eres Trabajadora Nocturna. Por la noche, podrás distraer a un jugador, anulando su acción esa noche. Si distraes a alguien que va a morir, también morirás.',
+      medico: 'Eres Médico. Por la noche, podrás salvar a un jugador de la muerte. No puedes salvar dos veces seguidas a la misma persona.',
+      loco: 'Eres Loco. No tienes acción nocturna. Ganas si te votan durante el día.'
+    };
+
+    // Inicialización
+    function inicializar() {
+      cargarEstado();
+      setupEventListeners();
+      inicializarSelectores();
+      mostrarPantalla(estado.estadoActual);
+    }
+
+    // Setup de event listeners
+    function setupEventListeners() {
+      // Configuración
+      document.getElementById('cantidad-jugadores').addEventListener('change', actualizarConfiguracion);
+      document.getElementById('cantidad-mafia').addEventListener('change', validarConfiguracion);
+      document.getElementById('cantidad-detective').addEventListener('change', validarConfiguracion);
+      document.getElementById('cantidad-trabajadora').addEventListener('change', validarConfiguracion);
+      document.getElementById('cantidad-medico').addEventListener('change', validarConfiguracion);
+      document.getElementById('cantidad-loco').addEventListener('change', validarConfiguracion);
+      document.getElementById('boton-continuar-config').addEventListener('click', continuarConfiguracion);
+
+      // Nombres
+      document.getElementById('boton-continuar-nombres').addEventListener('click', continuarNombres);
+
+      // Pase de roles
+      document.getElementById('boton-ver-rol').addEventListener('click', mostrarRolIndividual);
+      document.getElementById('boton-ya-vi-rol').addEventListener('click', siguientePase);
+
+      // Vista de Dios
+      document.getElementById('boton-arrancar-noche').addEventListener('click', arrancarNoche);
+      document.getElementById('boton-ver-historial').addEventListener('click', mostrarHistorial);
+
+      // Fase nocturna - Los event listeners se asignan directamente en las funciones mostrarTurno*
+
+      // Resultado noche
+      document.getElementById('boton-continuar-dia').addEventListener('click', continuarAlDia);
+
+      // Fase diurna
+      document.getElementById('boton-iniciar-debate').addEventListener('click', iniciarDebate);
+      document.getElementById('boton-saltar-debate').addEventListener('click', saltarDebate);
+      // El event listener de confirmar-voto se asigna en mostrarPantallaVotacion
+      document.getElementById('boton-finalizar-votacion').addEventListener('click', finalizarVotacion);
+
+      // Resultado votación
+      document.getElementById('boton-aplicar-muerte').addEventListener('click', aplicarMuerteVotacion);
+
+      // Victoria
+      document.getElementById('boton-nuevo-juego').addEventListener('click', nuevoJuego);
+      document.getElementById('boton-nueva-noche').addEventListener('click', nuevaNoche);
+
+      // Historial
+      document.getElementById('boton-historial-flotante').addEventListener('click', mostrarHistorial);
+      document.getElementById('boton-cerrar-historial').addEventListener('click', cerrarHistorial);
+      document.getElementById('modal-historial').addEventListener('click', (e) => {
+        if (e.target.id === 'modal-historial') cerrarHistorial();
+      });
+    }
+
+    // Inicializar selectores
+    function inicializarSelectores() {
+      const selectJugadores = document.getElementById('cantidad-jugadores');
+      for (let i = 4; i <= 15; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = i;
+        selectJugadores.appendChild(option);
+      }
+
+      const roles = ['mafia', 'detective', 'trabajadora', 'medico', 'loco'];
+      roles.forEach(rol => {
+        const select = document.getElementById(`cantidad-${rol}`);
+        for (let i = 0; i <= 15; i++) {
+          const option = document.createElement('option');
+          option.value = i;
+          option.textContent = i;
+          select.appendChild(option);
+        }
+      });
+    }
+
+    // Actualizar configuración
+    function actualizarConfiguracion() {
+      const cantidad = parseInt(document.getElementById('cantidad-jugadores').value) || 0;
+      estado.configuracion.cantidadJugadores = cantidad;
+      validarConfiguracion();
+      guardarEstado();
+    }
+
+    // Validar configuración
+    function validarConfiguracion() {
+      const mafia = parseInt(document.getElementById('cantidad-mafia').value) || 0;
+      const detective = parseInt(document.getElementById('cantidad-detective').value) || 0;
+      const trabajadora = parseInt(document.getElementById('cantidad-trabajadora').value) || 0;
+      const medico = parseInt(document.getElementById('cantidad-medico').value) || 0;
+      const loco = parseInt(document.getElementById('cantidad-loco').value) || 0;
+
+      estado.configuracion.mafia = mafia;
+      estado.configuracion.detective = detective;
+      estado.configuracion.trabajadora = trabajadora;
+      estado.configuracion.medico = medico;
+      estado.configuracion.loco = loco;
+
+      const total = mafia + detective + trabajadora + medico + loco;
+      const cantidadJugadores = estado.configuracion.cantidadJugadores;
+
+      const mensaje = document.getElementById('mensaje-validacion');
+      const boton = document.getElementById('boton-continuar-config');
+
+      if (cantidadJugadores === 0) {
+        mensaje.style.display = 'none';
+        boton.disabled = true;
+        return;
+      }
+
+      if (total === cantidadJugadores) {
+        mensaje.style.display = 'none';
+        mensaje.className = 'mensaje';
+        boton.disabled = false;
+      } else {
+        mensaje.style.display = 'block';
+        mensaje.className = 'mensaje mensaje-peligro';
+        mensaje.textContent = `Total de roles: ${total}. Debe ser igual a ${cantidadJugadores} jugadores.`;
+        boton.disabled = true;
+      }
+
+      guardarEstado();
+    }
+
+    // Continuar configuración
+    function continuarConfiguracion() {
+      cambiarEstado('NOMBRES');
+      mostrarPantallaNombres();
+    }
+
+    // Mostrar pantalla de nombres
+    function mostrarPantallaNombres() {
+      const contenedor = document.getElementById('contenedor-nombres');
+      contenedor.innerHTML = '';
+
+      for (let i = 0; i < estado.configuracion.cantidadJugadores; i++) {
+        const grupo = document.createElement('div');
+        grupo.className = 'input-grupo';
+        
+        const label = document.createElement('label');
+        label.textContent = `Jugador ${i + 1}`;
+        
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.id = `nombre-${i}`;
+        input.placeholder = 'Ingresa el nombre';
+        input.value = estado.jugadores[i]?.nombre || '';
+        input.addEventListener('input', validarNombres);
+
+        grupo.appendChild(label);
+        grupo.appendChild(input);
+        contenedor.appendChild(grupo);
+      }
+
+      validarNombres();
+    }
+
+    // Validar nombres
+    function validarNombres() {
+      const cantidad = estado.configuracion.cantidadJugadores;
+      let todosCompletos = true;
+
+      for (let i = 0; i < cantidad; i++) {
+        const input = document.getElementById(`nombre-${i}`);
+        if (!input || !input.value.trim()) {
+          todosCompletos = false;
+          break;
+        }
+      }
+
+      document.getElementById('boton-continuar-nombres').disabled = !todosCompletos;
+    }
+
+    // Continuar nombres
+    function continuarNombres() {
+      estado.jugadores = [];
+      for (let i = 0; i < estado.configuracion.cantidadJugadores; i++) {
+        const input = document.getElementById(`nombre-${i}`);
+        estado.jugadores.push({
+          nombre: input.value.trim(),
+          rol: null,
+          vivo: true
+        });
+      }
+
+      asignarRoles();
+      cambiarEstado('PASO_ROLES');
+      estado.indicePase = 0;
+      mostrarPantallaPase();
+      guardarEstado();
+    }
+
+    // Asignar roles
+    function asignarRoles() {
+      const roles = [];
+      
+      // Crear array de roles según configuración
+      for (let i = 0; i < estado.configuracion.mafia; i++) roles.push('mafia');
+      for (let i = 0; i < estado.configuracion.detective; i++) roles.push('detective');
+      for (let i = 0; i < estado.configuracion.trabajadora; i++) roles.push('trabajadora');
+      for (let i = 0; i < estado.configuracion.medico; i++) roles.push('medico');
+      for (let i = 0; i < estado.configuracion.loco; i++) roles.push('loco');
+
+      // Mezclar aleatoriamente
+      for (let i = roles.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [roles[i], roles[j]] = [roles[j], roles[i]];
+      }
+
+      // Asignar a jugadores
+      estado.jugadores.forEach((jugador, index) => {
+        jugador.rol = roles[index];
+      });
+    }
+
+    // Mostrar pantalla de pase
+    function mostrarPantallaPase() {
+      if (estado.indicePase >= estado.jugadores.length) {
+        cambiarEstado('VISTA_DIOS');
+        mostrarVistaDios();
+        return;
+      }
+
+      const jugador = estado.jugadores[estado.indicePase];
+      document.getElementById('nombre-pase').textContent = jugador.nombre;
+      guardarEstado();
+    }
+
+    // Mostrar rol individual
+    function mostrarRolIndividual() {
+      const jugador = estado.jugadores[estado.indicePase];
+      document.getElementById('rol-nombre').textContent = `Eres ${jugador.rol.toUpperCase()}`;
+      document.getElementById('rol-descripcion').textContent = descripcionesRoles[jugador.rol];
+      mostrarPantalla('ROL_INDIVIDUAL');
+    }
+
+    // Siguiente pase
+    function siguientePase() {
+      estado.indicePase++;
+      mostrarPantallaPase();
+    }
+
+    // Mostrar vista de Dios
+    function mostrarVistaDios() {
+      const contenedor = document.getElementById('lista-jugadores-dios');
+      contenedor.innerHTML = '';
+
+      estado.jugadores.forEach(jugador => {
+        const card = document.createElement('div');
+        card.className = 'jugador-card';
+        card.innerHTML = `
+          <div class="nombre">${jugador.nombre}</div>
+          <div class="rol">${jugador.rol}</div>
+        `;
+        contenedor.appendChild(card);
+      });
+
+      mostrarPantalla('VISTA_DIOS');
+      guardarEstado();
+    }
+
+    // Arrancar noche
+    function arrancarNoche() {
+      // Resetear acciones nocturnas
+      estado.accionesNocturnas = {
+        mafia: null,
+        trabajadora: null,
+        detective: null,
+        medico: null
+      };
+      estado.distraidos = [];
+      estado.medicoUltimoSalvado = null;
+
+      // Determinar orden de turnos
+      const tieneMafia = estado.jugadores.some(j => j.rol === 'mafia' && j.vivo);
+      const tieneTrabajadora = estado.jugadores.some(j => j.rol === 'trabajadora' && j.vivo);
+      const tieneDetective = estado.jugadores.some(j => j.rol === 'detective' && j.vivo);
+      const tieneMedico = estado.jugadores.some(j => j.rol === 'medico' && j.vivo);
+
+      if (tieneMafia) {
+        cambiarEstado('NOCHE_TURNO_MAFIA');
+        mostrarTurnoMafia();
+      } else if (tieneTrabajadora) {
+        cambiarEstado('NOCHE_TURNO_TRABAJADORA');
+        mostrarTurnoTrabajadora();
+      } else if (tieneDetective) {
+        cambiarEstado('NOCHE_TURNO_DETECTIVE');
+        mostrarTurnoDetective();
+      } else if (tieneMedico) {
+        cambiarEstado('NOCHE_TURNO_MEDICO');
+        mostrarTurnoMedico();
+      } else {
+        calcularMuertesNocturnas();
+      }
+
+      document.body.classList.add('tema-oscuro');
+      guardarEstado();
+    }
+
+    // Mostrar turno mafia
+    function mostrarTurnoMafia() {
+      const mafias = estado.jugadores.filter(j => j.rol === 'mafia' && j.vivo);
+      const objetivos = estado.jugadores.filter(j => j.rol !== 'mafia' && j.vivo);
+
+      const contenedor = document.getElementById('lista-jugadores-mafia');
+      contenedor.innerHTML = '';
+      let seleccionado = null;
+
+      objetivos.forEach(jugador => {
+        const card = document.createElement('div');
+        card.className = 'jugador-card';
+        card.dataset.id = jugador.nombre;
+        card.innerHTML = `<div class="nombre">${jugador.nombre}</div>`;
+        
+        card.addEventListener('click', () => {
+          document.querySelectorAll('#lista-jugadores-mafia .jugador-card').forEach(c => c.classList.remove('seleccionado'));
+          card.classList.add('seleccionado');
+          seleccionado = jugador.nombre;
+        });
+
+        contenedor.appendChild(card);
+      });
+
+      document.getElementById('boton-confirmar-mafia').onclick = () => {
+        if (seleccionado) {
+          estado.accionesNocturnas.mafia = seleccionado;
+          agregarHistorial('NOCHE', `Mafia eligió a ${seleccionado}`);
+          
+          // Continuar con siguiente turno
+          const tieneTrabajadora = estado.jugadores.some(j => j.rol === 'trabajadora' && j.vivo);
+          const tieneDetective = estado.jugadores.some(j => j.rol === 'detective' && j.vivo);
+          const tieneMedico = estado.jugadores.some(j => j.rol === 'medico' && j.vivo);
+
+          if (tieneTrabajadora) {
+            cambiarEstado('NOCHE_TURNO_TRABAJADORA');
+            mostrarTurnoTrabajadora();
+          } else if (tieneDetective) {
+            cambiarEstado('NOCHE_TURNO_DETECTIVE');
+            mostrarTurnoDetective();
+          } else if (tieneMedico) {
+            cambiarEstado('NOCHE_TURNO_MEDICO');
+            mostrarTurnoMedico();
+          } else {
+            calcularMuertesNocturnas();
+          }
+          guardarEstado();
+        }
+      };
+
+      mostrarPantalla('NOCHE_TURNO_MAFIA');
+    }
+
+    // Mostrar turno trabajadora
+    function mostrarTurnoTrabajadora() {
+      const trabajadora = estado.jugadores.find(j => j.rol === 'trabajadora' && j.vivo);
+      if (!trabajadora) {
+        // Saltar si no hay trabajadora viva
+        const tieneDetective = estado.jugadores.some(j => j.rol === 'detective' && j.vivo);
+        const tieneMedico = estado.jugadores.some(j => j.rol === 'medico' && j.vivo);
+        if (tieneDetective) {
+          cambiarEstado('NOCHE_TURNO_DETECTIVE');
+          mostrarTurnoDetective();
+        } else if (tieneMedico) {
+          cambiarEstado('NOCHE_TURNO_MEDICO');
+          mostrarTurnoMedico();
+        } else {
+          calcularMuertesNocturnas();
+        }
+        return;
+      }
+
+      const objetivos = estado.jugadores.filter(j => j.vivo);
+      const contenedor = document.getElementById('lista-jugadores-trabajadora');
+      contenedor.innerHTML = '';
+      let seleccionado = null;
+
+      objetivos.forEach(jugador => {
+        const card = document.createElement('div');
+        card.className = 'jugador-card';
+        card.dataset.id = jugador.nombre;
+        card.innerHTML = `<div class="nombre">${jugador.nombre}</div>`;
+        
+        card.addEventListener('click', () => {
+          document.querySelectorAll('#lista-jugadores-trabajadora .jugador-card').forEach(c => c.classList.remove('seleccionado'));
+          card.classList.add('seleccionado');
+          seleccionado = jugador.nombre;
+        });
+
+        contenedor.appendChild(card);
+      });
+
+      document.getElementById('boton-confirmar-trabajadora').onclick = () => {
+        if (seleccionado) {
+          estado.accionesNocturnas.trabajadora = seleccionado;
+          estado.distraidos.push(seleccionado);
+          agregarHistorial('NOCHE', `Trabajadora nocturna distrajo a ${seleccionado}`);
+          
+          // Continuar con siguiente turno
+          const tieneDetective = estado.jugadores.some(j => j.rol === 'detective' && j.vivo);
+          const tieneMedico = estado.jugadores.some(j => j.rol === 'medico' && j.vivo);
+
+          if (tieneDetective) {
+            cambiarEstado('NOCHE_TURNO_DETECTIVE');
+            mostrarTurnoDetective();
+          } else if (tieneMedico) {
+            cambiarEstado('NOCHE_TURNO_MEDICO');
+            mostrarTurnoMedico();
+          } else {
+            calcularMuertesNocturnas();
+          }
+          guardarEstado();
+        }
+      };
+
+      mostrarPantalla('NOCHE_TURNO_TRABAJADORA');
+    }
+
+    // Mostrar turno detective
+    function mostrarTurnoDetective() {
+      const detective = estado.jugadores.find(j => j.rol === 'detective' && j.vivo);
+      if (!detective) {
+        // Saltar si no hay detective vivo
+        const tieneMedico = estado.jugadores.some(j => j.rol === 'medico' && j.vivo);
+        if (tieneMedico) {
+          cambiarEstado('NOCHE_TURNO_MEDICO');
+          mostrarTurnoMedico();
+        } else {
+          calcularMuertesNocturnas();
+        }
+        return;
+      }
+
+      const fueDistraido = estado.distraidos.includes(detective.nombre);
+      const mensaje = document.getElementById('mensaje-detective');
+      const resultado = document.getElementById('resultado-detective');
+      const lista = document.getElementById('lista-jugadores-detective');
+      const boton = document.getElementById('boton-confirmar-detective');
+
+      if (fueDistraido) {
+        mensaje.className = 'mensaje mensaje-peligro';
+        mensaje.textContent = `${detective.nombre} fue distraído por la trabajadora nocturna. No puede investigar esta noche.`;
+        lista.style.display = 'none';
+        resultado.style.display = 'none';
+        boton.textContent = 'Continuar';
+        boton.onclick = () => {
+          agregarHistorial('NOCHE', `Detective (${detective.nombre}) fue distraído y no pudo investigar`);
+          const tieneMedico = estado.jugadores.some(j => j.rol === 'medico' && j.vivo);
+          if (tieneMedico) {
+            cambiarEstado('NOCHE_TURNO_MEDICO');
+            mostrarTurnoMedico();
+          } else {
+            calcularMuertesNocturnas();
+          }
+          guardarEstado();
+        };
+      } else {
+        mensaje.className = 'mensaje mensaje-info';
+        mensaje.textContent = `Dile a ${detective.nombre} que se despierte y elija a quién investigar`;
+        lista.style.display = 'block';
+        resultado.style.display = 'none';
+        boton.textContent = 'Confirmar Investigación';
+
+        const objetivos = estado.jugadores.filter(j => j.rol !== 'detective' && j.vivo);
+        lista.innerHTML = '';
+        let seleccionado = null;
+
+        objetivos.forEach(jugador => {
+          const card = document.createElement('div');
+          card.className = 'jugador-card';
+          card.dataset.id = jugador.nombre;
+          card.innerHTML = `<div class="nombre">${jugador.nombre}</div>`;
+          
+          card.addEventListener('click', () => {
+            document.querySelectorAll('#lista-jugadores-detective .jugador-card').forEach(c => c.classList.remove('seleccionado'));
+            card.classList.add('seleccionado');
+            seleccionado = jugador.nombre;
+            
+            // Mostrar resultado inmediatamente
+            const objetivo = estado.jugadores.find(j => j.nombre === seleccionado);
+            resultado.style.display = 'block';
+            if (objetivo.rol === 'mafia') {
+              resultado.className = 'mensaje mensaje-peligro';
+              resultado.textContent = `${seleccionado} ES MAFIA`;
+            } else {
+              resultado.className = 'mensaje mensaje-exito';
+              resultado.textContent = `${seleccionado} NO ES MAFIA`;
+            }
+          });
+
+          lista.appendChild(card);
+        });
+
+        boton.onclick = () => {
+          if (seleccionado) {
+            const objetivo = estado.jugadores.find(j => j.nombre === seleccionado);
+            estado.accionesNocturnas.detective = seleccionado;
+            agregarHistorial('NOCHE', `Detective investigó a ${seleccionado}: ${objetivo.rol === 'mafia' ? 'ES MAFIA' : 'NO ES MAFIA'}`);
+            
+            const tieneMedico = estado.jugadores.some(j => j.rol === 'medico' && j.vivo);
+            if (tieneMedico) {
+              cambiarEstado('NOCHE_TURNO_MEDICO');
+              mostrarTurnoMedico();
+            } else {
+              calcularMuertesNocturnas();
+            }
+            guardarEstado();
+          }
+        };
+      }
+
+      mostrarPantalla('NOCHE_TURNO_DETECTIVE');
+    }
+
+    // Mostrar turno medico
+    function mostrarTurnoMedico() {
+      const medico = estado.jugadores.find(j => j.rol === 'medico' && j.vivo);
+      if (!medico) {
+        calcularMuertesNocturnas();
+        return;
+      }
+
+      const fueDistraido = estado.distraidos.includes(medico.nombre);
+      const mensajeSalvado = document.getElementById('mensaje-medico-salvado');
+      const contenedor = document.getElementById('lista-jugadores-medico');
+      const boton = document.getElementById('boton-confirmar-medico');
+
+      if (fueDistraido) {
+        mensajeSalvado.style.display = 'block';
+        mensajeSalvado.className = 'mensaje mensaje-peligro';
+        mensajeSalvado.textContent = `${medico.nombre} fue distraído por la trabajadora nocturna. No puede salvar esta noche.`;
+        contenedor.style.display = 'none';
+        boton.textContent = 'Continuar';
+        boton.onclick = () => {
+          agregarHistorial('NOCHE', `Médico (${medico.nombre}) fue distraído y no pudo salvar`);
+          calcularMuertesNocturnas();
+          guardarEstado();
+        };
+      } else {
+        mensajeSalvado.style.display = 'none';
+        contenedor.style.display = 'block';
+        boton.textContent = 'Confirmar Salvación';
+
+        const objetivos = estado.jugadores.filter(j => j.vivo);
+        contenedor.innerHTML = '';
+        let seleccionado = null;
+
+        if (estado.medicoUltimoSalvado) {
+          const ultimoSalvado = estado.jugadores.find(j => j.nombre === estado.medicoUltimoSalvado);
+          if (ultimoSalvado && ultimoSalvado.vivo) {
+            const aviso = document.createElement('div');
+            aviso.className = 'mensaje mensaje-info';
+            aviso.textContent = `No puedes salvar a ${estado.medicoUltimoSalvado} dos veces seguidas`;
+            contenedor.appendChild(aviso);
+          }
+        }
+
+        objetivos.forEach(jugador => {
+          if (jugador.nombre === estado.medicoUltimoSalvado) {
+            return; // No mostrar el último salvado
+          }
+
+          const card = document.createElement('div');
+          card.className = 'jugador-card';
+          card.dataset.id = jugador.nombre;
+          card.innerHTML = `<div class="nombre">${jugador.nombre}</div>`;
+          
+          card.addEventListener('click', () => {
+            document.querySelectorAll('#lista-jugadores-medico .jugador-card').forEach(c => c.classList.remove('seleccionado'));
+            card.classList.add('seleccionado');
+            seleccionado = jugador.nombre;
+          });
+
+          contenedor.appendChild(card);
+        });
+
+        boton.onclick = () => {
+          if (seleccionado) {
+            estado.accionesNocturnas.medico = seleccionado;
+            estado.medicoUltimoSalvado = seleccionado;
+            agregarHistorial('NOCHE', `Médico salvó a ${seleccionado}`);
+            calcularMuertesNocturnas();
+            guardarEstado();
+          }
+        };
+      }
+
+      mostrarPantalla('NOCHE_TURNO_MEDICO');
+    }
+
+    // Calcular muertes nocturnas
+    function calcularMuertesNocturnas() {
+      const muertos = [];
+      let trabajadoraMuere = false;
+
+      // Verificar si mafia puede matar (ningún mafia fue distraído)
+      const mafias = estado.jugadores.filter(j => j.rol === 'mafia' && j.vivo);
+      const mafiaFueDistraido = mafias.some(m => estado.distraidos.includes(m.nombre));
+      const mafiaPuedeMatar = estado.accionesNocturnas.mafia && !mafiaFueDistraido;
+      const victimaMafia = estado.accionesNocturnas.mafia;
+
+      if (mafiaPuedeMatar && victimaMafia) {
+        const victima = estado.jugadores.find(j => j.nombre === victimaMafia);
+        
+        if (!victima || !victima.vivo) {
+          // La víctima ya está muerta, no hacer nada
+        } else {
+          // Verificar si fue salvada por médico
+          const medico = estado.jugadores.find(j => j.rol === 'medico' && j.vivo);
+          const medicoFueDistraido = medico && estado.distraidos.includes(medico.nombre);
+          const medicoPuedeSalvar = estado.accionesNocturnas.medico && medico && !medicoFueDistraido;
+          const salvadoPorMedico = medicoPuedeSalvar && estado.accionesNocturnas.medico === victimaMafia;
+
+          // Verificar si trabajadora distrajo a la víctima (esto no previene la muerte, pero trabajadora no muere)
+          const trabajadoraDistrajoVictima = estado.accionesNocturnas.trabajadora === victimaMafia;
+
+          if (!salvadoPorMedico) {
+            // La víctima muere
+            victima.vivo = false;
+            muertos.push(victimaMafia);
+            
+            // Si trabajadora distrajo a la víctima que muere, trabajadora también muere
+            if (trabajadoraDistrajoVictima) {
+              trabajadoraMuere = true;
+            }
+          }
+        }
+      }
+
+      // Aplicar muerte de trabajadora si corresponde
+      if (trabajadoraMuere) {
+        const trabajadora = estado.jugadores.find(j => j.rol === 'trabajadora' && j.vivo);
+        if (trabajadora) {
+          trabajadora.vivo = false;
+          muertos.push(trabajadora.nombre);
+          agregarHistorial('NOCHE', `Trabajadora nocturna murió por distraer a alguien que iba a morir`);
+        }
+      }
+
+      // Mostrar resultado
+      mostrarResultadoNoche(muertos);
+      cambiarEstado('RESULTADO_NOCHE');
+      guardarEstado();
+    }
+
+    // Mostrar resultado de la noche
+    function mostrarResultadoNoche(muertos) {
+      const contenedorMuertes = document.getElementById('muertes-noche');
+      const contenedorAcciones = document.getElementById('acciones-noche');
+
+      if (muertos.length === 0) {
+        contenedorMuertes.className = 'mensaje mensaje-exito';
+        contenedorMuertes.textContent = 'Nadie murió esta noche';
+      } else {
+        contenedorMuertes.className = 'mensaje mensaje-peligro';
+        contenedorMuertes.textContent = `Murieron: ${muertos.join(', ')}`;
+        muertos.forEach(nombre => {
+          agregarHistorial('NOCHE', `${nombre} murió durante la noche`);
+        });
+      }
+
+      contenedorAcciones.innerHTML = '<h3>Acciones realizadas:</h3><ul>';
+      if (estado.accionesNocturnas.mafia) {
+        contenedorAcciones.innerHTML += `<li>Mafia eligió a ${estado.accionesNocturnas.mafia}</li>`;
+      }
+      if (estado.accionesNocturnas.trabajadora) {
+        contenedorAcciones.innerHTML += `<li>Trabajadora distrajo a ${estado.accionesNocturnas.trabajadora}</li>`;
+      }
+      if (estado.accionesNocturnas.detective) {
+        const objetivo = estado.jugadores.find(j => j.nombre === estado.accionesNocturnas.detective);
+        contenedorAcciones.innerHTML += `<li>Detective investigó a ${estado.accionesNocturnas.detective}</li>`;
+      }
+      if (estado.accionesNocturnas.medico) {
+        contenedorAcciones.innerHTML += `<li>Médico salvó a ${estado.accionesNocturnas.medico}</li>`;
+      }
+      contenedorAcciones.innerHTML += '</ul>';
+
+      mostrarPantalla('RESULTADO_NOCHE');
+    }
+
+    // Continuar al día
+    function continuarAlDia() {
+      document.body.classList.remove('tema-oscuro');
+      cambiarEstado('DIA_DEBATE');
+      estado.tiempoRestante = 300;
+      mostrarPantalla('DIA_DEBATE');
+      guardarEstado();
+    }
+
+    // Iniciar debate
+    function iniciarDebate() {
+      document.getElementById('boton-iniciar-debate').style.display = 'none';
+      document.getElementById('boton-saltar-debate').style.display = 'block';
+      
+      estado.timerDebate = setInterval(() => {
+        estado.tiempoRestante--;
+        const minutos = Math.floor(estado.tiempoRestante / 60);
+        const segundos = estado.tiempoRestante % 60;
+        document.getElementById('timer-debate').textContent = 
+          `${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
+
+        if (estado.tiempoRestante <= 0) {
+          clearInterval(estado.timerDebate);
+          document.getElementById('timer-debate').classList.add('terminado');
+          document.getElementById('timer-debate').textContent = '00:00';
+          setTimeout(() => {
+            iniciarVotacion();
+          }, 1000);
+        }
+      }, 1000);
+
+      guardarEstado();
+    }
+
+    // Saltar debate
+    function saltarDebate() {
+      if (estado.timerDebate) {
+        clearInterval(estado.timerDebate);
+      }
+      iniciarVotacion();
+    }
+
+    // Iniciar votación
+    function iniciarVotacion() {
+      estado.votos = {};
+      cambiarEstado('DIA_VOTACION');
+      mostrarPantallaVotacion();
+      guardarEstado();
+    }
+
+    // Mostrar pantalla de votación
+    function mostrarPantallaVotacion() {
+      const vivos = estado.jugadores.filter(j => j.vivo);
+      const contenedor = document.getElementById('lista-jugadores-votacion');
+      const contenedorVotos = document.getElementById('votos-registrados');
+      
+      contenedor.innerHTML = '';
+      let seleccionado = null;
+
+      vivos.forEach(jugador => {
+        const card = document.createElement('div');
+        card.className = 'jugador-card';
+        card.dataset.id = jugador.nombre;
+        card.innerHTML = `<div class="nombre">${jugador.nombre}</div>`;
+        
+        card.addEventListener('click', () => {
+          document.querySelectorAll('#lista-jugadores-votacion .jugador-card').forEach(c => c.classList.remove('seleccionado'));
+          card.classList.add('seleccionado');
+          seleccionado = jugador.nombre;
+        });
+
+        contenedor.appendChild(card);
+      });
+
+      actualizarVotosRegistrados();
+
+      document.getElementById('boton-confirmar-voto').onclick = () => {
+        if (seleccionado) {
+          const votante = prompt('¿Quién está votando?');
+          if (votante) {
+            const jugadorVotante = estado.jugadores.find(j => j.nombre === votante && j.vivo);
+            if (jugadorVotante) {
+              const votoAnterior = estado.votos[votante];
+              estado.votos[votante] = seleccionado;
+              if (votoAnterior) {
+                agregarHistorial('DIA', `${votante} cambió su voto de ${votoAnterior} a ${seleccionado}`);
+              } else {
+                agregarHistorial('DIA', `${votante} votó a ${seleccionado}`);
+              }
+              actualizarVotosRegistrados();
+              seleccionado = null;
+              document.querySelectorAll('#lista-jugadores-votacion .jugador-card').forEach(c => c.classList.remove('seleccionado'));
+              
+              // Mostrar botón de finalizar si hay al menos un voto
+              if (Object.keys(estado.votos).length > 0) {
+                document.getElementById('boton-finalizar-votacion').style.display = 'block';
+              }
+              guardarEstado();
+            } else {
+              alert('Jugador no encontrado o no está vivo');
+            }
+          }
+        } else {
+          alert('Selecciona a quién votar primero');
+        }
+      };
+
+      mostrarPantalla('DIA_VOTACION');
+    }
+
+    // Actualizar votos registrados
+    function actualizarVotosRegistrados() {
+      const contenedor = document.getElementById('votos-registrados');
+      const vivos = estado.jugadores.filter(j => j.vivo);
+      const votosCount = Object.keys(estado.votos).length;
+      
+      if (votosCount > 0) {
+        contenedor.innerHTML = `<h3>Votos registrados (${votosCount}/${vivos.length}):</h3><ul>`;
+        Object.entries(estado.votos).forEach(([votante, votado]) => {
+          contenedor.innerHTML += `<li>${votante} → ${votado}</li>`;
+        });
+        contenedor.innerHTML += '</ul>';
+      } else {
+        contenedor.innerHTML = '';
+      }
+    }
+
+    // Finalizar votación
+    function finalizarVotacion() {
+      if (Object.keys(estado.votos).length === 0) {
+        alert('No hay votos registrados');
+        return;
+      }
+
+      const conteo = {};
+      Object.values(estado.votos).forEach(votado => {
+        conteo[votado] = (conteo[votado] || 0) + 1;
+      });
+
+      let maxVotos = 0;
+      let masVotado = null;
+      let empate = false;
+      Object.entries(conteo).forEach(([nombre, votos]) => {
+        if (votos > maxVotos) {
+          maxVotos = votos;
+          masVotado = nombre;
+          empate = false;
+        } else if (votos === maxVotos && nombre !== masVotado) {
+          empate = true;
+        }
+      });
+
+      if (empate) {
+        alert('Hay un empate en la votación. Revisa los votos.');
+        return;
+      }
+
+      mostrarResultadoVotacion(conteo, masVotado);
+      cambiarEstado('RESULTADO_VOTACION');
+      guardarEstado();
+    }
+
+    // Mostrar resultado de votación
+    function mostrarResultadoVotacion(conteo, masVotado) {
+      const contenedor = document.getElementById('resultado-votacion');
+      const contenedorConteo = document.getElementById('conteo-votos');
+
+      contenedor.className = 'mensaje mensaje-peligro';
+      contenedor.textContent = `El más votado es: ${masVotado} (${conteo[masVotado]} votos)`;
+
+      contenedorConteo.innerHTML = '<h3>Conteo de votos:</h3><ul>';
+      Object.entries(conteo).sort((a, b) => b[1] - a[1]).forEach(([nombre, votos]) => {
+        contenedorConteo.innerHTML += `<li>${nombre}: ${votos} voto${votos !== 1 ? 's' : ''}</li>`;
+      });
+      contenedorConteo.innerHTML += '</ul>';
+
+      estado.resultadoVotacion = masVotado;
+      mostrarPantalla('RESULTADO_VOTACION');
+    }
+
+    // Aplicar muerte por votación
+    function aplicarMuerteVotacion() {
+      const votado = estado.jugadores.find(j => j.nombre === estado.resultadoVotacion);
+      if (votado) {
+        votado.vivo = false;
+        agregarHistorial('DIA', `${votado.nombre} fue votado y murió`);
+
+        // Verificar si es loco
+        if (votado.rol === 'loco') {
+          mostrarVictoria('LOCO');
+          return;
+        }
+
+        // Verificar victoria
+        const mafiasVivas = estado.jugadores.filter(j => j.rol === 'mafia' && j.vivo).length;
+        const civilesVivos = estado.jugadores.filter(j => j.rol !== 'mafia' && j.vivo).length;
+
+        if (mafiasVivas === 0) {
+          mostrarVictoria('CIVILES');
+        } else if (mafiasVivas >= civilesVivos) {
+          mostrarVictoria('MAFIAS');
+        } else {
+          mostrarVictoria('CONTINUA');
+        }
+      }
+      guardarEstado();
+    }
+
+    // Mostrar victoria
+    function mostrarVictoria(ganador) {
+      const titulo = document.getElementById('titulo-victoria');
+      const mensaje = document.getElementById('mensaje-victoria');
+      const botonNuevaNoche = document.getElementById('boton-nueva-noche');
+
+      if (ganador === 'CIVILES') {
+        titulo.textContent = '¡Civiles Ganaron!';
+        mensaje.className = 'mensaje mensaje-exito';
+        mensaje.textContent = 'Todos los mafias fueron eliminados. Los civiles ganaron la partida.';
+        botonNuevaNoche.style.display = 'none';
+      } else if (ganador === 'MAFIAS') {
+        titulo.textContent = '¡Mafias Ganaron!';
+        mensaje.className = 'mensaje mensaje-peligro';
+        mensaje.textContent = 'Los mafias son iguales o superan en número a los civiles. Los mafias ganaron la partida.';
+        botonNuevaNoche.style.display = 'none';
+      } else if (ganador === 'LOCO') {
+        titulo.textContent = '¡Loco Ganó!';
+        mensaje.className = 'mensaje mensaje-exito';
+        mensaje.textContent = 'El loco fue votado. El loco ganó la partida.';
+        botonNuevaNoche.style.display = 'none';
+      } else {
+        titulo.textContent = 'Continúa la Partida';
+        mensaje.className = 'mensaje mensaje-info';
+        mensaje.textContent = 'La partida continúa. Todos duermen y comienza una nueva noche.';
+        botonNuevaNoche.style.display = 'block';
+      }
+
+      cambiarEstado('VICTORIA');
+      mostrarPantalla('VICTORIA');
+      guardarEstado();
+    }
+
+    // Nueva noche
+    function nuevaNoche() {
+      document.body.classList.add('tema-oscuro');
+      arrancarNoche();
+    }
+
+    // Nuevo juego
+    function nuevoJuego() {
+      if (confirm('¿Estás seguro de que querés empezar un nuevo juego? Se perderá todo el progreso.')) {
+        sessionStorage.removeItem('estadoMafia');
+        location.reload();
+      }
+    }
+
+    // Historial
+    function agregarHistorial(fase, evento) {
+      estado.historial.push({
+        fase,
+        evento,
+        timestamp: new Date().toLocaleTimeString()
+      });
+      guardarEstado();
+    }
+
+    function mostrarHistorial() {
+      const modal = document.getElementById('modal-historial');
+      const contenido = document.getElementById('contenido-historial');
+      
+      contenido.innerHTML = '';
+      
+      if (estado.historial.length === 0) {
+        contenido.innerHTML = '<p>No hay eventos registrados aún.</p>';
+      } else {
+        estado.historial.forEach(evento => {
+          const div = document.createElement('div');
+          div.className = 'evento-historial';
+          div.innerHTML = `
+            <div class="tipo">[${evento.fase}] ${evento.timestamp}</div>
+            <div class="detalle">${evento.evento}</div>
+          `;
+          contenido.appendChild(div);
+        });
+      }
+      
+      modal.classList.add('activo');
+    }
+
+    function cerrarHistorial() {
+      document.getElementById('modal-historial').classList.remove('activo');
+    }
+
+    // Navegación de pantallas
+    function mostrarPantalla(pantalla) {
+      document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('activa'));
+      const pantallaElement = document.querySelector(`.pantalla-${pantalla.toLowerCase().replace(/_/g, '-')}`);
+      if (pantallaElement) {
+        pantallaElement.classList.add('activa');
+      }
+
+      // Ocultar botón de historial durante pase de roles
+      const botonHistorial = document.getElementById('boton-historial-flotante');
+      if (pantalla === 'PASO_ROLES' || pantalla === 'ROL_INDIVIDUAL') {
+        botonHistorial.classList.add('oculto');
+      } else {
+        botonHistorial.classList.remove('oculto');
+      }
+    }
+
+    function cambiarEstado(nuevoEstado) {
+      estado.estadoActual = nuevoEstado;
+      guardarEstado();
+    }
+
+    // Persistencia
+    function guardarEstado() {
+      try {
+        sessionStorage.setItem('estadoMafia', JSON.stringify(estado));
+      } catch (e) {
+        console.error('Error guardando estado:', e);
+      }
+    }
+
+    function cargarEstado() {
+      try {
+        const guardado = sessionStorage.getItem('estadoMafia');
+        if (guardado) {
+          const estadoGuardado = JSON.parse(guardado);
+          Object.assign(estado, estadoGuardado);
+          
+          // Restaurar timer si estaba activo
+          if (estado.estadoActual === 'DIA_DEBATE' && estado.tiempoRestante > 0 && estado.tiempoRestante < 300) {
+            iniciarDebate();
+          }
+        }
+      } catch (e) {
+        console.error('Error cargando estado:', e);
+      }
+    }
+
+    // Inicializar al cargar
+    document.addEventListener('DOMContentLoaded', inicializar);
+  </script>
+</body>
+</html>
+
