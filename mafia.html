@@ -149,6 +149,20 @@
       margin-top: 0;
     }
 
+    /* Botón reiniciar (siempre visible) */
+    .boton-reiniciar {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 3000;
+      width: auto;
+      margin-top: 0;
+      padding: 10px 14px;
+      font-size: 0.95rem;
+      border-radius: 999px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+    }
+
     /* Cards */
     .card {
       background: var(--color-card);
@@ -406,15 +420,62 @@
         padding: 12px 24px;
         font-size: 1rem;
       }
+
+      .boton-reiniciar {
+        top: 10px;
+        left: 10px;
+        padding: 10px 12px;
+        font-size: 0.9rem;
+      }
     }
 
     /* Ocultar botón historial en pase de roles */
     .boton-historial.oculto {
       display: none;
     }
+
+    /* Votación: dos columnas */
+    .contenedor-votacion {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .subtitulo {
+      font-size: 1rem;
+      font-weight: 700;
+      margin: 10px 0;
+      text-align: left;
+    }
+
+    .jugador-card.votante-ya-voto {
+      border-color: rgba(0, 105, 217, 0.35);
+      background: rgba(0, 105, 217, 0.06);
+    }
+
+    .jugador-card .detalle-voto {
+      font-size: 0.85rem;
+      color: #6c757d;
+      margin-top: 6px;
+    }
+
+    body.tema-oscuro .jugador-card .detalle-voto {
+      color: #b7b7b7;
+    }
+
+    @media (max-width: 600px) {
+      .contenedor-votacion {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
+  <button class="boton boton-peligro boton-reiniciar" id="boton-reiniciar" type="button">
+    Reiniciar
+  </button>
+
   <!-- Pantalla de Configuración -->
   <div class="pantalla pantalla-configuracion activa">
     <div class="card">
@@ -423,7 +484,7 @@
       <div class="input-grupo">
         <label for="cantidad-jugadores">Cantidad de Jugadores</label>
         <select id="cantidad-jugadores">
-          <option value="">Selecciona...</option>
+          <option value="">Elegí...</option>
         </select>
       </div>
 
@@ -469,7 +530,7 @@
 
       <div id="mensaje-validacion" class="mensaje" style="display: none;"></div>
 
-      <button class="boton" id="boton-continuar-config">Continuar</button>
+      <button class="boton" id="boton-continuar-config">Seguir</button>
     </div>
   </div>
 
@@ -478,7 +539,7 @@
     <div class="card">
       <h2>Nombres de los Jugadores</h2>
       <div id="contenedor-nombres"></div>
-      <button class="boton" id="boton-continuar-nombres">Continuar</button>
+      <button class="boton" id="boton-continuar-nombres">Seguir</button>
     </div>
   </div>
 
@@ -488,7 +549,7 @@
       <div class="mensaje mensaje-info" id="mensaje-pase">
         Pásale el celular a <strong id="nombre-pase"></strong>
       </div>
-      <button class="boton" id="boton-ver-rol">Ver Rol</button>
+      <button class="boton" id="boton-ver-rol">Ver mi rol</button>
     </div>
   </div>
 
@@ -520,10 +581,10 @@
     <div class="card">
       <h2>Fase Nocturna - Mafia</h2>
       <div class="mensaje mensaje-info">
-        Dile a los mafias que se despierten y elijan una víctima
+        Deciles a los mafiosos que se despierten y elijan una víctima
       </div>
       <div id="lista-jugadores-mafia" class="lista-jugadores"></div>
-      <button class="boton" id="boton-confirmar-mafia">Confirmar Víctima</button>
+      <button class="boton" id="boton-confirmar-mafia">Confirmar víctima</button>
     </div>
   </div>
 
@@ -532,10 +593,10 @@
     <div class="card">
       <h2>Fase Nocturna - Trabajadora Nocturna</h2>
       <div class="mensaje mensaje-info">
-        Dile a la trabajadora nocturna que se despierte y elija a quién distraer
+        Decile a la trabajadora nocturna que se despierte y elija a quién distraer
       </div>
       <div id="lista-jugadores-trabajadora" class="lista-jugadores"></div>
-      <button class="boton" id="boton-confirmar-trabajadora">Confirmar Distracción</button>
+      <button class="boton" id="boton-confirmar-trabajadora">Confirmar distracción</button>
     </div>
   </div>
 
@@ -546,7 +607,7 @@
       <div class="mensaje" id="mensaje-detective"></div>
       <div id="lista-jugadores-detective" class="lista-jugadores"></div>
       <div id="resultado-detective" class="mensaje" style="display: none;"></div>
-      <button class="boton" id="boton-confirmar-detective">Confirmar Investigación</button>
+      <button class="boton" id="boton-confirmar-detective">Confirmar investigación</button>
     </div>
   </div>
 
@@ -555,11 +616,11 @@
     <div class="card">
       <h2>Fase Nocturna - Médico</h2>
       <div class="mensaje mensaje-info">
-        Dile al médico que se despierte y elija a quién salvar
+        Decile al médico que se despierte y elija a quién salvar
       </div>
       <div id="mensaje-medico-salvado" class="mensaje" style="display: none;"></div>
       <div id="lista-jugadores-medico" class="lista-jugadores"></div>
-      <button class="boton" id="boton-confirmar-medico">Confirmar Salvación</button>
+      <button class="boton" id="boton-confirmar-medico">Confirmar salvación</button>
     </div>
   </div>
 
@@ -569,7 +630,7 @@
       <h2>Resultado de la Noche</h2>
       <div id="muertes-noche" class="mensaje"></div>
       <div id="acciones-noche"></div>
-      <button class="boton" id="boton-continuar-dia">Continuar al Día</button>
+      <button class="boton" id="boton-continuar-dia">Seguir al día</button>
     </div>
   </div>
 
@@ -581,8 +642,8 @@
       <div class="mensaje mensaje-info">
         Tienen 5 minutos para debatir. Al terminar el tiempo, procederán a votar.
       </div>
-      <button class="boton" id="boton-iniciar-debate">Iniciar Debate</button>
-      <button class="boton boton-secundario" id="boton-saltar-debate" style="display: none;">Saltar al Voto</button>
+      <button class="boton" id="boton-iniciar-debate">Arrancar debate</button>
+      <button class="boton boton-secundario" id="boton-saltar-debate" style="display: none;">Ir a votar</button>
     </div>
   </div>
 
@@ -593,10 +654,20 @@
       <div class="mensaje mensaje-info">
         Cada jugador vivo debe votar. Dios registra los votos.
       </div>
-      <div id="lista-jugadores-votacion" class="lista-jugadores"></div>
+      <div class="contenedor-votacion">
+        <div>
+          <div class="subtitulo">¿Quién vota?</div>
+          <div id="lista-votantes" class="lista-jugadores"></div>
+        </div>
+        <div>
+          <div class="subtitulo">¿A quién vota?</div>
+          <div id="lista-votados" class="lista-jugadores"></div>
+        </div>
+      </div>
+      <div id="resumen-voto" class="mensaje mensaje-info" style="display: none;"></div>
       <div id="votos-registrados"></div>
-      <button class="boton" id="boton-confirmar-voto">Confirmar Voto</button>
-      <button class="boton boton-exito" id="boton-finalizar-votacion" style="display: none;">Finalizar Votación</button>
+      <button class="boton" id="boton-confirmar-voto">Registrar voto</button>
+      <button class="boton boton-exito" id="boton-finalizar-votacion" style="display: none;">Cerrar votación</button>
     </div>
   </div>
 
@@ -606,7 +677,7 @@
       <h2>Resultado de la Votación</h2>
       <div id="resultado-votacion" class="mensaje"></div>
       <div id="conteo-votos"></div>
-      <button class="boton" id="boton-aplicar-muerte">Aplicar Muerte</button>
+      <button class="boton" id="boton-aplicar-muerte">Confirmar eliminación</button>
     </div>
   </div>
 
@@ -615,8 +686,8 @@
     <div class="card">
       <h2 id="titulo-victoria"></h2>
       <div id="mensaje-victoria" class="mensaje"></div>
-      <button class="boton" id="boton-nuevo-juego">Nuevo Juego</button>
-      <button class="boton boton-secundario" id="boton-nueva-noche" style="display: none;">Nueva Noche</button>
+      <button class="boton" id="boton-nuevo-juego">Nuevo juego</button>
+      <button class="boton boton-secundario" id="boton-nueva-noche" style="display: none;">Nueva noche</button>
     </div>
   </div>
 
@@ -662,13 +733,22 @@
     };
 
     // Descripciones de roles
+    const nombresRoles = {
+      mafia: 'Mafia',
+      detective: 'Detective',
+      trabajadora: 'Trabajadora nocturna',
+      medico: 'Médico',
+      loco: 'Loco',
+      civil: 'Civil'
+    };
+
     const descripcionesRoles = {
-      mafia: 'Eres Mafia. Por la noche, te despertarás junto con los otros mafias (si los hay) y elegirán a quién matar.',
-      detective: 'Eres Detective. Por la noche, podrás investigar a un jugador y Dios te dirá si es mafia o no.',
-      trabajadora: 'Eres Trabajadora Nocturna. Por la noche, podrás distraer a un jugador, anulando su acción esa noche. Si distraes a alguien que va a morir, también morirás.',
-      medico: 'Eres Médico. Por la noche, podrás salvar a un jugador de la muerte. No puedes salvar dos veces seguidas a la misma persona.',
-      loco: 'Eres Loco. No tienes acción nocturna. Ganas si te votan durante el día.',
-      civil: 'Eres Civil. No tienes acción nocturna. Tu objetivo es descubrir y eliminar a los mafias durante el día mediante el debate y la votación.'
+      mafia: 'Sos Mafia. A la noche te vas a despertar con los otros mafiosos (si hay) y van a elegir a quién matar.',
+      detective: 'Sos Detective. A la noche podés investigar a alguien y Dios te dice si es mafia o no.',
+      trabajadora: 'Sos Trabajadora nocturna. A la noche podés distraer a alguien y anular su acción. Si distraés a alguien que iba a morir, vos también morís.',
+      medico: 'Sos Médico. A la noche podés salvar a alguien. No podés salvar dos noches seguidas a la misma persona.',
+      loco: 'Sos Loco. No tenés acción nocturna. Ganás si te votan durante el día.',
+      civil: 'Sos Civil. No tenés acción nocturna. Tu objetivo es encontrar a los mafiosos con el debate y la votación.'
     };
 
     // Inicialización
@@ -676,11 +756,17 @@
       cargarEstado();
       setupEventListeners();
       inicializarSelectores();
+      if (!estado.estadoActual) {
+        estado.estadoActual = 'CONFIGURACION';
+      }
       mostrarPantalla(estado.estadoActual);
     }
 
     // Setup de event listeners
     function setupEventListeners() {
+      // Reiniciar
+      document.getElementById('boton-reiniciar').addEventListener('click', reiniciarJuego);
+
       // Configuración
       document.getElementById('cantidad-jugadores').addEventListener('change', actualizarConfiguracion);
       document.getElementById('cantidad-mafia').addEventListener('change', validarConfiguracion);
@@ -727,25 +813,62 @@
       });
     }
 
+    function reiniciarJuego() {
+      const confirmarReinicio = confirm('¿Querés reiniciar la partida? Se va a borrar lo guardado.');
+      if (!confirmarReinicio) return;
+
+      try {
+        localStorage.removeItem('estadoMafia');
+        sessionStorage.removeItem('estadoMafia');
+      } catch (error) {
+        console.error('Error limpiando el storage:', error);
+      }
+
+      location.reload();
+    }
+
     // Inicializar selectores
     function inicializarSelectores() {
       const selectJugadores = document.getElementById('cantidad-jugadores');
+      const valorActualJugadores = selectJugadores.value;
+
+      // Evitar duplicados (al reiniciar / recargar)
+      selectJugadores.innerHTML = '<option value="">Elegí...</option>';
       for (let i = 4; i <= 15; i++) {
         const option = document.createElement('option');
-        option.value = i;
-        option.textContent = i;
+        option.value = String(i);
+        option.textContent = String(i);
         selectJugadores.appendChild(option);
       }
 
+      // Restaurar valor si el navegador lo rehidrata (y aún no hay estado guardado)
+      if (estado.configuracion.cantidadJugadores > 0) {
+        selectJugadores.value = String(estado.configuracion.cantidadJugadores);
+      } else if (valorActualJugadores) {
+        selectJugadores.value = valorActualJugadores;
+      }
+
+      actualizarOpcionesRoles(estado.configuracion.cantidadJugadores || parseInt(selectJugadores.value) || 15);
+
+      // Sincronizar estado/validación desde la UI al iniciar (importante post-reinicio)
+      actualizarConfiguracion();
+    }
+
+    function actualizarOpcionesRoles(maximo) {
+      const max = Math.max(0, Math.min(15, maximo || 15));
       const roles = ['mafia', 'detective', 'trabajadora', 'medico', 'loco'];
       roles.forEach(rol => {
         const select = document.getElementById(`cantidad-${rol}`);
-        for (let i = 0; i <= 15; i++) {
+        if (!select) return;
+        const valorPrevio = parseInt(select.value) || 0;
+        select.innerHTML = '';
+        for (let i = 0; i <= max; i++) {
           const option = document.createElement('option');
-          option.value = i;
-          option.textContent = i;
+          option.value = String(i);
+          option.textContent = String(i);
           select.appendChild(option);
         }
+        select.value = String(Math.min(max, valorPrevio));
       });
     }
 
@@ -755,6 +878,7 @@
       estado.configuracion.cantidadJugadores = cantidad;
       // Limpiar configuración de civiles al cambiar cantidad de jugadores
       estado.configuracion.civiles = 0;
+      actualizarOpcionesRoles(cantidad || 15);
       validarConfiguracion();
       guardarEstado();
     }
@@ -781,7 +905,9 @@
       const inputCiviles = document.getElementById('cantidad-civiles');
 
       if (cantidadJugadores === 0) {
-        mensaje.style.display = 'none';
+        mensaje.style.display = 'block';
+        mensaje.className = 'mensaje mensaje-info';
+        mensaje.textContent = 'Elegí cuántos jugadores van a jugar para poder seguir.';
         inputCiviles.value = '';
         boton.disabled = true;
         return;
@@ -795,7 +921,7 @@
         // Hay más roles especiales que jugadores
         mensaje.style.display = 'block';
         mensaje.className = 'mensaje mensaje-peligro';
-        mensaje.textContent = `Tienes ${totalRolesEspeciales} roles especiales pero solo ${cantidadJugadores} jugadores. Reduce la cantidad de roles especiales.`;
+        mensaje.textContent = `Tenés ${totalRolesEspeciales} roles especiales pero solo ${cantidadJugadores} jugadores. Bajá la cantidad de roles especiales.`;
         inputCiviles.value = '';
         boton.disabled = true;
       } else if (civiles === 0) {
@@ -807,7 +933,7 @@
         // Hay civiles automáticos
         mensaje.style.display = 'block';
         mensaje.className = 'mensaje mensaje-info';
-        mensaje.textContent = `Se agregarán ${civiles} civil${civiles !== 1 ? 'es' : ''} automáticamente para completar los ${cantidadJugadores} jugadores.`;
+        mensaje.textContent = `Se van a agregar ${civiles} civil${civiles !== 1 ? 'es' : ''} automáticamente para completar los ${cantidadJugadores} jugadores.`;
         inputCiviles.value = civiles;
         boton.disabled = false;
       }
@@ -918,13 +1044,14 @@
 
       const jugador = estado.jugadores[estado.indicePase];
       document.getElementById('nombre-pase').textContent = jugador.nombre;
+      mostrarPantalla('PASO_ROLES');
       guardarEstado();
     }
 
     // Mostrar rol individual
     function mostrarRolIndividual() {
       const jugador = estado.jugadores[estado.indicePase];
-      document.getElementById('rol-nombre').textContent = `Eres ${jugador.rol.toUpperCase()}`;
+      document.getElementById('rol-nombre').textContent = `Sos ${nombresRoles[jugador.rol] || jugador.rol}`;
       document.getElementById('rol-descripcion').textContent = descripcionesRoles[jugador.rol];
       mostrarPantalla('ROL_INDIVIDUAL');
     }
@@ -1136,7 +1263,7 @@
         mensaje.textContent = `${detective.nombre} fue distraído por la trabajadora nocturna. No puede investigar esta noche.`;
         lista.style.display = 'none';
         resultado.style.display = 'none';
-        boton.textContent = 'Continuar';
+        boton.textContent = 'Seguir';
         boton.onclick = () => {
           agregarHistorial('NOCHE', `Detective (${detective.nombre}) fue distraído y no pudo investigar`);
           const tieneMedico = estado.jugadores.some(j => j.rol === 'medico' && j.vivo);
@@ -1150,10 +1277,10 @@
         };
       } else {
         mensaje.className = 'mensaje mensaje-info';
-        mensaje.textContent = `Dile a ${detective.nombre} que se despierte y elija a quién investigar`;
+        mensaje.textContent = `Decile a ${detective.nombre} que se despierte y elija a quién investigar`;
         lista.style.display = 'block';
         resultado.style.display = 'none';
-        boton.textContent = 'Confirmar Investigación';
+        boton.textContent = 'Confirmar investigación';
 
         const objetivos = estado.jugadores.filter(j => j.rol !== 'detective' && j.vivo);
         lista.innerHTML = '';
@@ -1224,7 +1351,7 @@
         mensajeSalvado.className = 'mensaje mensaje-peligro';
         mensajeSalvado.textContent = `${medico.nombre} fue distraído por la trabajadora nocturna. No puede salvar esta noche.`;
         contenedor.style.display = 'none';
-        boton.textContent = 'Continuar';
+        boton.textContent = 'Seguir';
         boton.onclick = () => {
           agregarHistorial('NOCHE', `Médico (${medico.nombre}) fue distraído y no pudo salvar`);
           calcularMuertesNocturnas();
@@ -1233,7 +1360,7 @@
       } else {
         mensajeSalvado.style.display = 'none';
         contenedor.style.display = 'block';
-        boton.textContent = 'Confirmar Salvación';
+        boton.textContent = 'Confirmar salvación';
 
         const objetivos = estado.jugadores.filter(j => j.vivo);
         contenedor.innerHTML = '';
@@ -1244,7 +1371,7 @@
           if (ultimoSalvado && ultimoSalvado.vivo) {
             const aviso = document.createElement('div');
             aviso.className = 'mensaje mensaje-info';
-            aviso.textContent = `No puedes salvar a ${estado.medicoUltimoSalvado} dos veces seguidas`;
+            aviso.textContent = `No podés salvar a ${estado.medicoUltimoSalvado} dos noches seguidas`;
             contenedor.appendChild(aviso);
           }
         }
@@ -1375,6 +1502,22 @@
     // Continuar al día
     function continuarAlDia() {
       document.body.classList.remove('tema-oscuro');
+
+      // Verificar victoria después de la noche
+      const mafiasVivas = estado.jugadores.filter(j => j.rol === 'mafia' && j.vivo).length;
+      const civilesVivos = estado.jugadores.filter(j => j.rol !== 'mafia' && j.vivo).length;
+
+      if (mafiasVivas === 0) {
+        agregarHistorial('NOCHE', 'Victoria: no quedan mafias');
+        mostrarVictoria('CIVILES');
+        return;
+      }
+      if (mafiasVivas >= civilesVivos) {
+        agregarHistorial('NOCHE', 'Victoria: mafias igualan o superan a civiles');
+        mostrarVictoria('MAFIAS');
+        return;
+      }
+
       cambiarEstado('DIA_DEBATE');
       estado.tiempoRestante = 300;
       mostrarPantalla('DIA_DEBATE');
@@ -1425,58 +1568,95 @@
     // Mostrar pantalla de votación
     function mostrarPantallaVotacion() {
       const vivos = estado.jugadores.filter(j => j.vivo);
-      const contenedor = document.getElementById('lista-jugadores-votacion');
-      const contenedorVotos = document.getElementById('votos-registrados');
+      const contenedorVotantes = document.getElementById('lista-votantes');
+      const contenedorVotados = document.getElementById('lista-votados');
+      const resumenVoto = document.getElementById('resumen-voto');
       
-      contenedor.innerHTML = '';
-      let seleccionado = null;
+      contenedorVotantes.innerHTML = '';
+      contenedorVotados.innerHTML = '';
 
-      vivos.forEach(jugador => {
-        const card = document.createElement('div');
-        card.className = 'jugador-card';
-        card.dataset.id = jugador.nombre;
-        card.innerHTML = `<div class="nombre">${jugador.nombre}</div>`;
-        
-        card.addEventListener('click', () => {
-          document.querySelectorAll('#lista-jugadores-votacion .jugador-card').forEach(c => c.classList.remove('seleccionado'));
-          card.classList.add('seleccionado');
-          seleccionado = jugador.nombre;
+      let votanteSeleccionado = null;
+      let votadoSeleccionado = null;
+
+      const elegirProximoVotante = () => {
+        const proximo = vivos.find(j => !estado.votos[j.nombre]);
+        votanteSeleccionado = proximo ? proximo.nombre : (vivos[0]?.nombre || null);
+      };
+
+      const actualizarResumen = () => {
+        if (votanteSeleccionado && votadoSeleccionado) {
+          resumenVoto.style.display = 'block';
+          resumenVoto.textContent = `${votanteSeleccionado} vota a ${votadoSeleccionado}`;
+          document.getElementById('boton-confirmar-voto').disabled = false;
+        } else {
+          resumenVoto.style.display = 'none';
+          document.getElementById('boton-confirmar-voto').disabled = true;
+        }
+      };
+
+      const renderVotantes = () => {
+        contenedorVotantes.innerHTML = '';
+        vivos.forEach(jugador => {
+          const card = document.createElement('div');
+          const yaVoto = !!estado.votos[jugador.nombre];
+          card.className = `jugador-card${jugador.nombre === votanteSeleccionado ? ' seleccionado' : ''}${yaVoto ? ' votante-ya-voto' : ''}`;
+          const detalle = yaVoto ? `<div class="detalle-voto">Votó a: ${estado.votos[jugador.nombre]}</div>` : `<div class="detalle-voto">Sin voto</div>`;
+          card.innerHTML = `<div class="nombre">${jugador.nombre}</div>${detalle}`;
+          card.addEventListener('click', () => {
+            votanteSeleccionado = jugador.nombre;
+            renderVotantes();
+            actualizarResumen();
+          });
+          contenedorVotantes.appendChild(card);
         });
+      };
 
-        contenedor.appendChild(card);
-      });
+      const renderVotados = () => {
+        contenedorVotados.innerHTML = '';
+        vivos.forEach(jugador => {
+          const card = document.createElement('div');
+          card.className = `jugador-card${jugador.nombre === votadoSeleccionado ? ' seleccionado' : ''}`;
+          card.innerHTML = `<div class="nombre">${jugador.nombre}</div>`;
+          card.addEventListener('click', () => {
+            votadoSeleccionado = jugador.nombre;
+            renderVotados();
+            actualizarResumen();
+          });
+          contenedorVotados.appendChild(card);
+        });
+      };
 
       actualizarVotosRegistrados();
+      elegirProximoVotante();
+      renderVotantes();
+      renderVotados();
+      actualizarResumen();
 
       document.getElementById('boton-confirmar-voto').onclick = () => {
-        if (seleccionado) {
-          const votante = prompt('¿Quién está votando?');
-          if (votante) {
-            const jugadorVotante = estado.jugadores.find(j => j.nombre === votante && j.vivo);
-            if (jugadorVotante) {
-              const votoAnterior = estado.votos[votante];
-              estado.votos[votante] = seleccionado;
-              if (votoAnterior) {
-                agregarHistorial('DIA', `${votante} cambió su voto de ${votoAnterior} a ${seleccionado}`);
-              } else {
-                agregarHistorial('DIA', `${votante} votó a ${seleccionado}`);
-              }
-              actualizarVotosRegistrados();
-              seleccionado = null;
-              document.querySelectorAll('#lista-jugadores-votacion .jugador-card').forEach(c => c.classList.remove('seleccionado'));
-              
-              // Mostrar botón de finalizar si hay al menos un voto
-              if (Object.keys(estado.votos).length > 0) {
-                document.getElementById('boton-finalizar-votacion').style.display = 'block';
-              }
-              guardarEstado();
-            } else {
-              alert('Jugador no encontrado o no está vivo');
-            }
-          }
+        if (!votanteSeleccionado || !votadoSeleccionado) return;
+
+        const votoAnterior = estado.votos[votanteSeleccionado];
+        estado.votos[votanteSeleccionado] = votadoSeleccionado;
+        if (votoAnterior) {
+          agregarHistorial('DIA', `${votanteSeleccionado} cambió su voto de ${votoAnterior} a ${votadoSeleccionado}`);
         } else {
-          alert('Selecciona a quién votar primero');
+          agregarHistorial('DIA', `${votanteSeleccionado} votó a ${votadoSeleccionado}`);
         }
+
+        actualizarVotosRegistrados();
+
+        // Mostrar botón de finalizar si hay al menos un voto
+        if (Object.keys(estado.votos).length > 0) {
+      document.getElementById('boton-finalizar-votacion').style.display = 'block';
+        }
+
+        // Avanzar al próximo votante que no votó todavía
+        votadoSeleccionado = null;
+        elegirProximoVotante();
+        renderVotantes();
+        renderVotados();
+        actualizarResumen();
+        guardarEstado();
       };
 
       mostrarPantalla('DIA_VOTACION');
@@ -1502,7 +1682,7 @@
     // Finalizar votación
     function finalizarVotacion() {
       if (Object.keys(estado.votos).length === 0) {
-        alert('No hay votos registrados');
+        alert('No hay votos cargados');
         return;
       }
 
@@ -1525,7 +1705,7 @@
       });
 
       if (empate) {
-        alert('Hay un empate en la votación. Revisa los votos.');
+        alert('Hay un empate en la votación. Revisá los votos.');
         return;
       }
 
@@ -1666,18 +1846,42 @@
 
     // Navegación de pantallas
     function mostrarPantalla(pantalla) {
+      if (!pantalla) pantalla = 'CONFIGURACION';
+
+      const mapeoPantallas = {
+        PASO_ROLES: 'pase-roles',
+        ROL_INDIVIDUAL: 'rol-individual',
+        VISTA_DIOS: 'vista-dios',
+        NOCHE_TURNO_MAFIA: 'noche-mafia',
+        NOCHE_TURNO_TRABAJADORA: 'noche-trabajadora',
+        NOCHE_TURNO_DETECTIVE: 'noche-detective',
+        NOCHE_TURNO_MEDICO: 'noche-medico',
+        RESULTADO_NOCHE: 'resultado-noche',
+        DIA_DEBATE: 'dia-debate',
+        DIA_VOTACION: 'dia-votacion',
+        RESULTADO_VOTACION: 'resultado-votacion',
+      };
+
       document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('activa'));
-      const pantallaElement = document.querySelector(`.pantalla-${pantalla.toLowerCase().replace(/_/g, '-')}`);
+      const sufijo = mapeoPantallas[pantalla] || pantalla.toLowerCase().replace(/_/g, '-');
+      const selector = `.pantalla-${sufijo}`;
+      const pantallaElement = document.querySelector(selector);
       if (pantallaElement) {
         pantallaElement.classList.add('activa');
+      } else {
+        console.error(`No se encontró la pantalla con selector: ${selector} (estado: ${pantalla})`);
+        const pantallaConfig = document.querySelector('.pantalla-configuracion');
+        if (pantallaConfig) pantallaConfig.classList.add('activa');
       }
 
       // Ocultar botón de historial durante pase de roles
       const botonHistorial = document.getElementById('boton-historial-flotante');
-      if (pantalla === 'PASO_ROLES' || pantalla === 'ROL_INDIVIDUAL') {
-        botonHistorial.classList.add('oculto');
-      } else {
-        botonHistorial.classList.remove('oculto');
+      if (botonHistorial) {
+        if (pantalla === 'PASO_ROLES' || pantalla === 'ROL_INDIVIDUAL') {
+          botonHistorial.classList.add('oculto');
+        } else {
+          botonHistorial.classList.remove('oculto');
+        }
       }
     }
 
@@ -1698,17 +1902,30 @@
     function cargarEstado() {
       try {
         const guardado = sessionStorage.getItem('estadoMafia');
-        if (guardado) {
-          const estadoGuardado = JSON.parse(guardado);
+        if (!guardado) {
+          estado.estadoActual = 'CONFIGURACION';
+          return;
+        }
+
+        const estadoGuardado = JSON.parse(guardado);
+        const tieneConfigValida = !!(estadoGuardado.configuracion && estadoGuardado.configuracion.cantidadJugadores >= 0);
+        const jugadoresConsistentes = !estadoGuardado.jugadores
+          || !estadoGuardado.configuracion
+          || estadoGuardado.jugadores.length === estadoGuardado.configuracion.cantidadJugadores;
+
+        if (tieneConfigValida && jugadoresConsistentes) {
           Object.assign(estado, estadoGuardado);
-          
-          // Restaurar timer si estaba activo
           if (estado.estadoActual === 'DIA_DEBATE' && estado.tiempoRestante > 0 && estado.tiempoRestante < 300) {
             iniciarDebate();
           }
+        } else {
+          sessionStorage.removeItem('estadoMafia');
+          estado.estadoActual = 'CONFIGURACION';
         }
       } catch (e) {
         console.error('Error cargando estado:', e);
+        sessionStorage.removeItem('estadoMafia');
+        estado.estadoActual = 'CONFIGURACION';
       }
     }
 
