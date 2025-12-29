@@ -212,6 +212,125 @@
       border-color: var(--color-boton);
     }
 
+    /* Stepper de roles (+ / -) */
+    .fila-rol {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .fila-rol .etiqueta-rol {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .boton-ayuda {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: 2px solid rgba(0, 105, 217, 0.35);
+      background: rgba(0, 105, 217, 0.08);
+      color: var(--color-boton);
+      font-weight: 800;
+      cursor: pointer;
+      transition: var(--transicion);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      flex: 0 0 auto;
+    }
+
+    .boton-ayuda:hover {
+      transform: scale(1.05);
+      background: rgba(0, 105, 217, 0.12);
+    }
+
+    body.tema-oscuro .boton-ayuda {
+      border-color: rgba(77, 163, 255, 0.45);
+      background: rgba(77, 163, 255, 0.12);
+      color: #4da3ff;
+    }
+
+    .stepper-rol {
+      display: grid;
+      grid-template-columns: 44px 56px 44px;
+      align-items: center;
+      gap: 10px;
+      flex: 0 0 auto;
+    }
+
+    .boton-stepper {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      border: 2px solid #ddd;
+      background: #fff;
+      cursor: pointer;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--color-texto-claro);
+      transition: var(--transicion);
+      box-shadow: var(--sombra);
+    }
+
+    .boton-stepper:hover {
+      border-color: var(--color-boton);
+      transform: translateY(-1px);
+    }
+
+    .boton-stepper:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    body.tema-oscuro .boton-stepper {
+      background: #333;
+      border-color: #555;
+      color: var(--color-texto-oscuro);
+      box-shadow: var(--sombra-oscura);
+    }
+
+    .valor-stepper {
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: 800;
+      padding: 10px 8px;
+      border-radius: 10px;
+      border: 2px solid #ddd;
+      background: #fff;
+    }
+
+    body.tema-oscuro .valor-stepper {
+      background: #333;
+      border-color: #555;
+      color: var(--color-texto-oscuro);
+    }
+
+    /* Modal ayuda de roles */
+    .modal-rol {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 2500;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal-rol.activo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     /* Lista de jugadores */
     .lista-jugadores {
       display: grid;
@@ -489,38 +608,73 @@
       </div>
 
       <div class="input-grupo">
-        <label for="cantidad-mafia">Mafia</label>
-        <select id="cantidad-mafia">
-          <option value="0">0</option>
-        </select>
+        <div class="fila-rol">
+          <div class="etiqueta-rol">
+            <span>Mafia</span>
+            <button class="boton-ayuda" type="button" data-rol="mafia" aria-label="Ver descripción de Mafia">?</button>
+          </div>
+          <div class="stepper-rol" aria-label="Cantidad de Mafia">
+            <button class="boton-stepper" type="button" data-rol="mafia" data-accion="restar" aria-label="Restar Mafia">-</button>
+            <div class="valor-stepper" id="valor-mafia">0</div>
+            <button class="boton-stepper" type="button" data-rol="mafia" data-accion="sumar" aria-label="Sumar Mafia">+</button>
+          </div>
+        </div>
       </div>
 
       <div class="input-grupo">
-        <label for="cantidad-detective">Detective</label>
-        <select id="cantidad-detective">
-          <option value="0">0</option>
-        </select>
+        <div class="fila-rol">
+          <div class="etiqueta-rol">
+            <span>Detective</span>
+            <button class="boton-ayuda" type="button" data-rol="detective" aria-label="Ver descripción de Detective">?</button>
+          </div>
+          <div class="stepper-rol" aria-label="Cantidad de Detective">
+            <button class="boton-stepper" type="button" data-rol="detective" data-accion="restar" aria-label="Restar Detective">-</button>
+            <div class="valor-stepper" id="valor-detective">0</div>
+            <button class="boton-stepper" type="button" data-rol="detective" data-accion="sumar" aria-label="Sumar Detective">+</button>
+          </div>
+        </div>
       </div>
 
       <div class="input-grupo">
-        <label for="cantidad-trabajadora">Trabajadora Nocturna</label>
-        <select id="cantidad-trabajadora">
-          <option value="0">0</option>
-        </select>
+        <div class="fila-rol">
+          <div class="etiqueta-rol">
+            <span>Trabajadora nocturna</span>
+            <button class="boton-ayuda" type="button" data-rol="trabajadora" aria-label="Ver descripción de Trabajadora nocturna">?</button>
+          </div>
+          <div class="stepper-rol" aria-label="Cantidad de Trabajadora nocturna">
+            <button class="boton-stepper" type="button" data-rol="trabajadora" data-accion="restar" aria-label="Restar Trabajadora nocturna">-</button>
+            <div class="valor-stepper" id="valor-trabajadora">0</div>
+            <button class="boton-stepper" type="button" data-rol="trabajadora" data-accion="sumar" aria-label="Sumar Trabajadora nocturna">+</button>
+          </div>
+        </div>
       </div>
 
       <div class="input-grupo">
-        <label for="cantidad-medico">Médico</label>
-        <select id="cantidad-medico">
-          <option value="0">0</option>
-        </select>
+        <div class="fila-rol">
+          <div class="etiqueta-rol">
+            <span>Médico</span>
+            <button class="boton-ayuda" type="button" data-rol="medico" aria-label="Ver descripción de Médico">?</button>
+          </div>
+          <div class="stepper-rol" aria-label="Cantidad de Médico">
+            <button class="boton-stepper" type="button" data-rol="medico" data-accion="restar" aria-label="Restar Médico">-</button>
+            <div class="valor-stepper" id="valor-medico">0</div>
+            <button class="boton-stepper" type="button" data-rol="medico" data-accion="sumar" aria-label="Sumar Médico">+</button>
+          </div>
+        </div>
       </div>
 
       <div class="input-grupo">
-        <label for="cantidad-loco">Loco</label>
-        <select id="cantidad-loco">
-          <option value="0">0</option>
-        </select>
+        <div class="fila-rol">
+          <div class="etiqueta-rol">
+            <span>Loco</span>
+            <button class="boton-ayuda" type="button" data-rol="loco" aria-label="Ver descripción de Loco">?</button>
+          </div>
+          <div class="stepper-rol" aria-label="Cantidad de Loco">
+            <button class="boton-stepper" type="button" data-rol="loco" data-accion="restar" aria-label="Restar Loco">-</button>
+            <div class="valor-stepper" id="valor-loco">0</div>
+            <button class="boton-stepper" type="button" data-rol="loco" data-accion="sumar" aria-label="Sumar Loco">+</button>
+          </div>
+        </div>
       </div>
 
       <div class="input-grupo">
@@ -713,6 +867,15 @@
     </div>
   </div>
 
+  <!-- Modal Ayuda de Roles -->
+  <div class="modal-rol" id="modal-rol">
+    <div class="modal-contenido">
+      <h2 id="titulo-rol">Rol</h2>
+      <div id="descripcion-rol"></div>
+      <button class="boton boton-secundario" id="boton-cerrar-rol">Cerrar</button>
+    </div>
+  </div>
+
   <script>
     // Estado del juego
     const estado = {
@@ -761,11 +924,136 @@
       civil: 'Sos Civil. No tenés acción nocturna. Tu objetivo es encontrar a los mafiosos con el debate y la votación.'
     };
 
+    const rolesConfigurables = ['mafia', 'detective', 'trabajadora', 'medico', 'loco'];
+
+    function obtenerCantidadJugadores() {
+      return parseInt(document.getElementById('cantidad-jugadores').value) || 0;
+    }
+
+    function obtenerValorRol(rol) {
+      const el = document.getElementById(`valor-${rol}`);
+      return parseInt(el?.textContent || '0') || 0;
+    }
+
+    function setearValorRol(rol, valor) {
+      const el = document.getElementById(`valor-${rol}`);
+      if (el) el.textContent = String(valor);
+      estado.configuracion[rol] = valor;
+    }
+
+    function mostrarMensajeValidacion(tipoClase, texto) {
+      const mensaje = document.getElementById('mensaje-validacion');
+      if (!mensaje) return;
+      mensaje.style.display = 'block';
+      mensaje.className = `mensaje ${tipoClase}`;
+      mensaje.textContent = texto;
+    }
+
+    function ocultarMensajeValidacion() {
+      const mensaje = document.getElementById('mensaje-validacion');
+      if (!mensaje) return;
+      mensaje.style.display = 'none';
+      mensaje.textContent = '';
+    }
+
+    function totalRolesEspeciales(config) {
+      return (config.mafia || 0)
+        + (config.detective || 0)
+        + (config.trabajadora || 0)
+        + (config.medico || 0)
+        + (config.loco || 0);
+    }
+
+    function recortarRolesSiHaceFalta() {
+      const cantidadJugadores = estado.configuracion.cantidadJugadores || 0;
+      let totalEspeciales = totalRolesEspeciales(estado.configuracion);
+      if (cantidadJugadores <= 0 || totalEspeciales <= cantidadJugadores) return;
+
+      // Recortar en este orden para evitar sorpresas: primero roles menos “críticos”
+      const ordenRecorte = ['loco', 'medico', 'trabajadora', 'detective', 'mafia'];
+      for (const rol of ordenRecorte) {
+        while ((estado.configuracion[rol] || 0) > 0 && totalEspeciales > cantidadJugadores) {
+          estado.configuracion[rol] -= 1;
+          totalEspeciales -= 1;
+        }
+        if (totalEspeciales <= cantidadJugadores) break;
+      }
+    }
+
+    function sincronizarUiRolesDesdeEstado() {
+      rolesConfigurables.forEach((rol) => {
+        const valor = Math.max(0, parseInt(estado.configuracion[rol]) || 0);
+        setearValorRol(rol, valor);
+      });
+      actualizarBotonesStepper();
+    }
+
+    function actualizarBotonesStepper() {
+      const cantidadJugadores = estado.configuracion.cantidadJugadores || 0;
+      const totalEspeciales = totalRolesEspeciales(estado.configuracion);
+
+      document.querySelectorAll('.boton-stepper').forEach((boton) => {
+        const rol = boton.dataset.rol;
+        const accion = boton.dataset.accion;
+        const valorActual = estado.configuracion[rol] || 0;
+
+        if (accion === 'restar') {
+          boton.disabled = valorActual <= 0;
+          return;
+        }
+
+        // Sumar: no permitir exceder cantidad de jugadores ni pasarse en la suma total
+        const puedeSumarPorMax = valorActual < cantidadJugadores;
+        const puedeSumarPorSuma = (totalEspeciales + 1) <= cantidadJugadores;
+        boton.disabled = !(cantidadJugadores > 0 && puedeSumarPorMax && puedeSumarPorSuma);
+      });
+    }
+
+    function ajustarRol(rol, delta) {
+      if (!rolesConfigurables.includes(rol)) return;
+
+      const cantidadJugadores = estado.configuracion.cantidadJugadores || obtenerCantidadJugadores() || 0;
+      const valorActual = obtenerValorRol(rol);
+      const proximo = Math.max(0, valorActual + delta);
+      if (proximo === valorActual) return;
+
+      if (cantidadJugadores > 0) {
+        const copiaConfig = { ...estado.configuracion, [rol]: proximo };
+        const totalEspeciales = totalRolesEspeciales(copiaConfig);
+        if (proximo > cantidadJugadores || totalEspeciales > cantidadJugadores) {
+          mostrarMensajeValidacion('mensaje-peligro', 'No podés poner más roles especiales que jugadores.');
+          actualizarBotonesStepper();
+          return;
+        }
+      }
+
+      ocultarMensajeValidacion();
+      setearValorRol(rol, proximo);
+      validarConfiguracion();
+    }
+
+    function mostrarAyudaRol(rol) {
+      const modal = document.getElementById('modal-rol');
+      const titulo = document.getElementById('titulo-rol');
+      const descripcion = document.getElementById('descripcion-rol');
+      if (!modal || !titulo || !descripcion) return;
+
+      const nombre = nombresRoles[rol] || rol;
+      titulo.textContent = nombre;
+      descripcion.textContent = descripcionesRoles[rol] || 'No hay descripción para este rol.';
+      modal.classList.add('activo');
+    }
+
+    function cerrarAyudaRol() {
+      document.getElementById('modal-rol')?.classList.remove('activo');
+    }
+
     // Inicialización
     function inicializar() {
       cargarEstado();
       setupEventListeners();
       inicializarSelectores();
+      sincronizarUiRolesDesdeEstado();
       if (!estado.estadoActual) {
         estado.estadoActual = 'CONFIGURACION';
       }
@@ -779,12 +1067,27 @@
 
       // Configuración
       document.getElementById('cantidad-jugadores').addEventListener('change', actualizarConfiguracion);
-      document.getElementById('cantidad-mafia').addEventListener('change', validarConfiguracion);
-      document.getElementById('cantidad-detective').addEventListener('change', validarConfiguracion);
-      document.getElementById('cantidad-trabajadora').addEventListener('change', validarConfiguracion);
-      document.getElementById('cantidad-medico').addEventListener('change', validarConfiguracion);
-      document.getElementById('cantidad-loco').addEventListener('change', validarConfiguracion);
       document.getElementById('boton-continuar-config').addEventListener('click', continuarConfiguracion);
+
+      // Stepper roles (+ / -) y ayuda (?)
+      document.querySelectorAll('.boton-stepper').forEach((boton) => {
+        boton.addEventListener('click', () => {
+          const rol = boton.dataset.rol;
+          const accion = boton.dataset.accion;
+          ajustarRol(rol, accion === 'sumar' ? 1 : -1);
+        });
+      });
+
+      document.querySelectorAll('.boton-ayuda').forEach((boton) => {
+        boton.addEventListener('click', () => {
+          mostrarAyudaRol(boton.dataset.rol);
+        });
+      });
+
+      document.getElementById('boton-cerrar-rol').addEventListener('click', cerrarAyudaRol);
+      document.getElementById('modal-rol').addEventListener('click', (e) => {
+        if (e.target.id === 'modal-rol') cerrarAyudaRol();
+      });
 
       // Nombres
       document.getElementById('boton-continuar-nombres').addEventListener('click', continuarNombres);
@@ -865,48 +1168,29 @@
         selectJugadores.value = valorActualJugadores;
       }
 
-      actualizarOpcionesRoles(estado.configuracion.cantidadJugadores || parseInt(selectJugadores.value) || 15);
-
       // Sincronizar estado/validación desde la UI al iniciar (importante post-reinicio)
       actualizarConfiguracion();
     }
 
-    function actualizarOpcionesRoles(maximo) {
-      const max = Math.max(0, Math.min(15, maximo || 15));
-      const roles = ['mafia', 'detective', 'trabajadora', 'medico', 'loco'];
-      roles.forEach(rol => {
-        const select = document.getElementById(`cantidad-${rol}`);
-        if (!select) return;
-        const valorPrevio = parseInt(select.value) || 0;
-        select.innerHTML = '';
-        for (let i = 0; i <= max; i++) {
-          const option = document.createElement('option');
-          option.value = String(i);
-          option.textContent = String(i);
-          select.appendChild(option);
-        }
-        select.value = String(Math.min(max, valorPrevio));
-      });
-    }
-
     // Actualizar configuración
     function actualizarConfiguracion() {
-      const cantidad = parseInt(document.getElementById('cantidad-jugadores').value) || 0;
+      const cantidad = obtenerCantidadJugadores();
       estado.configuracion.cantidadJugadores = cantidad;
       // Limpiar configuración de civiles al cambiar cantidad de jugadores
       estado.configuracion.civiles = 0;
-      actualizarOpcionesRoles(cantidad || 15);
+      recortarRolesSiHaceFalta();
+      sincronizarUiRolesDesdeEstado();
       validarConfiguracion();
       guardarEstado();
     }
 
     // Validar configuración
     function validarConfiguracion() {
-      const mafia = parseInt(document.getElementById('cantidad-mafia').value) || 0;
-      const detective = parseInt(document.getElementById('cantidad-detective').value) || 0;
-      const trabajadora = parseInt(document.getElementById('cantidad-trabajadora').value) || 0;
-      const medico = parseInt(document.getElementById('cantidad-medico').value) || 0;
-      const loco = parseInt(document.getElementById('cantidad-loco').value) || 0;
+      const mafia = obtenerValorRol('mafia');
+      const detective = obtenerValorRol('detective');
+      const trabajadora = obtenerValorRol('trabajadora');
+      const medico = obtenerValorRol('medico');
+      const loco = obtenerValorRol('loco');
 
       estado.configuracion.mafia = mafia;
       estado.configuracion.detective = detective;
@@ -922,11 +1206,10 @@
       const inputCiviles = document.getElementById('cantidad-civiles');
 
       if (cantidadJugadores === 0) {
-        mensaje.style.display = 'block';
-        mensaje.className = 'mensaje mensaje-info';
-        mensaje.textContent = 'Elegí cuántos jugadores van a jugar para poder seguir.';
+        mostrarMensajeValidacion('mensaje-info', 'Elegí cuántos jugadores van a jugar para poder seguir.');
         inputCiviles.value = '';
         boton.disabled = true;
+        actualizarBotonesStepper();
         return;
       }
 
@@ -936,25 +1219,23 @@
 
       if (civiles < 0) {
         // Hay más roles especiales que jugadores
-        mensaje.style.display = 'block';
-        mensaje.className = 'mensaje mensaje-peligro';
-        mensaje.textContent = `Tenés ${totalRolesEspeciales} roles especiales pero solo ${cantidadJugadores} jugadores. Bajá la cantidad de roles especiales.`;
+        mostrarMensajeValidacion('mensaje-peligro', `Tenés ${totalRolesEspeciales} roles especiales pero solo ${cantidadJugadores} jugadores. Bajá la cantidad de roles especiales.`);
         inputCiviles.value = '';
         boton.disabled = true;
       } else if (civiles === 0) {
         // Exactamente la cantidad correcta, sin civiles
-        mensaje.style.display = 'none';
+        ocultarMensajeValidacion();
         inputCiviles.value = '0';
         boton.disabled = false;
       } else {
         // Hay civiles automáticos
-        mensaje.style.display = 'block';
-        mensaje.className = 'mensaje mensaje-info';
-        mensaje.textContent = `Se van a agregar ${civiles} civil${civiles !== 1 ? 'es' : ''} automáticamente para completar los ${cantidadJugadores} jugadores.`;
+        // Mensaje removido por redundante: ya se ve en "Civiles (automático)"
+        ocultarMensajeValidacion();
         inputCiviles.value = civiles;
         boton.disabled = false;
       }
 
+      actualizarBotonesStepper();
       guardarEstado();
     }
 
