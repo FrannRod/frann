@@ -1392,7 +1392,7 @@
         medico: null
       };
       estado.distraidos = [];
-      estado.medicoUltimoSalvado = null;
+      // Nota: no reseteamos medicoUltimoSalvado para poder cumplir la regla de "no salvar a la misma persona dos noches seguidas"
 
       // Determinar orden de turnos (sin spoilear por roles muertos)
       // La mafia solo actúa si hay al menos un mafia vivo; lo demás depende de la configuración del juego.
@@ -1538,16 +1538,16 @@
 
     // Mostrar turno detective
     function mostrarTurnoDetective() {
-      const detective = estado.jugadores.find(j => j.rol === 'detective' && j.vivo);
+      const detectives = estado.jugadores.filter(j => j.rol === 'detective' && j.vivo);
       const hayMedico = (estado.configuracion.medico || 0) > 0;
 
-      const fueDistraido = detective ? estado.distraidos.includes(detective.nombre) : false;
+      const todosDistraidos = detectives.length > 0 && detectives.every(d => estado.distraidos.includes(d.nombre));
       const mensaje = document.getElementById('mensaje-detective');
       const resultado = document.getElementById('resultado-detective');
       const lista = document.getElementById('lista-jugadores-detective');
       const boton = document.getElementById('boton-confirmar-detective');
 
-      if (!detective) {
+      if (detectives.length === 0) {
         // No spoilear: igual mostramos el turno, aunque no quede detective vivo
         mensaje.className = 'mensaje mensaje-info';
         mensaje.textContent = 'Decile al detective que se despierte y elija a quién investigar.';
@@ -1568,14 +1568,14 @@
         return;
       }
 
-      if (fueDistraido) {
+      if (todosDistraidos) {
         mensaje.className = 'mensaje mensaje-peligro';
-        mensaje.textContent = `${detective.nombre} fue distraído por la trabajadora nocturna. Esta noche no puede investigar.`;
+        mensaje.textContent = `Los detectives fueron distraídos por la trabajadora nocturna. Esta noche no pueden investigar.`;
         lista.style.display = 'none';
         resultado.style.display = 'none';
         boton.textContent = 'Seguir';
         boton.onclick = () => {
-          agregarHistorial('NOCHE', `Detective (${detective.nombre}) fue distraído y no pudo investigar`);
+          agregarHistorial('NOCHE', `Detectives fueron distraídos y no pudieron investigar`);
           if (hayMedico) {
             cambiarEstado('NOCHE_TURNO_MEDICO');
             mostrarTurnoMedico();
@@ -1586,7 +1586,9 @@
         };
       } else {
         mensaje.className = 'mensaje mensaje-info';
-        mensaje.textContent = `Decile a ${detective.nombre} que se despierte y elija a quién investigar`;
+        mensaje.textContent = detectives.length > 1
+          ? `Deciles a los detectives que se despierten y elijan a quién investigar`
+          : `Decile al detective que se despierte y elija a quién investigar`;
         lista.style.display = 'block';
         resultado.style.display = 'none';
         boton.textContent = 'Confirmar investigación';
@@ -1625,7 +1627,7 @@
           if (seleccionado) {
             const objetivo = estado.jugadores.find(j => j.nombre === seleccionado);
             estado.accionesNocturnas.detective = seleccionado;
-            agregarHistorial('NOCHE', `Detective investigó a ${seleccionado}: ${objetivo.rol === 'mafia' ? 'ES MAFIA' : 'NO ES MAFIA'}`);
+            agregarHistorial('NOCHE', `Detectives investigaron a ${seleccionado}: ${objetivo.rol === 'mafia' ? 'ES MAFIA' : 'NO ES MAFIA'}`);
             
             if (hayMedico) {
               cambiarEstado('NOCHE_TURNO_MEDICO');
@@ -1643,8 +1645,8 @@
 
     // Mostrar turno medico
     function mostrarTurnoMedico() {
-      const medico = estado.jugadores.find(j => j.rol === 'medico' && j.vivo);
-      if (!medico) {
+      const medicos = estado.jugadores.filter(j => j.rol === 'medico' && j.vivo);
+      if (medicos.length === 0) {
         // No spoilear: igual mostramos el turno, aunque no quede médico vivo
         const mensajeSalvado = document.getElementById('mensaje-medico-salvado');
         const contenedor = document.getElementById('lista-jugadores-medico');
@@ -1665,19 +1667,19 @@
         return;
       }
 
-      const fueDistraido = estado.distraidos.includes(medico.nombre);
+      const todosDistraidos = medicos.every(m => estado.distraidos.includes(m.nombre));
       const mensajeSalvado = document.getElementById('mensaje-medico-salvado');
       const contenedor = document.getElementById('lista-jugadores-medico');
       const boton = document.getElementById('boton-confirmar-medico');
 
-      if (fueDistraido) {
+      if (todosDistraidos) {
         mensajeSalvado.style.display = 'block';
         mensajeSalvado.className = 'mensaje mensaje-peligro';
-        mensajeSalvado.textContent = `${medico.nombre} fue distraído por la trabajadora nocturna. Esta noche no puede salvar.`;
+        mensajeSalvado.textContent = `Los médicos fueron distraídos por la trabajadora nocturna. Esta noche no pueden salvar.`;
         contenedor.style.display = 'none';
         boton.textContent = 'Seguir';
         boton.onclick = () => {
-          agregarHistorial('NOCHE', `Médico (${medico.nombre}) fue distraído y no pudo salvar`);
+          agregarHistorial('NOCHE', `Médicos fueron distraídos y no pudieron salvar`);
           calcularMuertesNocturnas();
           guardarEstado();
         };
@@ -1738,10 +1740,10 @@
       const muertos = [];
       let trabajadoraMuere = false;
 
-      // Verificar si mafia puede matar (ningún mafia fue distraído)
+      // Verificar si mafia puede matar (si hay al menos un mafia NO distraído)
       const mafias = estado.jugadores.filter(j => j.rol === 'mafia' && j.vivo);
-      const mafiaFueDistraido = mafias.some(m => estado.distraidos.includes(m.nombre));
-      const mafiaPuedeMatar = estado.accionesNocturnas.mafia && !mafiaFueDistraido;
+      const algunMafiaNoDistraido = mafias.some(m => !estado.distraidos.includes(m.nombre));
+      const mafiaPuedeMatar = estado.accionesNocturnas.mafia && algunMafiaNoDistraido;
       const victimaMafia = estado.accionesNocturnas.mafia;
 
       if (mafiaPuedeMatar && victimaMafia) {
@@ -1751,9 +1753,9 @@
           // La víctima ya está muerta, no hacer nada
         } else {
           // Verificar si fue salvada por médico
-          const medico = estado.jugadores.find(j => j.rol === 'medico' && j.vivo);
-          const medicoFueDistraido = medico && estado.distraidos.includes(medico.nombre);
-          const medicoPuedeSalvar = estado.accionesNocturnas.medico && medico && !medicoFueDistraido;
+          const medicos = estado.jugadores.filter(j => j.rol === 'medico' && j.vivo);
+          const algunMedicoNoDistraido = medicos.some(m => !estado.distraidos.includes(m.nombre));
+          const medicoPuedeSalvar = estado.accionesNocturnas.medico && medicos.length > 0 && algunMedicoNoDistraido;
           const salvadoPorMedico = medicoPuedeSalvar && estado.accionesNocturnas.medico === victimaMafia;
 
           // Verificar si trabajadora distrajo a la víctima (esto no previene la muerte, pero trabajadora no muere)
