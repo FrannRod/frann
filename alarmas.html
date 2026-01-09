@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script async defer src="https://apis.google.com/js/api.js"></script>
   <!-- Font Awesome para los iconos -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="styles.css">
@@ -140,6 +141,24 @@
       text-align: center;
     }
 
+    #fecha-google-calendar {
+      width: 100%;
+      padding: 10px;
+      font-size: 1em;
+      margin-top: 15px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .acciones-modal {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
     .close {
       color: #aaa;
       float: right;
@@ -201,6 +220,7 @@
       <h2>Configuración de Actividades <button id="help-button" class="button small">?</button></h2>
         <div class="controles-archivo">
           <button id="boton-exportar" class="button small">Exportar</button>
+          <button id="boton-exportar-google" class="button small">Exportar a Google Calendar</button>
           <button id="boton-importar" class="button small">Importar</button>
           <input type="file" id="archivo-importar" accept="application/json" style="display:none">
           <button id="boton-reiniciar" class="button small">Reiniciar</button>
@@ -247,6 +267,21 @@
         </p>
       </div>
     </div>
+    <div id="modal-google-calendar" class="modal">
+      <div class="modal-content">
+        <span id="cerrar-google-calendar" class="close">&times;</span>
+        <h3>Exportar a Google Calendar</h3>
+        <p style="text-align: justify; font-size: 1em; line-height: 1.5;">
+          Elegí la fecha desde la que querés agendar estas actividades. Vamos a respetar tus horarios y tu zona horaria
+          automáticamente.
+        </p>
+        <input type="date" id="fecha-google-calendar">
+        <div class="acciones-modal">
+          <button id="confirmar-google-calendar" class="button small">Exportar</button>
+          <button id="cancelar-google-calendar" class="button small">Cancelar</button>
+        </div>
+      </div>
+    </div>
   </main>
 
     <script>
@@ -259,9 +294,18 @@
         const $botonAyuda = $('#help-button');
         const $cerrarAyuda = $('#close-help');
         const $botonExportar = $('#boton-exportar');
+        const $botonExportarGoogle = $('#boton-exportar-google');
         const $botonImportar = $('#boton-importar');
         const $archivoImportar = $('#archivo-importar');
         const $botonReiniciar = $('#boton-reiniciar');
+        const $modalGoogleCalendar = $('#modal-google-calendar');
+        const $cerrarGoogleCalendar = $('#cerrar-google-calendar');
+        const $fechaGoogleCalendar = $('#fecha-google-calendar');
+        const $confirmarGoogleCalendar = $('#confirmar-google-calendar');
+        const $cancelarGoogleCalendar = $('#cancelar-google-calendar');
+        let googleClientId = localStorage.getItem('googleClientId') || '';
+        let clienteGoogleInicializado = false;
+        const zonaHorariaLocal = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
         $botonAyuda.on('click', function () {
           $modalAyuda.fadeIn();
@@ -274,6 +318,9 @@
         $(window).on('click', function (e) {
           if ($(e.target).is($modalAyuda)) {
             $modalAyuda.fadeOut();
+          }
+          if ($(e.target).is($modalGoogleCalendar)) {
+            $modalGoogleCalendar.fadeOut();
           }
         });
 
@@ -383,6 +430,19 @@
 
         function exportarDatos() {
           guardarEnLocal();
+          const nombreDefecto = 'actividades.json';
+          let nombreArchivo = prompt('¿Cómo querés llamar al archivo exportado?', nombreDefecto);
+          if (nombreArchivo === null) {
+            return;
+          }
+          nombreArchivo = nombreArchivo.trim();
+          if (nombreArchivo === '') {
+            nombreArchivo = nombreDefecto;
+          }
+          if (!nombreArchivo.toLowerCase().endsWith('.json')) {
+            nombreArchivo += '.json';
+          }
+          nombreArchivo = nombreArchivo.replace(/\s+/g, '_');
           const datos = {
             horaInicio: $horaInicioInput.val(),
             horaFin: $horaFinInput.val(),
@@ -397,7 +457,7 @@
           const blob = new Blob([JSON.stringify(datos, null, 2)], { type: 'application/json' });
           const enlace = document.createElement('a');
           enlace.href = URL.createObjectURL(blob);
-          enlace.download = 'actividades.json';
+          enlace.download = nombreArchivo;
           enlace.click();
           URL.revokeObjectURL(enlace.href);
         }
@@ -430,6 +490,182 @@
             location.reload();
           }
         }
+
+        function obtenerFechaBasePorDefecto() {
+          const ahora = new Date();
+          if (ahora.getHours() >= 22) {
+            ahora.setDate(ahora.getDate() + 1);
+          }
+          const anio = ahora.getFullYear();
+          const mes = (ahora.getMonth() + 1).toString().padStart(2, '0');
+          const dia = ahora.getDate().toString().padStart(2, '0');
+          return `${anio}-${mes}-${dia}`;
+        }
+
+        function combinarFechaYHora(fechaIso, horaTexto) {
+          if (!fechaIso || !horaTexto) {
+            return null;
+          }
+          const partesFecha = fechaIso.split('-');
+          const partesHora = horaTexto.split(':');
+          if (partesFecha.length < 3 || partesHora.length < 2) {
+            return null;
+          }
+          const anio = parseInt(partesFecha[0], 10);
+          const mes = parseInt(partesFecha[1], 10) - 1;
+          const dia = parseInt(partesFecha[2], 10);
+          const hora = parseInt(partesHora[0], 10);
+          const minuto = parseInt(partesHora[1], 10);
+          if ([anio, mes, dia, hora, minuto].some(valor => Number.isNaN(valor))) {
+            return null;
+          }
+          return new Date(anio, mes, dia, hora, minuto, 0);
+        }
+
+        function formatearFechaParaGoogle(fecha) {
+          const anio = fecha.getFullYear();
+          const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+          const dia = fecha.getDate().toString().padStart(2, '0');
+          const horas = fecha.getHours().toString().padStart(2, '0');
+          const minutos = fecha.getMinutes().toString().padStart(2, '0');
+          const segundos = fecha.getSeconds().toString().padStart(2, '0');
+          const offset = -fecha.getTimezoneOffset();
+          const signo = offset >= 0 ? '+' : '-';
+          const horasOffset = Math.floor(Math.abs(offset) / 60).toString().padStart(2, '0');
+          const minutosOffset = (Math.abs(offset) % 60).toString().padStart(2, '0');
+          return `${anio}-${mes}-${dia}T${horas}:${minutos}:${segundos}${signo}${horasOffset}:${minutosOffset}`;
+        }
+
+        function construirEventosParaGoogle(fechaBase) {
+          calcularHorariosDesdeInicio();
+          const eventos = [];
+          $tablaActividades.find('tr').not('.fixed').each(function () {
+            const nombreActividad = $(this).find('.activity-name').text().trim();
+            const minutos = parseInt($(this).find('input[type="number"]').val(), 10);
+            const inicioTexto = $(this).find('td').eq(1).text().trim();
+            if (!nombreActividad || Number.isNaN(minutos) || minutos <= 0 || !inicioTexto) {
+              return;
+            }
+            const inicio = combinarFechaYHora(fechaBase, inicioTexto);
+            if (!inicio) {
+              return;
+            }
+            const fin = new Date(inicio.getTime() + minutos * 60000);
+            eventos.push({
+              summary: nombreActividad,
+              start: {
+                dateTime: formatearFechaParaGoogle(inicio),
+                timeZone: zonaHorariaLocal
+              },
+              end: {
+                dateTime: formatearFechaParaGoogle(fin),
+                timeZone: zonaHorariaLocal
+              },
+              description: 'Generado automáticamente desde el Planificador de Tiempo'
+            });
+          });
+          return eventos;
+        }
+
+        function solicitarClientIdSiHaceFalta() {
+          if (googleClientId) {
+            return true;
+          }
+          const ingreso = prompt('Necesitamos el Client ID OAuth 2.0 de Google para conectarnos con tu calendario. Pegalo acá (formato xxxxx.apps.googleusercontent.com):');
+          if (ingreso && ingreso.trim()) {
+            googleClientId = ingreso.trim();
+            localStorage.setItem('googleClientId', googleClientId);
+            return true;
+          }
+          return false;
+        }
+
+        function inicializarClienteGoogle() {
+          return new Promise((resolve, reject) => {
+            if (clienteGoogleInicializado) {
+              resolve(gapi.auth2.getAuthInstance());
+              return;
+            }
+            if (typeof gapi === 'undefined') {
+              reject(new Error('La librería de Google no se cargó correctamente.'));
+              return;
+            }
+            gapi.load('client:auth2', async () => {
+              try {
+                await gapi.client.init({
+                  clientId: googleClientId,
+                  scope: 'https://www.googleapis.com/auth/calendar.events',
+                  discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest']
+                });
+                clienteGoogleInicializado = true;
+                resolve(gapi.auth2.getAuthInstance());
+              } catch (error) {
+                reject(error);
+              }
+            });
+          });
+        }
+
+        async function exportarActividadesAGoogleCalendar(fechaBase) {
+          try {
+            if (!solicitarClientIdSiHaceFalta()) {
+              alert('Necesitás configurar el Client ID de Google para poder exportar.');
+              return;
+            }
+            const eventos = construirEventosParaGoogle(fechaBase);
+            if (!eventos.length) {
+              alert('No hay actividades con duración válida para exportar.');
+              return;
+            }
+            const instanciaAuth = await inicializarClienteGoogle();
+            if (!instanciaAuth.isSignedIn.get()) {
+              await instanciaAuth.signIn();
+            }
+            for (const evento of eventos) {
+              await gapi.client.calendar.events.insert({
+                calendarId: 'primary',
+                resource: evento
+              });
+            }
+            alert('Las actividades se exportaron a tu Google Calendar.');
+          } catch (error) {
+            console.error('Error al exportar a Google Calendar:', error);
+            let mensajeError = null;
+            if (error && error.result && error.result.error && error.result.error.message) {
+              mensajeError = error.result.error.message;
+            } else if (error && error.message) {
+              mensajeError = error.message;
+            }
+            if (mensajeError) {
+              alert(`No se pudo exportar a Google Calendar: ${mensajeError}`);
+            } else {
+              alert('No se pudo exportar a Google Calendar. Revisá la consola para más detalles.');
+            }
+          }
+        }
+
+        $botonExportarGoogle.on('click', function () {
+          $fechaGoogleCalendar.val(obtenerFechaBasePorDefecto());
+          $modalGoogleCalendar.fadeIn();
+        });
+
+        $cerrarGoogleCalendar.on('click', function () {
+          $modalGoogleCalendar.fadeOut();
+        });
+
+        $cancelarGoogleCalendar.on('click', function () {
+          $modalGoogleCalendar.fadeOut();
+        });
+
+        $confirmarGoogleCalendar.on('click', async function () {
+          const fechaSeleccionada = $fechaGoogleCalendar.val();
+          if (!fechaSeleccionada) {
+            alert('Seleccioná una fecha para exportar.');
+            return;
+          }
+          $modalGoogleCalendar.fadeOut();
+          await exportarActividadesAGoogleCalendar(fechaSeleccionada);
+        });
 
         $(document).on('input change blur focusout', '#activity-table input[type="number"]', function () {
           calcularInicioDesdeFin();
