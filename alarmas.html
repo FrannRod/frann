@@ -201,6 +201,7 @@
       <h2>Configuración de Actividades <button id="help-button" class="button small">?</button></h2>
         <div class="controles-archivo">
           <button id="boton-exportar" class="button small">Exportar</button>
+          <button id="boton-google-calendar" class="button small">Exportar a Google Calendar</button>
           <button id="boton-importar" class="button small">Importar</button>
           <input type="file" id="archivo-importar" accept="application/json" style="display:none">
           <button id="boton-reiniciar" class="button small">Reiniciar</button>
@@ -247,6 +248,22 @@
         </p>
       </div>
     </div>
+
+    <div id="google-calendar-modal" class="modal">
+      <div class="modal-content">
+        <span id="cerrar-google-calendar" class="close">&times;</span>
+        <h3>Exportar a Google Calendar</h3>
+        <p style="text-align: justify; font-size: 1em; line-height: 1.5;">
+          Elegí la fecha del plan para agendar cada actividad con su horario y duración. Vamos a generar un archivo listo para importar en tu Google Calendar usando tu hora local.
+        </p>
+        <label for="fecha-google-calendar" style="display:block; margin-bottom:10px;">Fecha base:</label>
+        <input type="text" id="fecha-google-calendar" class="flatpickr-input" readonly="readonly" style="width:100%; padding:8px; border-radius:5px; border:1px solid #ccc;">
+        <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:20px;">
+          <button id="cancelar-google-calendar" class="button small" type="button">Cancelar</button>
+          <button id="confirmar-google-calendar" class="button small" type="button">Exportar</button>
+        </div>
+      </div>
+    </div>
   </main>
 
     <script>
@@ -259,9 +276,20 @@
         const $botonAyuda = $('#help-button');
         const $cerrarAyuda = $('#close-help');
         const $botonExportar = $('#boton-exportar');
+        const $botonGoogleCalendar = $('#boton-google-calendar');
         const $botonImportar = $('#boton-importar');
         const $archivoImportar = $('#archivo-importar');
         const $botonReiniciar = $('#boton-reiniciar');
+        const $modalGoogleCalendar = $('#google-calendar-modal');
+        const $cerrarGoogleCalendar = $('#cerrar-google-calendar');
+        const $cancelarGoogleCalendar = $('#cancelar-google-calendar');
+        const $confirmarGoogleCalendar = $('#confirmar-google-calendar');
+
+        const selectorFechaGoogleCalendar = flatpickr('#fecha-google-calendar', {
+          dateFormat: 'Y-m-d',
+          minDate: 'today',
+          defaultDate: null
+        });
 
         $botonAyuda.on('click', function () {
           $modalAyuda.fadeIn();
@@ -274,6 +302,9 @@
         $(window).on('click', function (e) {
           if ($(e.target).is($modalAyuda)) {
             $modalAyuda.fadeOut();
+          }
+          if ($(e.target).is($modalGoogleCalendar)) {
+            cerrarModalGoogleCalendar();
           }
         });
 
@@ -402,6 +433,135 @@
           URL.revokeObjectURL(enlace.href);
         }
 
+        function obtenerFechaExportacionPredeterminada() {
+          const ahora = new Date();
+          if (ahora.getHours() >= 22) {
+            ahora.setDate(ahora.getDate() + 1);
+          }
+          return new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
+        }
+
+        function cerrarModalGoogleCalendar() {
+          $modalGoogleCalendar.fadeOut();
+        }
+
+        function abrirModalGoogleCalendar() {
+          const fechaBase = obtenerFechaExportacionPredeterminada();
+          selectorFechaGoogleCalendar.setDate(fechaBase, true);
+          $modalGoogleCalendar.fadeIn();
+        }
+
+        function formatearFechaHoraLocalICS(fecha) {
+          const anio = fecha.getFullYear();
+          const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+          const dia = fecha.getDate().toString().padStart(2, '0');
+          const horas = fecha.getHours().toString().padStart(2, '0');
+          const minutos = fecha.getMinutes().toString().padStart(2, '0');
+          const segundos = fecha.getSeconds().toString().padStart(2, '0');
+          return `${anio}${mes}${dia}T${horas}${minutos}${segundos}`;
+        }
+
+        function formatearFechaHoraUtcICS(fecha) {
+          const anio = fecha.getUTCFullYear();
+          const mes = (fecha.getUTCMonth() + 1).toString().padStart(2, '0');
+          const dia = fecha.getUTCDate().toString().padStart(2, '0');
+          const horas = fecha.getUTCHours().toString().padStart(2, '0');
+          const minutos = fecha.getUTCMinutes().toString().padStart(2, '0');
+          const segundos = fecha.getUTCSeconds().toString().padStart(2, '0');
+          return `${anio}${mes}${dia}T${horas}${minutos}${segundos}Z`;
+        }
+
+        function escaparTextoICS(texto) {
+          return texto.replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/,/g, '\\,').replace(/;/g, '\\;');
+        }
+
+        function obtenerEventosParaGoogleCalendar(fechaBase) {
+          const eventos = [];
+          $tablaActividades.find('tr').not('.fixed').each(function () {
+            const nombreActividad = $(this).find('.activity-name').text().trim();
+            const minutosDuracion = parseInt($(this).find('input[type="number"]').val(), 10);
+            const inicioTexto = $(this).find('td').eq(1).text().trim();
+            if (!nombreActividad || !inicioTexto || isNaN(minutosDuracion) || minutosDuracion <= 0) {
+              return;
+            }
+            const [horaInicio, minutoInicio] = inicioTexto.split(':');
+            if (horaInicio === undefined || minutoInicio === undefined) {
+              return;
+            }
+            const inicioFecha = new Date(fechaBase.getFullYear(), fechaBase.getMonth(), fechaBase.getDate(), parseInt(horaInicio, 10), parseInt(minutoInicio, 10), 0, 0);
+            const finFecha = new Date(inicioFecha.getTime() + minutosDuracion * 60000);
+            eventos.push({
+              nombre: nombreActividad,
+              inicio: inicioFecha,
+              fin: finFecha,
+              duracion: minutosDuracion
+            });
+          });
+          return eventos;
+        }
+
+        function generarContenidoICS(eventos) {
+          const zonaHorariaLocal = Intl.DateTimeFormat().resolvedOptions().timeZone;
+          const selloTemporal = formatearFechaHoraUtcICS(new Date());
+          const identificadorBase = Date.now();
+          const lineas = [
+            'BEGIN:VCALENDAR',
+            'VERSION:2.0',
+            'CALSCALE:GREGORIAN',
+            'PRODID:-//Planificador de Tiempo//ES',
+            `X-WR-TIMEZONE:${zonaHorariaLocal}`
+          ];
+          eventos.forEach((evento, indice) => {
+            lineas.push('BEGIN:VEVENT');
+            lineas.push(`UID:${identificadorBase + indice}@planificador-tiempo`);
+            lineas.push(`DTSTAMP:${selloTemporal}`);
+            lineas.push(`DTSTART;TZID=${zonaHorariaLocal}:${formatearFechaHoraLocalICS(evento.inicio)}`);
+            lineas.push(`DTEND;TZID=${zonaHorariaLocal}:${formatearFechaHoraLocalICS(evento.fin)}`);
+            lineas.push(`SUMMARY:${escaparTextoICS(evento.nombre)}`);
+            lineas.push(`DESCRIPTION:${escaparTextoICS(`Duración: ${evento.duracion} minutos`)}`);
+            lineas.push('TRANSP:OPAQUE');
+            lineas.push('END:VEVENT');
+          });
+          lineas.push('END:VCALENDAR');
+          return lineas.join('\r\n');
+        }
+
+        function descargarArchivoICS(contenido, fechaBase) {
+          const blob = new Blob([contenido], { type: 'text/calendar;charset=utf-8' });
+          const enlace = document.createElement('a');
+          const urlTemporal = URL.createObjectURL(blob);
+          enlace.href = urlTemporal;
+          const nombreArchivo = `planificador-${fechaBase.getFullYear()}${(fechaBase.getMonth() + 1).toString().padStart(2, '0')}${fechaBase.getDate().toString().padStart(2, '0')}.ics`;
+          enlace.download = nombreArchivo;
+          document.body.appendChild(enlace);
+          enlace.click();
+          document.body.removeChild(enlace);
+          URL.revokeObjectURL(urlTemporal);
+        }
+
+        function exportarGoogleCalendar() {
+          const fechasSeleccionadas = selectorFechaGoogleCalendar.selectedDates;
+          if (!fechasSeleccionadas || !fechasSeleccionadas.length) {
+            alert('Elegí una fecha válida para exportar.');
+            return;
+          }
+          const fechaBase = new Date(fechasSeleccionadas[0].getFullYear(), fechasSeleccionadas[0].getMonth(), fechasSeleccionadas[0].getDate());
+          calcularHorariosDesdeInicio();
+          const eventos = obtenerEventosParaGoogleCalendar(fechaBase);
+          if (!eventos.length) {
+            alert('Necesitás al menos una actividad con horario y duración para exportar.');
+            return;
+          }
+          const contenidoICS = generarContenidoICS(eventos);
+          descargarArchivoICS(contenidoICS, fechaBase);
+          cerrarModalGoogleCalendar();
+          const ventanaCalendario = window.open('https://calendar.google.com/calendar/u/0/r/settings/import?hl=es', '_blank');
+          if (!ventanaCalendario) {
+            alert('Activá las ventanas emergentes para abrir Google Calendar y cargar el archivo descargado.');
+          }
+          alert('Descargamos el archivo .ics. Si Google Calendar no se abrió automáticamente, abrilo y cargá el archivo desde Configuración > Importar.');
+        }
+
         function importarArchivo(e) {
           const archivo = e.target.files[0];
           if (!archivo) return;
@@ -491,6 +651,10 @@
         });
 
         $botonExportar.on('click', exportarDatos);
+        $botonGoogleCalendar.on('click', abrirModalGoogleCalendar);
+        $cerrarGoogleCalendar.on('click', cerrarModalGoogleCalendar);
+        $cancelarGoogleCalendar.on('click', cerrarModalGoogleCalendar);
+        $confirmarGoogleCalendar.on('click', exportarGoogleCalendar);
         $botonImportar.on('click', () => $archivoImportar.click());
         $archivoImportar.on('change', importarArchivo);
         $botonReiniciar.on('click', reiniciarDatos);
