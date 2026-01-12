@@ -104,13 +104,37 @@
       margin-top: 20px;
       font-size: 1.2em;
     }
-      .controles-archivo {
-        display: flex;
-        gap: 10px;
-        justify-content: center;
-        flex-wrap: wrap;
-        margin-bottom: 20px;
-      }
+    .controles-archivo {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    #fecha-google-calendar {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1em;
+      margin-top: 10px;
+    }
+
+    .controles-modal {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .boton-secundario {
+      background-color: #6c757d;
+    }
+
+    .boton-secundario:hover {
+      background-color: #5a6268;
+    }
 
 
     /* Modal styles for help section */
@@ -201,6 +225,7 @@
       <h2>Configuración de Actividades <button id="help-button" class="button small">?</button></h2>
         <div class="controles-archivo">
           <button id="boton-exportar" class="button small">Exportar</button>
+          <button id="boton-exportar-google" class="button small">Exportar a Google Calendar</button>
           <button id="boton-importar" class="button small">Importar</button>
           <input type="file" id="archivo-importar" accept="application/json" style="display:none">
           <button id="boton-reiniciar" class="button small">Reiniciar</button>
@@ -247,6 +272,21 @@
         </p>
       </div>
     </div>
+
+    <div id="modal-google-calendar" class="modal">
+      <div class="modal-content">
+        <span id="cerrar-modal-google" class="close">&times;</span>
+        <h3>Exportar a Google Calendar</h3>
+        <p style="text-align: justify; font-size: 1em; line-height: 1.5;">
+          Elegí el día al que querés aplicar estas actividades. Te proponemos la fecha de hoy, salvo que ya sea de noche, en cuyo caso sugerimos mañana.
+        </p>
+        <input type="date" id="fecha-google-calendar">
+        <div class="controles-modal">
+          <button id="cancelar-exportacion-google" class="button small boton-secundario">Cancelar</button>
+          <button id="confirmar-exportacion-google" class="button small">Exportar</button>
+        </div>
+      </div>
+    </div>
   </main>
 
     <script>
@@ -259,9 +299,15 @@
         const $botonAyuda = $('#help-button');
         const $cerrarAyuda = $('#close-help');
         const $botonExportar = $('#boton-exportar');
+        const $botonExportarGoogle = $('#boton-exportar-google');
         const $botonImportar = $('#boton-importar');
         const $archivoImportar = $('#archivo-importar');
         const $botonReiniciar = $('#boton-reiniciar');
+        const $modalGoogle = $('#modal-google-calendar');
+        const $cerrarModalGoogle = $('#cerrar-modal-google');
+        const $fechaGoogle = $('#fecha-google-calendar');
+        const $confirmarExportacionGoogle = $('#confirmar-exportacion-google');
+        const $cancelarExportacionGoogle = $('#cancelar-exportacion-google');
 
         $botonAyuda.on('click', function () {
           $modalAyuda.fadeIn();
@@ -274,6 +320,9 @@
         $(window).on('click', function (e) {
           if ($(e.target).is($modalAyuda)) {
             $modalAyuda.fadeOut();
+          }
+          if ($(e.target).is($modalGoogle)) {
+            cerrarModalGoogleCalendar();
           }
         });
 
@@ -383,6 +432,18 @@
 
         function exportarDatos() {
           guardarEnLocal();
+          let nombreArchivo = prompt('¿Cómo querés llamar al archivo?', 'actividades');
+          if (nombreArchivo === null) {
+            return;
+          }
+          nombreArchivo = nombreArchivo.trim();
+          if (nombreArchivo === '') {
+            nombreArchivo = 'actividades';
+          }
+          nombreArchivo = nombreArchivo.replace(/[\\/\?%\*:|"<>]/g, '-');
+          if (!nombreArchivo.toLowerCase().endsWith('.json')) {
+            nombreArchivo += '.json';
+          }
           const datos = {
             horaInicio: $horaInicioInput.val(),
             horaFin: $horaFinInput.val(),
@@ -397,7 +458,7 @@
           const blob = new Blob([JSON.stringify(datos, null, 2)], { type: 'application/json' });
           const enlace = document.createElement('a');
           enlace.href = URL.createObjectURL(blob);
-          enlace.download = 'actividades.json';
+          enlace.download = nombreArchivo;
           enlace.click();
           URL.revokeObjectURL(enlace.href);
         }
@@ -428,6 +489,120 @@
           if (confirm('¿Querés reiniciar la lista?')) {
             localStorage.clear();
             location.reload();
+          }
+        }
+
+        function obtenerFechaPredeterminada() {
+          const fechaBase = new Date();
+          if (fechaBase.getHours() >= 22) {
+            fechaBase.setDate(fechaBase.getDate() + 1);
+          }
+          const año = fechaBase.getFullYear();
+          const mes = (fechaBase.getMonth() + 1).toString().padStart(2, '0');
+          const dia = fechaBase.getDate().toString().padStart(2, '0');
+          return `${año}-${mes}-${dia}`;
+        }
+
+        function abrirModalGoogleCalendar() {
+          $fechaGoogle.val(obtenerFechaPredeterminada());
+          $modalGoogle.fadeIn();
+        }
+
+        function cerrarModalGoogleCalendar() {
+          $modalGoogle.fadeOut();
+        }
+
+        function formatearFechaICS(fecha) {
+          return fecha.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+        }
+
+        function limpiarTextoICS(texto) {
+          return texto
+            .replace(/\\/g, '\\\\')
+            .replace(/\n/g, '\\n')
+            .replace(/,/g, '\\,')
+            .replace(/;/g, '\\;');
+        }
+
+        function exportarAGoogleCalendar() {
+          const fechaSeleccionada = $fechaGoogle.val();
+          if (!fechaSeleccionada) {
+            alert('Tenés que elegir una fecha.');
+            return;
+          }
+
+          const zonaHoraria = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+          const marcaTiempo = formatearFechaICS(new Date());
+          const separadorLinea = String.fromCharCode(13, 10);
+          const lineasICS = [
+            'BEGIN:VCALENDAR',
+            'VERSION:2.0',
+            'CALSCALE:GREGORIAN',
+            'PRODID:-//Planificador de Tiempo//ES',
+            `X-WR-TIMEZONE:${zonaHoraria}`
+          ];
+
+          let cantidadEventos = 0;
+
+          $tablaActividades.find('tr').not('.fixed').each(function (indice) {
+            const nombreActividad = $(this).find('.activity-name').text().trim();
+            const inicioTexto = $(this).find('td').eq(1).text().trim();
+            const duracionMinutos = parseInt($(this).find('input[type="number"]').val(), 10);
+
+            if (!nombreActividad || !inicioTexto || isNaN(duracionMinutos) || duracionMinutos <= 0) {
+              return;
+            }
+
+            const partesHora = inicioTexto.split(':');
+            if (partesHora.length < 2) {
+              return;
+            }
+
+            const inicioActividad = new Date(`${fechaSeleccionada}T${partesHora[0].padStart(2, '0')}:${partesHora[1].padStart(2, '0')}:00`);
+            if (isNaN(inicioActividad.getTime())) {
+              return;
+            }
+
+            const finActividad = new Date(inicioActividad.getTime() + duracionMinutos * 60000);
+
+            const identificador = `planificador-${fechaSeleccionada.replace(/-/g, '')}-${indice}-${Date.now()}@planificador-tiempo`;
+
+            lineasICS.push('BEGIN:VEVENT');
+            lineasICS.push(`UID:${identificador}`);
+            lineasICS.push(`DTSTAMP:${marcaTiempo}`);
+            lineasICS.push(`DTSTART:${formatearFechaICS(inicioActividad)}`);
+            lineasICS.push(`DTEND:${formatearFechaICS(finActividad)}`);
+            lineasICS.push(`SUMMARY:${limpiarTextoICS(nombreActividad)}`);
+            lineasICS.push(`DESCRIPTION:${limpiarTextoICS('Duración estimada: ' + duracionMinutos + ' minutos')}`);
+            lineasICS.push('END:VEVENT');
+
+            cantidadEventos += 1;
+          });
+
+          if (cantidadEventos === 0) {
+            alert('Necesitás tener actividades con horario y duración para exportar.');
+            return;
+          }
+
+          lineasICS.push('END:VCALENDAR');
+
+          const contenidoICS = lineasICS.join(separadorLinea) + separadorLinea;
+
+          const blobCalendario = new Blob([contenidoICS], { type: 'text/calendar' });
+          const enlaceDescarga = document.createElement('a');
+          enlaceDescarga.href = URL.createObjectURL(blobCalendario);
+          const nombreArchivo = `planificador-${fechaSeleccionada}.ics`;
+          enlaceDescarga.download = nombreArchivo;
+          enlaceDescarga.click();
+          URL.revokeObjectURL(enlaceDescarga.href);
+
+          cerrarModalGoogleCalendar();
+
+          const ventanaImportacion = window.open('https://calendar.google.com/calendar/u/0/r/settings/import', '_blank');
+          if (!ventanaImportacion) {
+            alert('Descargamos un archivo .ics con tus actividades. Abrí Google Calendar y usá la opción Importar para subirlo.');
+          } else {
+            alert('Descargamos un archivo .ics con tus actividades. Importalo en Google Calendar desde la pestaña que se abrió.');
           }
         }
 
@@ -491,9 +666,15 @@
         });
 
         $botonExportar.on('click', exportarDatos);
+        $botonExportarGoogle.on('click', abrirModalGoogleCalendar);
         $botonImportar.on('click', () => $archivoImportar.click());
         $archivoImportar.on('change', importarArchivo);
         $botonReiniciar.on('click', reiniciarDatos);
+        $cerrarModalGoogle.on('click', cerrarModalGoogleCalendar);
+        $cancelarExportacionGoogle.on('click', function () {
+          cerrarModalGoogleCalendar();
+        });
+        $confirmarExportacionGoogle.on('click', exportarAGoogleCalendar);
 
         renderizarActividades(cargarDesdeLocal());
         establecerTiemposIniciales();
