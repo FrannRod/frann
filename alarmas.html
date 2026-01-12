@@ -112,6 +112,17 @@
         margin-bottom: 20px;
       }
 
+      #boton-notificaciones[disabled] {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .mensaje-notificaciones {
+        margin-top: 10px;
+        font-size: 0.95em;
+        color: #555;
+      }
+
 
     /* Modal styles for help section */
     .modal {
@@ -204,7 +215,10 @@
           <button id="boton-importar" class="button small">Importar</button>
           <input type="file" id="archivo-importar" accept="application/json" style="display:none">
           <button id="boton-reiniciar" class="button small">Reiniciar</button>
+          <button id="boton-notificaciones" class="button small">Prender notificaciones</button>
         </div>
+
+        <p id="mensaje-notificaciones" class="mensaje-notificaciones"></p>
 
 
       <div style="overflow-x: auto;">
@@ -262,6 +276,223 @@
         const $botonImportar = $('#boton-importar');
         const $archivoImportar = $('#archivo-importar');
         const $botonReiniciar = $('#boton-reiniciar');
+        const $botonNotificaciones = $('#boton-notificaciones');
+        const $mensajeNotificaciones = $('#mensaje-notificaciones');
+        const claveNotificaciones = 'notificacionesActivadas';
+        const notificacionesDisponibles = 'Notification' in window;
+        const trabajadorServicioDisponible = 'serviceWorker' in navigator;
+        let notificacionesActivas = false;
+        let registroTrabajadorServicio = null;
+        let temporizadoresNotificaciones = [];
+        const banderaGuardadaNotificaciones = localStorage.getItem(claveNotificaciones) === 'true';
+
+        if (notificacionesDisponibles && banderaGuardadaNotificaciones && Notification.permission === 'granted') {
+          notificacionesActivas = true;
+        } else if (banderaGuardadaNotificaciones && (!notificacionesDisponibles || Notification.permission !== 'granted')) {
+          localStorage.setItem(claveNotificaciones, 'false');
+        }
+
+        function actualizarInterfazNotificaciones() {
+          if (!notificacionesDisponibles) {
+            $botonNotificaciones.text('Notificaciones no disponibles');
+            $botonNotificaciones.prop('disabled', true);
+            $mensajeNotificaciones.text('Tu navegador no soporta notificaciones push. Probá abrir la página en otro navegador.');
+            return;
+          }
+
+          if (notificacionesActivas) {
+            $botonNotificaciones.text('Apagar notificaciones');
+            $mensajeNotificaciones.text('Las notificaciones están encendidas. Podés minimizar la pestaña o cambiar de app, pero dejala abierta así podemos avisarte a tiempo.');
+          } else {
+            $botonNotificaciones.text('Prender notificaciones');
+            $mensajeNotificaciones.text('Las notificaciones están apagadas. Encendelas para que te avisemos en cada actividad. Acordate de dejar la pestaña abierta.');
+          }
+        }
+
+        function limpiarNotificacionesProgramadas() {
+          temporizadoresNotificaciones.forEach((temporizador) => clearTimeout(temporizador));
+          temporizadoresNotificaciones = [];
+        }
+
+        function obtenerRegistroTrabajadorServicio() {
+          if (!trabajadorServicioDisponible) {
+            return Promise.resolve(null);
+          }
+          if (registroTrabajadorServicio) {
+            return Promise.resolve(registroTrabajadorServicio);
+          }
+          return navigator.serviceWorker.ready.then((registro) => {
+            registroTrabajadorServicio = registro;
+            return registroTrabajadorServicio;
+          });
+        }
+
+        function obtenerActividadesProgramadas() {
+          const actividadesProgramadas = [];
+          const textoInicio = $horaInicioInput.val();
+          if (!textoInicio || !textoInicio.includes(':')) {
+            return actividadesProgramadas;
+          }
+          const partes = textoInicio.split(':');
+          const horaBase = parseInt(partes[0], 10);
+          const minutoBase = parseInt(partes[1], 10);
+          if (Number.isNaN(horaBase) || Number.isNaN(minutoBase)) {
+            return actividadesProgramadas;
+          }
+          const fechaBase = new Date();
+          fechaBase.setSeconds(0, 0);
+          fechaBase.setHours(horaBase, minutoBase, 0, 0);
+          let momentoActividad = new Date(fechaBase.getTime());
+
+          $tablaActividades.find('tr').not('.fixed').each(function () {
+            const nombreActividad = $(this).find('.activity-name').text().trim();
+            const duracionActividad = parseInt($(this).find('input[type="number"]').val(), 10);
+            if (!nombreActividad || Number.isNaN(duracionActividad)) {
+              return;
+            }
+            actividadesProgramadas.push({ nombre: nombreActividad, inicio: new Date(momentoActividad.getTime()) });
+            momentoActividad.setMinutes(momentoActividad.getMinutes() + duracionActividad);
+          });
+
+          return actividadesProgramadas;
+        }
+
+        function programarNotificacionActividad(actividad) {
+          const ahora = new Date();
+          let demora = actividad.inicio.getTime() - ahora.getTime();
+          const milisegundosDia = 24 * 60 * 60 * 1000;
+          if (demora < 0) {
+            demora += milisegundosDia;
+          }
+          const demoraProgramada = Math.max(0, demora);
+          const titulo = `Actividad: ${actividad.nombre}`;
+          const opciones = {
+            body: `Es momento de empezar con "${actividad.nombre}".`,
+            tag: `actividad-${actividad.nombre}-${actividad.inicio.getHours()}-${actividad.inicio.getMinutes()}`,
+            renotify: true,
+            data: { url: window.location.href }
+          };
+
+          const temporizador = setTimeout(() => {
+            if (!notificacionesActivas || Notification.permission !== 'granted') {
+              return;
+            }
+
+            const lanzarNotificacion = () => {
+              if (!notificacionesDisponibles) {
+                return Promise.resolve();
+              }
+              if (trabajadorServicioDisponible) {
+                return obtenerRegistroTrabajadorServicio().then((registro) => {
+                  if (registro) {
+                    return registro.showNotification(titulo, opciones);
+                  }
+                  return Promise.resolve(new Notification(titulo, opciones));
+                });
+              }
+              return Promise.resolve(new Notification(titulo, opciones));
+            };
+
+            lanzarNotificacion().catch(() => {
+              if (notificacionesDisponibles) {
+                new Notification(titulo, opciones);
+              }
+            }).finally(() => {
+              if (notificacionesActivas) {
+                reprogramarNotificaciones();
+              }
+            });
+          }, demoraProgramada);
+
+          temporizadoresNotificaciones.push(temporizador);
+        }
+
+        function reprogramarNotificaciones() {
+          limpiarNotificacionesProgramadas();
+          if (!notificacionesActivas || !notificacionesDisponibles || Notification.permission !== 'granted') {
+            return;
+          }
+          const actividadesProgramadas = obtenerActividadesProgramadas();
+          if (!actividadesProgramadas.length) {
+            return;
+          }
+          obtenerRegistroTrabajadorServicio()
+            .then(() => {
+              actividadesProgramadas.forEach((actividadProgramada) => {
+                programarNotificacionActividad(actividadProgramada);
+              });
+            })
+            .catch(() => {
+              desactivarNotificaciones();
+              $mensajeNotificaciones.text('No pudimos mantener las notificaciones activas en este navegador. Probá activarlas de nuevo.');
+            });
+        }
+
+        async function activarNotificaciones() {
+          if (!notificacionesDisponibles) {
+            return;
+          }
+          let permiso = Notification.permission;
+          if (permiso === 'denied') {
+            alert('Bloqueaste las notificaciones. Fijate en la configuración del navegador para habilitarlas.');
+            return;
+          }
+          if (permiso === 'default') {
+            try {
+              permiso = await Notification.requestPermission();
+            } catch (error) {
+              permiso = 'denied';
+            }
+          }
+          if (permiso !== 'granted') {
+            alert('Sin el permiso no podemos mandarte avisos.');
+            return;
+          }
+          if (trabajadorServicioDisponible && !registroTrabajadorServicio) {
+            try {
+              registroTrabajadorServicio = await navigator.serviceWorker.register('sw.js');
+            } catch (error) {
+              $mensajeNotificaciones.text('No pudimos preparar el servicio de notificaciones en este navegador. Igual vamos a probar enviarte avisos mientras dejes la pestaña abierta.');
+            }
+          }
+          notificacionesActivas = true;
+          localStorage.setItem(claveNotificaciones, 'true');
+          actualizarInterfazNotificaciones();
+          reprogramarNotificaciones();
+        }
+
+        function desactivarNotificaciones() {
+          notificacionesActivas = false;
+          localStorage.setItem(claveNotificaciones, 'false');
+          limpiarNotificacionesProgramadas();
+          actualizarInterfazNotificaciones();
+        }
+
+        actualizarInterfazNotificaciones();
+
+        if (trabajadorServicioDisponible) {
+          navigator.serviceWorker.register('sw.js').then((registro) => {
+            registroTrabajadorServicio = registro;
+            if (notificacionesActivas && Notification.permission === 'granted') {
+              reprogramarNotificaciones();
+            }
+          }).catch(() => {
+            if (notificacionesDisponibles) {
+              $mensajeNotificaciones.text('No pudimos registrar el servicio de notificaciones en este navegador. Igual vamos a probar enviarte avisos mientras dejes la pestaña abierta.');
+            }
+          });
+        }
+
+        $botonNotificaciones.on('click', function () {
+          if (!notificacionesDisponibles) {
+            return;
+          }
+          if (notificacionesActivas) {
+            desactivarNotificaciones();
+          } else {
+            activarNotificaciones();
+          }
+        });
 
         $botonAyuda.on('click', function () {
           $modalAyuda.fadeIn();
@@ -363,6 +594,7 @@
           });
 
           $horaFinInput.val(horaActual.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
+          reprogramarNotificaciones();
         }
 
         function calcularInicioDesdeFin() {
@@ -448,6 +680,7 @@
 
         $(document).on('blur', '.activity-name', function () {
           guardarEnLocal();
+          reprogramarNotificaciones();
         });
 
         $(document).on('click', '.delete-btn', function () {
