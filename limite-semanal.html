@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calculador de Límite Semanal</title>
-  <meta name="description" content="Estimá si el límite semanal de Claude o Codex te alcanza hasta el próximo reinicio">
+  <title>Calculador de Límites de Uso</title>
+  <meta name="description" content="Estimá si el límite semanal o el de 5 horas de Claude o Codex te alcanza hasta el próximo reinicio">
   <link rel="icon" href="favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -22,6 +22,43 @@
       border-radius: 10px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       text-align: left;
+    }
+
+    .pestanias {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+
+    .pestania {
+      margin: 0;
+      cursor: pointer;
+      background: #ffffff;
+      color: #6c757d;
+      border: 1px solid #ced4da;
+      box-shadow: none;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95em;
+    }
+
+    .pestania:hover {
+      background: #ffffff;
+      color: #0069d9;
+      border-color: #0069d9;
+    }
+
+    .pestania.activa,
+    .pestania.activa:hover {
+      background: linear-gradient(45deg, #0069d9, #0053a4);
+      color: #ffffff;
+      border-color: #0053a4;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .oculto {
+      display: none;
     }
 
     .campo {
@@ -225,8 +262,8 @@
 <body>
   <header class="hero">
     <div class="header-content">
-      <h1>Calculador de Límite Semanal</h1>
-      <p class="tagline" data-phrases='["¿Te alcanza hasta el reinicio?","Para Claude, Codex y compañía","Ritmo, sobrante y días en seco"]'>¿Te alcanza hasta el reinicio?</p>
+      <h1>Calculador de Límites de Uso</h1>
+      <p class="tagline" data-phrases='["¿Te alcanza hasta el reinicio?","Para Claude, Codex y compañía","Ritmo, sobrante y tiempo en seco"]'>¿Te alcanza hasta el reinicio?</p>
       <nav class="nav-links">
         <a href="index.html">Volver</a>
       </nav>
@@ -238,9 +275,14 @@
 
   <main>
     <section id="calculadora" class="content-section">
-      <h2>Tus datos</h2>
-      <p>Para Claude, Codex o cualquier cosa con límite semanal. Poné cuándo reinicia y cuánto gastaste, y te digo si llegás.</p>
-      <div class="calculadora" style="margin-top: 25px;">
+      <h2>¿Qué límite querés mirar?</h2>
+      <div class="pestanias">
+        <button type="button" class="button pestania activa" data-panel="semanal">Semanal</button>
+        <button type="button" class="button pestania" data-panel="cinco-horas">De 5 horas</button>
+      </div>
+
+      <div class="calculadora" id="datos-semanal">
+        <p class="ayuda" style="margin-top: 0; margin-bottom: 20px;">El límite que se restablece un día fijo de la semana. Copiá el día y la hora tal cual te los muestra el panel de uso, por ejemplo «Se restablece el vie, 1:00 a.m.».</p>
         <div class="fila-campos">
           <div class="campo">
             <label for="dia-reinicio">¿Qué día se restablece?</label>
@@ -260,19 +302,39 @@
             <input type="text" id="hora-reinicio" placeholder="01:00" autocomplete="off">
           </div>
         </div>
-        <p class="ayuda">Copiá el día y la hora tal cual te los muestra el panel de uso (por ejemplo «Se restablece el vie, 1:00 a.m.»). La semana se cuenta desde siete días antes.</p>
-        <p class="proximo" id="proximo-reinicio"></p>
+        <p class="proximo" id="proximo-semanal"></p>
         <div class="campo">
-          <label for="limite-consumido">Límite ya consumido (%)</label>
-          <input type="number" id="limite-consumido" min="0" max="100" step="1" value="0">
-          <input type="range" id="limite-consumido-rango" min="0" max="100" step="1" value="0" aria-label="Límite ya consumido">
+          <label for="consumido-semanal">Límite ya consumido (%)</label>
+          <input type="number" id="consumido-semanal" min="0" max="100" step="1" value="0">
+          <input type="range" id="rango-semanal" min="0" max="100" step="1" value="0" aria-label="Límite semanal ya consumido">
+        </div>
+      </div>
+
+      <div class="calculadora oculto" id="datos-cinco-horas">
+        <p class="ayuda" style="margin-top: 0; margin-bottom: 20px;">La ventana de 5 horas. Acá el panel no te da una hora fija sino cuánto falta, por ejemplo «Se restablece en 1 h 59 min». Copiá ese número.</p>
+        <div class="fila-campos">
+          <div class="campo">
+            <label for="horas-restantes">Se restablece en… (horas)</label>
+            <input type="number" id="horas-restantes" min="0" max="5" step="1" placeholder="1">
+          </div>
+          <div class="campo">
+            <label for="minutos-restantes">…y minutos</label>
+            <input type="number" id="minutos-restantes" min="0" max="59" step="1" placeholder="59">
+          </div>
+        </div>
+        <p class="proximo" id="proximo-cinco-horas"></p>
+        <div class="campo">
+          <label for="consumido-cinco-horas">Límite ya consumido (%)</label>
+          <input type="number" id="consumido-cinco-horas" min="0" max="100" step="1" value="0">
+          <input type="range" id="rango-cinco-horas" min="0" max="100" step="1" value="0" aria-label="Límite de 5 horas ya consumido">
         </div>
       </div>
     </section>
 
     <section class="content-section">
       <h2>La estimación</h2>
-      <div class="calculadora" id="resultado" aria-live="polite"></div>
+      <div class="calculadora" id="resultado-semanal" aria-live="polite"></div>
+      <div class="calculadora oculto" id="resultado-cinco-horas" aria-live="polite"></div>
     </section>
   </main>
 
@@ -284,14 +346,25 @@
 <script src="scripts.js"></script>
 <script>
 const msSemana = 7 * 24 * 60 * 60 * 1000;
-const claveGuardado = 'calculadorLimiteSemanal.reinicio';
+const msCincoHoras = 5 * 60 * 60 * 1000;
+const claveSemanal = 'calculadorLimiteSemanal.reinicio';
+const claveCincoHoras = 'calculadorLimiteSemanal.cincoHoras';
 
 const campoDia = document.getElementById('dia-reinicio');
 const campoHora = document.getElementById('hora-reinicio');
-const campoConsumido = document.getElementById('limite-consumido');
-const rangoConsumido = document.getElementById('limite-consumido-rango');
-const cajaResultado = document.getElementById('resultado');
-const cajaProximo = document.getElementById('proximo-reinicio');
+const campoConsumidoSemanal = document.getElementById('consumido-semanal');
+const rangoSemanal = document.getElementById('rango-semanal');
+const cajaProximoSemanal = document.getElementById('proximo-semanal');
+const cajaResultadoSemanal = document.getElementById('resultado-semanal');
+
+const campoHorasRestantes = document.getElementById('horas-restantes');
+const campoMinutosRestantes = document.getElementById('minutos-restantes');
+const campoConsumidoCincoHoras = document.getElementById('consumido-cinco-horas');
+const rangoCincoHoras = document.getElementById('rango-cinco-horas');
+const cajaProximoCincoHoras = document.getElementById('proximo-cinco-horas');
+const cajaResultadoCincoHoras = document.getElementById('resultado-cinco-horas');
+
+let reinicioCincoHoras = null;
 
 const selectorHora = flatpickr(campoHora, {
   locale: 'es',
@@ -301,8 +374,8 @@ const selectorHora = flatpickr(campoHora, {
   dateFormat: 'H:i',
   minuteIncrement: 15,
   allowInput: true,
-  onChange: guardarReinicio,
-  onClose: guardarReinicio
+  onChange: guardarSemanal,
+  onClose: guardarSemanal
 });
 
 function redondear(numero, decimales = 1) {
@@ -333,6 +406,16 @@ function formatearFecha(fecha) {
   });
 }
 
+function formatearMomento(fecha) {
+  const ahora = new Date();
+  const manana = new Date(ahora);
+  manana.setDate(manana.getDate() + 1);
+  const hora = fecha.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false });
+  if (fecha.toDateString() === ahora.toDateString()) return 'hoy a las ' + hora;
+  if (fecha.toDateString() === manana.toDateString()) return 'mañana a las ' + hora;
+  return formatearFecha(fecha);
+}
+
 function armarBarra(titulo, porcentaje, clase) {
   const ancho = Math.min(100, Math.max(0, porcentaje));
   return '<div class="fila-barra">' +
@@ -341,11 +424,69 @@ function armarBarra(titulo, porcentaje, clase) {
     '</div>';
 }
 
-function mostrarAviso(mensaje) {
-  cajaResultado.innerHTML = '<p class="veredicto aviso">' + mensaje + '</p>';
+function mostrarAviso(caja, mensaje) {
+  caja.innerHTML = '<p class="veredicto aviso">' + mensaje + '</p>';
 }
 
-function buscarProximoReinicio() {
+function renderizarEstimacion(caja, reinicio, consumido, ventanaMs, tituloTiempo, nombreVentana) {
+  const ahora = new Date();
+  const restanteMs = reinicio.getTime() - ahora.getTime();
+  const transcurridoMs = ventanaMs - restanteMs;
+
+  if (restanteMs <= 0) {
+    mostrarAviso(caja, 'Ese reinicio ya pasó. Cargá de nuevo cuánto falta para el próximo.');
+    return;
+  }
+  if (transcurridoMs < 60000) {
+    mostrarAviso(caja, 'La ' + nombreVentana + ' recién arranca. Esperá un rato para que la estimación tenga sentido.');
+    return;
+  }
+
+  const fraccionTiempo = transcurridoMs / ventanaMs;
+  const porcentajeTiempo = fraccionTiempo * 100;
+  const proyectado = consumido / fraccionTiempo;
+
+  let bloques = armarBarra(tituloTiempo, porcentajeTiempo, 'barra-tiempo');
+  bloques += armarBarra('Límite consumido', consumido, 'barra-consumo' + (consumido > porcentajeTiempo ? ' pasada' : ''));
+
+  if (consumido >= 100) {
+    bloques += '<p class="veredicto mal">Ya te quedaste sin límite.</p>';
+    bloques += '<p class="detalle">Faltan <strong>' + formatearDuracion(restanteMs) + '</strong> para el reinicio, ' + formatearMomento(reinicio) + '.</p>';
+    caja.innerHTML = bloques;
+    return;
+  }
+
+  if (proyectado <= 100) {
+    const sobra = 100 - proyectado;
+    const consumoRestante = proyectado - consumido;
+    bloques += '<p class="veredicto bien">Te alcanza y te sobra.</p>';
+    bloques += '<p class="detalle">Al ritmo actual llegás al reinicio con <strong>' + redondear(sobra) + '%</strong> sin usar (terminarías en ' + redondear(proyectado) + '%).</p>';
+    bloques += '<p class="detalle">Quedan <strong>' + formatearDuracion(restanteMs) + '</strong>, hasta ' + formatearMomento(reinicio) + '.</p>';
+    if (consumoRestante > 0.05) {
+      const factor = (100 - consumido) / consumoRestante;
+      bloques += '<div class="tip"><i class="fas fa-bolt"></i>En lo que queda de la ' + nombreVentana + ' podés aumentar el ritmo a <strong>' + redondear(factor, 1) + ' veces</strong> lo actual y llegar justo.</div>';
+    } else {
+      bloques += '<div class="tip"><i class="fas fa-bolt"></i>Con este consumo no hay manera de que te quedes corto. Dale para adelante.</div>';
+    }
+    caja.innerHTML = bloques;
+    return;
+  }
+
+  const ritmoPorMs = consumido / transcurridoMs;
+  const msHastaAgotar = (100 - consumido) / ritmoPorMs;
+  const fechaAgote = new Date(ahora.getTime() + msHastaAgotar);
+  const sinLimiteMs = reinicio.getTime() - fechaAgote.getTime();
+  const factor = (100 - consumido) / (proyectado - consumido);
+
+  bloques += '<p class="veredicto mal">No te alcanza.</p>';
+  bloques += '<p class="detalle">Al ritmo actual necesitarías <strong>' + redondear(proyectado) + '%</strong>, o sea <strong>' + redondear(proyectado - 100) + '%</strong> de más.</p>';
+  bloques += '<p class="detalle">Te quedás sin límite <strong>' + formatearMomento(fechaAgote) + '</strong>, dentro de ' + formatearDuracion(msHastaAgotar) + '.</p>';
+  bloques += '<p class="detalle">Vas a estar <strong>' + formatearDuracion(sinLimiteMs) + '</strong> sin límite hasta el reinicio.</p>';
+  bloques += '<div class="tip"><i class="fas fa-hand"></i>Para llegar justo tenés que bajar el ritmo a <strong>' + redondear(factor, 2) + ' veces</strong> el actual.</div>';
+  caja.innerHTML = bloques;
+}
+
+function buscarProximoSemanal() {
   const dia = campoDia.value;
   const hora = selectorHora.selectedDates[0];
   if (dia === '' || !hora) return null;
@@ -358,107 +499,95 @@ function buscarProximoReinicio() {
   return proximo;
 }
 
-function calcular() {
-  const reinicio = buscarProximoReinicio();
-  const consumido = Number(campoConsumido.value);
+function calcularSemanal() {
+  const reinicio = buscarProximoSemanal();
+  const consumido = Number(campoConsumidoSemanal.value);
 
   if (!reinicio) {
-    cajaProximo.textContent = '';
-    mostrarAviso('Elegí el día y la hora del reinicio para ver la estimación.');
+    cajaProximoSemanal.textContent = '';
+    mostrarAviso(cajaResultadoSemanal, 'Elegí el día y la hora del reinicio para ver la estimación.');
     return;
   }
 
-  cajaProximo.textContent = 'Próximo reinicio: ' + formatearFecha(reinicio) + '.';
+  cajaProximoSemanal.textContent = 'Próximo reinicio: ' + formatearFecha(reinicio) + '.';
 
-  if (campoConsumido.value === '' || isNaN(consumido) || consumido < 0 || consumido > 100) {
-    mostrarAviso('El consumo tiene que ser un número entre 0 y 100.');
+  if (campoConsumidoSemanal.value === '' || isNaN(consumido) || consumido < 0 || consumido > 100) {
+    mostrarAviso(cajaResultadoSemanal, 'El consumo tiene que ser un número entre 0 y 100.');
     return;
   }
 
-  const ahora = new Date();
-  const restanteMs = reinicio.getTime() - ahora.getTime();
-  const transcurridoMs = msSemana - restanteMs;
-
-  if (transcurridoMs < 60000) {
-    mostrarAviso('La semana recién arranca. Esperá un rato para que la estimación tenga sentido.');
-    return;
-  }
-
-  const fraccionTiempo = transcurridoMs / msSemana;
-  const porcentajeTiempo = fraccionTiempo * 100;
-  const proyectado = consumido / fraccionTiempo;
-
-  let bloques = armarBarra('Semana transcurrida', porcentajeTiempo, 'barra-tiempo');
-  bloques += armarBarra('Límite consumido', consumido, 'barra-consumo' + (consumido > porcentajeTiempo ? ' pasada' : ''));
-
-  if (consumido >= 100) {
-    bloques += '<p class="veredicto mal">Ya te quedaste sin límite.</p>';
-    bloques += '<p class="detalle">Faltan <strong>' + formatearDuracion(restanteMs) + '</strong> para el reinicio del ' + formatearFecha(reinicio) + '.</p>';
-    cajaResultado.innerHTML = bloques;
-    return;
-  }
-
-  if (proyectado <= 100) {
-    const sobra = 100 - proyectado;
-    const consumoRestante = proyectado - consumido;
-    bloques += '<p class="veredicto bien">Te alcanza y te sobra.</p>';
-    bloques += '<p class="detalle">Al ritmo actual llegás al reinicio con <strong>' + redondear(sobra) + '%</strong> sin usar (terminarías en ' + redondear(proyectado) + '%).</p>';
-    bloques += '<p class="detalle">Quedan <strong>' + formatearDuracion(restanteMs) + '</strong> hasta el ' + formatearFecha(reinicio) + '.</p>';
-    if (consumoRestante > 0.05) {
-      const factor = (100 - consumido) / consumoRestante;
-      bloques += '<div class="tip"><i class="fas fa-bolt"></i>En lo que queda de la semana podés aumentar el ritmo a <strong>' + redondear(factor, 1) + ' veces</strong> lo actual y llegar justo.</div>';
-    } else {
-      bloques += '<div class="tip"><i class="fas fa-bolt"></i>Con este consumo no hay manera de que te quedes corto. Dale para adelante.</div>';
-    }
-    cajaResultado.innerHTML = bloques;
-    return;
-  }
-
-  const ritmoPorMs = consumido / transcurridoMs;
-  const msHastaAgotar = (100 - consumido) / ritmoPorMs;
-  const fechaAgote = new Date(ahora.getTime() + msHastaAgotar);
-  const sinLimiteMs = reinicio.getTime() - fechaAgote.getTime();
-  const factor = (100 - consumido) / (proyectado - consumido);
-
-  bloques += '<p class="veredicto mal">No te alcanza.</p>';
-  bloques += '<p class="detalle">Al ritmo actual necesitarías <strong>' + redondear(proyectado) + '%</strong>, o sea <strong>' + redondear(proyectado - 100) + '%</strong> de más.</p>';
-  bloques += '<p class="detalle">Te quedás sin límite el <strong>' + formatearFecha(fechaAgote) + '</strong>, dentro de ' + formatearDuracion(msHastaAgotar) + '.</p>';
-  bloques += '<p class="detalle">Vas a estar <strong>' + formatearDuracion(sinLimiteMs) + '</strong> sin límite hasta el reinicio.</p>';
-  bloques += '<div class="tip"><i class="fas fa-hand"></i>Para llegar justo tenés que bajar el ritmo a <strong>' + redondear(factor, 2) + ' veces</strong> el actual.</div>';
-  cajaResultado.innerHTML = bloques;
+  renderizarEstimacion(cajaResultadoSemanal, reinicio, consumido, msSemana, 'Semana transcurrida', 'semana');
 }
 
-function sincronizarDesdeNumero() {
-  rangoConsumido.value = campoConsumido.value;
-  calcular();
+function calcularCincoHoras() {
+  const consumido = Number(campoConsumidoCincoHoras.value);
+
+  if (!reinicioCincoHoras) {
+    cajaProximoCincoHoras.textContent = '';
+    mostrarAviso(cajaResultadoCincoHoras, 'Cargá cuánto falta para el reinicio para ver la estimación.');
+    return;
+  }
+
+  cajaProximoCincoHoras.textContent = 'Próximo reinicio: ' + formatearMomento(reinicioCincoHoras) + '.';
+
+  if (campoConsumidoCincoHoras.value === '' || isNaN(consumido) || consumido < 0 || consumido > 100) {
+    mostrarAviso(cajaResultadoCincoHoras, 'El consumo tiene que ser un número entre 0 y 100.');
+    return;
+  }
+
+  renderizarEstimacion(cajaResultadoCincoHoras, reinicioCincoHoras, consumido, msCincoHoras, 'Ventana transcurrida', 'ventana');
 }
 
-function sincronizarDesdeRango() {
-  campoConsumido.value = rangoConsumido.value;
-  calcular();
+function calcular() {
+  calcularSemanal();
+  calcularCincoHoras();
 }
 
-function guardarReinicio() {
+function leerFaltante() {
+  const horas = campoHorasRestantes.value === '' ? 0 : Number(campoHorasRestantes.value);
+  const minutos = campoMinutosRestantes.value === '' ? 0 : Number(campoMinutosRestantes.value);
+  if (isNaN(horas) || isNaN(minutos)) return null;
+  const totalMs = (horas * 60 + minutos) * 60000;
+  if (totalMs <= 0 || totalMs > msCincoHoras) return null;
+  return totalMs;
+}
+
+function guardarSemanal() {
   const hora = selectorHora.selectedDates[0];
   try {
     if (campoDia.value !== '' && hora) {
-      localStorage.setItem(claveGuardado, JSON.stringify({
+      localStorage.setItem(claveSemanal, JSON.stringify({
         dia: campoDia.value,
         hora: hora.getHours(),
         minutos: hora.getMinutes()
       }));
     } else {
-      localStorage.removeItem(claveGuardado);
+      localStorage.removeItem(claveSemanal);
     }
   } catch (error) {
     // Si el navegador no deja guardar, seguimos igual.
   }
-  calcular();
+  calcularSemanal();
 }
 
-function recuperarReinicio() {
+function guardarCincoHoras() {
+  const faltanteMs = leerFaltante();
+  reinicioCincoHoras = faltanteMs === null ? null : new Date(Date.now() + faltanteMs);
   try {
-    const guardado = localStorage.getItem(claveGuardado);
+    if (reinicioCincoHoras) {
+      localStorage.setItem(claveCincoHoras, reinicioCincoHoras.toISOString());
+    } else {
+      localStorage.removeItem(claveCincoHoras);
+    }
+  } catch (error) {
+    // Si el navegador no deja guardar, seguimos igual.
+  }
+  calcularCincoHoras();
+}
+
+function recuperarSemanal() {
+  try {
+    const guardado = localStorage.getItem(claveSemanal);
     if (!guardado) return;
     const datos = JSON.parse(guardado);
     campoDia.value = datos.dia;
@@ -471,11 +600,67 @@ function recuperarReinicio() {
   }
 }
 
-campoConsumido.addEventListener('input', sincronizarDesdeNumero);
-rangoConsumido.addEventListener('input', sincronizarDesdeRango);
-campoDia.addEventListener('change', guardarReinicio);
+function recuperarCincoHoras() {
+  try {
+    const guardado = localStorage.getItem(claveCincoHoras);
+    if (!guardado) return;
+    const fecha = new Date(guardado);
+    const faltanteMs = fecha.getTime() - Date.now();
+    if (isNaN(fecha.getTime()) || faltanteMs <= 0) {
+      localStorage.removeItem(claveCincoHoras);
+      return;
+    }
+    reinicioCincoHoras = fecha;
+    campoHorasRestantes.value = Math.floor(faltanteMs / 3600000);
+    campoMinutosRestantes.value = Math.round((faltanteMs % 3600000) / 60000);
+  } catch (error) {
+    // Sin almacenamiento, arranca vacío.
+  }
+}
 
-recuperarReinicio();
+function cambiarPanel(panel) {
+  document.querySelectorAll('.pestania').forEach(function (boton) {
+    boton.classList.toggle('activa', boton.dataset.panel === panel);
+  });
+  ['semanal', 'cinco-horas'].forEach(function (nombre) {
+    const visible = nombre === panel;
+    document.getElementById('datos-' + nombre).classList.toggle('oculto', !visible);
+    document.getElementById('resultado-' + nombre).classList.toggle('oculto', !visible);
+  });
+}
+
+campoConsumidoSemanal.addEventListener('input', function () {
+  rangoSemanal.value = campoConsumidoSemanal.value;
+  calcularSemanal();
+});
+
+rangoSemanal.addEventListener('input', function () {
+  campoConsumidoSemanal.value = rangoSemanal.value;
+  calcularSemanal();
+});
+
+campoConsumidoCincoHoras.addEventListener('input', function () {
+  rangoCincoHoras.value = campoConsumidoCincoHoras.value;
+  calcularCincoHoras();
+});
+
+rangoCincoHoras.addEventListener('input', function () {
+  campoConsumidoCincoHoras.value = rangoCincoHoras.value;
+  calcularCincoHoras();
+});
+
+campoDia.addEventListener('change', guardarSemanal);
+campoHorasRestantes.addEventListener('input', guardarCincoHoras);
+campoMinutosRestantes.addEventListener('input', guardarCincoHoras);
+
+document.querySelectorAll('.pestania').forEach(function (boton) {
+  boton.addEventListener('click', function () {
+    cambiarPanel(boton.dataset.panel);
+  });
+});
+
+recuperarSemanal();
+recuperarCincoHoras();
 calcular();
 setInterval(calcular, 30000);
 </script>
