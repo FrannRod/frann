@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculador de Límite Semanal</title>
+  <meta name="description" content="Estimá si el límite semanal de Claude o Codex te alcanza hasta el próximo reinicio">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@300&display=swap">
+  <style>
+    .calculadora {
+      max-width: 100%;
+      margin: 0 auto;
+      background-color: #ffffff;
+      padding: 30px 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      text-align: left;
+    }
+
+    .campo {
+      margin-bottom: 25px;
+    }
+
+    .campo:last-child {
+      margin-bottom: 0;
+    }
+
+    .campo label {
+      display: block;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 0.95em;
+      margin-bottom: 8px;
+      color: #343a40;
+    }
+
+    .fila-campos {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .fila-campos .campo {
+      margin-bottom: 0;
+    }
+
+    .campo input[type="text"],
+    .campo input[type="number"],
+    .campo select {
+      width: 100%;
+      font-family: 'Roboto', sans-serif;
+      font-size: 1em;
+      padding: 10px 12px;
+      border: 1px solid #ced4da;
+      border-radius: 5px;
+      color: #343a40;
+      background-color: #ffffff;
+    }
+
+    .campo select {
+      cursor: pointer;
+      height: 43px;
+    }
+
+    .proximo {
+      font-size: 0.95em;
+      color: #0069d9;
+      font-weight: 600;
+      margin-top: 4px;
+      margin-bottom: 25px;
+      min-height: 1.4em;
+    }
+
+    .campo input:focus,
+    .campo select:focus {
+      outline: none;
+      border-color: #0069d9;
+      box-shadow: 0 0 0 3px rgba(0, 105, 217, 0.15);
+    }
+
+    .campo input[type="range"] {
+      width: 100%;
+      margin-top: 12px;
+      accent-color: #0069d9;
+    }
+
+    .ayuda {
+      font-size: 0.85em;
+      color: #6c757d;
+      margin-top: 8px;
+    }
+
+    .fila-barra {
+      margin-bottom: 18px;
+    }
+
+    .fila-barra .etiqueta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9em;
+      margin-bottom: 6px;
+    }
+
+    .fila-barra .etiqueta strong {
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .barra {
+      height: 12px;
+      border-radius: 20px;
+      background-color: rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+    }
+
+    .barra span {
+      display: block;
+      height: 100%;
+      border-radius: 20px;
+      transition: width 0.3s;
+    }
+
+    .barra-tiempo span {
+      background-color: #6c757d;
+    }
+
+    .barra-consumo span {
+      background: linear-gradient(45deg, #0069d9, #0053a4);
+    }
+
+    .barra-consumo.pasada span {
+      background: linear-gradient(45deg, #dc3545, #a71d2a);
+    }
+
+    .veredicto {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.4em;
+      font-weight: 600;
+      margin: 20px 0 12px;
+    }
+
+    .veredicto.bien { color: #1e9e6a; }
+    .veredicto.mal { color: #dc3545; }
+    .veredicto.aviso { color: #6c757d; font-size: 1.1em; margin: 0; }
+
+    .detalle {
+      font-size: 1.05em;
+      margin-bottom: 8px;
+    }
+
+    .detalle:last-child {
+      margin-bottom: 0;
+    }
+
+    .tip {
+      background-color: rgba(0, 105, 217, 0.08);
+      border-left: 4px solid #0069d9;
+      border-radius: 0 5px 5px 0;
+      padding: 14px 18px;
+      margin-top: 20px;
+      font-size: 1.05em;
+    }
+
+    .tip i {
+      color: #0069d9;
+      margin-right: 6px;
+    }
+
+    .campo input.flatpickr-input {
+      cursor: pointer;
+      background-color: #ffffff;
+    }
+
+    .flatpickr-calendar {
+      font-family: 'Roboto', sans-serif;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+    }
+
+    .flatpickr-day.selected,
+    .flatpickr-day.selected:hover,
+    .flatpickr-day.selected:focus {
+      background: #0069d9;
+      border-color: #0069d9;
+    }
+
+    .flatpickr-day.today {
+      border-color: #0069d9;
+    }
+
+    .flatpickr-time input:hover,
+    .flatpickr-time input:focus,
+    .flatpickr-time .numInputWrapper:hover {
+      background: rgba(0, 105, 217, 0.08);
+    }
+
+    .flatpickr-time input {
+      font-size: 1.15em;
+    }
+
+    @media (max-width: 600px) {
+      .calculadora {
+        padding: 20px 15px;
+      }
+
+      .fila-campos {
+        grid-template-columns: 1fr;
+      }
+
+      .fila-campos .campo:first-child {
+        margin-bottom: 20px;
+      }
+
+      .veredicto {
+        font-size: 1.2em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="header-content">
+      <h1>Calculador de Límite Semanal</h1>
+      <p class="tagline" data-phrases='["¿Te alcanza hasta el reinicio?","Para Claude, Codex y compañía","Ritmo, sobrante y días en seco"]'>¿Te alcanza hasta el reinicio?</p>
+      <nav class="nav-links">
+        <a href="index.html">Volver</a>
+      </nav>
+    </div>
+    <a href="#calculadora" class="scroll-down" aria-label="Desplazar hacia el contenido">
+      <i class="fas fa-chevron-down"></i>
+    </a>
+  </header>
+
+  <main>
+    <section id="calculadora" class="content-section">
+      <h2>Tus datos</h2>
+      <p>Para Claude, Codex o cualquier cosa con límite semanal. Poné cuándo reinicia y cuánto gastaste, y te digo si llegás.</p>
+      <div class="calculadora" style="margin-top: 25px;">
+        <div class="fila-campos">
+          <div class="campo">
+            <label for="dia-reinicio">¿Qué día se restablece?</label>
+            <select id="dia-reinicio">
+              <option value="">Elegí el día</option>
+              <option value="1">Lunes</option>
+              <option value="2">Martes</option>
+              <option value="3">Miércoles</option>
+              <option value="4">Jueves</option>
+              <option value="5">Viernes</option>
+              <option value="6">Sábado</option>
+              <option value="0">Domingo</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label for="hora-reinicio">¿A qué hora?</label>
+            <input type="text" id="hora-reinicio" placeholder="01:00" autocomplete="off">
+          </div>
+        </div>
+        <p class="ayuda">Copiá el día y la hora tal cual te los muestra el panel de uso (por ejemplo «Se restablece el vie, 1:00 a.m.»). La semana se cuenta desde siete días antes.</p>
+        <p class="proximo" id="proximo-reinicio"></p>
+        <div class="campo">
+          <label for="limite-consumido">Límite ya consumido (%)</label>
+          <input type="number" id="limite-consumido" min="0" max="100" step="1" value="0">
+          <input type="range" id="limite-consumido-rango" min="0" max="100" step="1" value="0" aria-label="Límite ya consumido">
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2>La estimación</h2>
+      <div class="calculadora" id="resultado" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Franco Rodríguez</p>
+  </footer>
+  <button id="to-top" class="to-top" aria-label="Volver arriba">&#8679;</button>
+
+<script src="scripts.js"></script>
+<script>
+const msSemana = 7 * 24 * 60 * 60 * 1000;
+const claveGuardado = 'calculadorLimiteSemanal.reinicio';
+
+const campoDia = document.getElementById('dia-reinicio');
+const campoHora = document.getElementById('hora-reinicio');
+const campoConsumido = document.getElementById('limite-consumido');
+const rangoConsumido = document.getElementById('limite-consumido-rango');
+const cajaResultado = document.getElementById('resultado');
+const cajaProximo = document.getElementById('proximo-reinicio');
+
+const selectorHora = flatpickr(campoHora, {
+  locale: 'es',
+  enableTime: true,
+  noCalendar: true,
+  time_24hr: true,
+  dateFormat: 'H:i',
+  minuteIncrement: 15,
+  allowInput: true,
+  onChange: guardarReinicio,
+  onClose: guardarReinicio
+});
+
+function redondear(numero, decimales = 1) {
+  return numero.toFixed(decimales).replace('.', ',');
+}
+
+function formatearDuracion(milisegundos) {
+  const totalMinutos = Math.max(0, Math.round(milisegundos / 60000));
+  const dias = Math.floor(totalMinutos / 1440);
+  const horas = Math.floor((totalMinutos % 1440) / 60);
+  const minutos = totalMinutos % 60;
+  const partes = [];
+  if (dias > 0) partes.push(dias + (dias === 1 ? ' día' : ' días'));
+  if (horas > 0) partes.push(horas + (horas === 1 ? ' hora' : ' horas'));
+  if (minutos > 0 && dias === 0) partes.push(minutos + (minutos === 1 ? ' minuto' : ' minutos'));
+  if (partes.length === 0) return 'menos de un minuto';
+  return partes.join(' y ');
+}
+
+function formatearFecha(fecha) {
+  return fecha.toLocaleString('es-AR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  });
+}
+
+function armarBarra(titulo, porcentaje, clase) {
+  const ancho = Math.min(100, Math.max(0, porcentaje));
+  return '<div class="fila-barra">' +
+    '<div class="etiqueta"><span>' + titulo + '</span><strong>' + redondear(porcentaje) + '%</strong></div>' +
+    '<div class="barra ' + clase + '"><span style="width:' + ancho + '%"></span></div>' +
+    '</div>';
+}
+
+function mostrarAviso(mensaje) {
+  cajaResultado.innerHTML = '<p class="veredicto aviso">' + mensaje + '</p>';
+}
+
+function buscarProximoReinicio() {
+  const dia = campoDia.value;
+  const hora = selectorHora.selectedDates[0];
+  if (dia === '' || !hora) return null;
+
+  const ahora = new Date();
+  const proximo = new Date(ahora);
+  proximo.setHours(hora.getHours(), hora.getMinutes(), 0, 0);
+  proximo.setDate(proximo.getDate() + ((Number(dia) - proximo.getDay() + 7) % 7));
+  if (proximo <= ahora) proximo.setDate(proximo.getDate() + 7);
+  return proximo;
+}
+
+function calcular() {
+  const reinicio = buscarProximoReinicio();
+  const consumido = Number(campoConsumido.value);
+
+  if (!reinicio) {
+    cajaProximo.textContent = '';
+    mostrarAviso('Elegí el día y la hora del reinicio para ver la estimación.');
+    return;
+  }
+
+  cajaProximo.textContent = 'Próximo reinicio: ' + formatearFecha(reinicio) + '.';
+
+  if (campoConsumido.value === '' || isNaN(consumido) || consumido < 0 || consumido > 100) {
+    mostrarAviso('El consumo tiene que ser un número entre 0 y 100.');
+    return;
+  }
+
+  const ahora = new Date();
+  const restanteMs = reinicio.getTime() - ahora.getTime();
+  const transcurridoMs = msSemana - restanteMs;
+
+  if (transcurridoMs < 60000) {
+    mostrarAviso('La semana recién arranca. Esperá un rato para que la estimación tenga sentido.');
+    return;
+  }
+
+  const fraccionTiempo = transcurridoMs / msSemana;
+  const porcentajeTiempo = fraccionTiempo * 100;
+  const proyectado = consumido / fraccionTiempo;
+
+  let bloques = armarBarra('Semana transcurrida', porcentajeTiempo, 'barra-tiempo');
+  bloques += armarBarra('Límite consumido', consumido, 'barra-consumo' + (consumido > porcentajeTiempo ? ' pasada' : ''));
+
+  if (consumido >= 100) {
+    bloques += '<p class="veredicto mal">Ya te quedaste sin límite.</p>';
+    bloques += '<p class="detalle">Faltan <strong>' + formatearDuracion(restanteMs) + '</strong> para el reinicio del ' + formatearFecha(reinicio) + '.</p>';
+    cajaResultado.innerHTML = bloques;
+    return;
+  }
+
+  if (proyectado <= 100) {
+    const sobra = 100 - proyectado;
+    const consumoRestante = proyectado - consumido;
+    bloques += '<p class="veredicto bien">Te alcanza y te sobra.</p>';
+    bloques += '<p class="detalle">Al ritmo actual llegás al reinicio con <strong>' + redondear(sobra) + '%</strong> sin usar (terminarías en ' + redondear(proyectado) + '%).</p>';
+    bloques += '<p class="detalle">Quedan <strong>' + formatearDuracion(restanteMs) + '</strong> hasta el ' + formatearFecha(reinicio) + '.</p>';
+    if (consumoRestante > 0.05) {
+      const factor = (100 - consumido) / consumoRestante;
+      bloques += '<div class="tip"><i class="fas fa-bolt"></i>En lo que queda de la semana podés aumentar el ritmo a <strong>' + redondear(factor, 1) + ' veces</strong> lo actual y llegar justo.</div>';
+    } else {
+      bloques += '<div class="tip"><i class="fas fa-bolt"></i>Con este consumo no hay manera de que te quedes corto. Dale para adelante.</div>';
+    }
+    cajaResultado.innerHTML = bloques;
+    return;
+  }
+
+  const ritmoPorMs = consumido / transcurridoMs;
+  const msHastaAgotar = (100 - consumido) / ritmoPorMs;
+  const fechaAgote = new Date(ahora.getTime() + msHastaAgotar);
+  const sinLimiteMs = reinicio.getTime() - fechaAgote.getTime();
+  const factor = (100 - consumido) / (proyectado - consumido);
+
+  bloques += '<p class="veredicto mal">No te alcanza.</p>';
+  bloques += '<p class="detalle">Al ritmo actual necesitarías <strong>' + redondear(proyectado) + '%</strong>, o sea <strong>' + redondear(proyectado - 100) + '%</strong> de más.</p>';
+  bloques += '<p class="detalle">Te quedás sin límite el <strong>' + formatearFecha(fechaAgote) + '</strong>, dentro de ' + formatearDuracion(msHastaAgotar) + '.</p>';
+  bloques += '<p class="detalle">Vas a estar <strong>' + formatearDuracion(sinLimiteMs) + '</strong> sin límite hasta el reinicio.</p>';
+  bloques += '<div class="tip"><i class="fas fa-hand"></i>Para llegar justo tenés que bajar el ritmo a <strong>' + redondear(factor, 2) + ' veces</strong> el actual.</div>';
+  cajaResultado.innerHTML = bloques;
+}
+
+function sincronizarDesdeNumero() {
+  rangoConsumido.value = campoConsumido.value;
+  calcular();
+}
+
+function sincronizarDesdeRango() {
+  campoConsumido.value = rangoConsumido.value;
+  calcular();
+}
+
+function guardarReinicio() {
+  const hora = selectorHora.selectedDates[0];
+  try {
+    if (campoDia.value !== '' && hora) {
+      localStorage.setItem(claveGuardado, JSON.stringify({
+        dia: campoDia.value,
+        hora: hora.getHours(),
+        minutos: hora.getMinutes()
+      }));
+    } else {
+      localStorage.removeItem(claveGuardado);
+    }
+  } catch (error) {
+    // Si el navegador no deja guardar, seguimos igual.
+  }
+  calcular();
+}
+
+function recuperarReinicio() {
+  try {
+    const guardado = localStorage.getItem(claveGuardado);
+    if (!guardado) return;
+    const datos = JSON.parse(guardado);
+    campoDia.value = datos.dia;
+    selectorHora.setDate(
+      String(datos.hora).padStart(2, '0') + ':' + String(datos.minutos).padStart(2, '0'),
+      false
+    );
+  } catch (error) {
+    // Sin almacenamiento o con datos viejos, arranca vacío.
+  }
+}
+
+campoConsumido.addEventListener('input', sincronizarDesdeNumero);
+rangoConsumido.addEventListener('input', sincronizarDesdeRango);
+campoDia.addEventListener('change', guardarReinicio);
+
+recuperarReinicio();
+calcular();
+setInterval(calcular, 30000);
+</script>
+</body>
+</html>
