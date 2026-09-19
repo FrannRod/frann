@@ -24,4 +24,4 @@ También podés abrir cualquier archivo HTML directamente sin servidor, aunque a
 - **recibida.html** – Invitación a mi festejo de graduación de ingeniería.
 - **cumple.html** – Invitación para mi cumple.
 - **cosmere.html** – Lista visual de los libros de Brandon Sanderson y su orden de lectura.
-- **limite-semanal.html** – Calculador que estima si los límites de uso de Claude o Codex (el semanal y el de 5 horas) alcanzan hasta el próximo reinicio.
+- **calculador-limites.html** – Calculador que estima si los límites de uso de Claude o Codex (el semanal y el de 5 horas) alcanzan hasta el próximo reinicio.
