@@ -365,6 +365,9 @@ const cajaProximoCincoHoras = document.getElementById('proximo-cinco-horas');
 const cajaResultadoCincoHoras = document.getElementById('resultado-cinco-horas');
 
 let reinicioCincoHoras = null;
+// Reinicio semanal al que corresponde el consumo cargado. Cuando ese momento
+// queda atrás, empieza una semana nueva y el consumo vuelve a cero.
+let reinicioVigenteSemanal = null;
 
 const selectorHora = flatpickr(campoHora, {
   locale: 'es',
@@ -422,6 +425,11 @@ function armarBarra(titulo, porcentaje, clase) {
     '<div class="etiqueta"><span>' + titulo + '</span><strong>' + redondear(porcentaje) + '%</strong></div>' +
     '<div class="barra ' + clase + '"><span style="width:' + ancho + '%"></span></div>' +
     '</div>';
+}
+
+function ponerConsumido(campo, rango, valor) {
+  campo.value = valor;
+  rango.value = valor;
 }
 
 function mostrarAviso(caja, mensaje) {
@@ -501,14 +509,25 @@ function buscarProximoSemanal() {
 
 function calcularSemanal() {
   const reinicio = buscarProximoSemanal();
-  const consumido = Number(campoConsumidoSemanal.value);
 
   if (!reinicio) {
+    reinicioVigenteSemanal = null;
     cajaProximoSemanal.textContent = '';
     mostrarAviso(cajaResultadoSemanal, 'Elegí el día y la hora del reinicio para ver la estimación.');
     return;
   }
 
+  // Cruzamos el reinicio que veníamos siguiendo: arranca una semana limpia.
+  const arrancoSemanaNueva = reinicioVigenteSemanal !== null && reinicioVigenteSemanal.getTime() <= Date.now();
+  if (arrancoSemanaNueva) {
+    ponerConsumido(campoConsumidoSemanal, rangoSemanal, 0);
+  }
+  reinicioVigenteSemanal = reinicio;
+  if (arrancoSemanaNueva) {
+    persistirSemanal();
+  }
+
+  const consumido = Number(campoConsumidoSemanal.value);
   cajaProximoSemanal.textContent = 'Próximo reinicio: ' + formatearFecha(reinicio) + '.';
 
   if (campoConsumidoSemanal.value === '' || isNaN(consumido) || consumido < 0 || consumido > 100) {
@@ -520,7 +539,18 @@ function calcularSemanal() {
 }
 
 function calcularCincoHoras() {
-  const consumido = Number(campoConsumidoCincoHoras.value);
+  // La ventana ya venció: se limpia sola, porque el faltante que había
+  // cargado no sirve más y el consumo arranca de cero.
+  if (reinicioCincoHoras !== null && reinicioCincoHoras.getTime() <= Date.now()) {
+    reinicioCincoHoras = null;
+    campoHorasRestantes.value = '';
+    campoMinutosRestantes.value = '';
+    ponerConsumido(campoConsumidoCincoHoras, rangoCincoHoras, 0);
+    persistirCincoHoras();
+    cajaProximoCincoHoras.textContent = '';
+    mostrarAviso(cajaResultadoCincoHoras, 'La ventana de 5 horas se reinició. Cargá cuánto falta para la próxima.');
+    return;
+  }
 
   if (!reinicioCincoHoras) {
     cajaProximoCincoHoras.textContent = '';
@@ -528,6 +558,7 @@ function calcularCincoHoras() {
     return;
   }
 
+  const consumido = Number(campoConsumidoCincoHoras.value);
   cajaProximoCincoHoras.textContent = 'Próximo reinicio: ' + formatearMomento(reinicioCincoHoras) + '.';
 
   if (campoConsumidoCincoHoras.value === '' || isNaN(consumido) || consumido < 0 || consumido > 100) {
@@ -552,14 +583,16 @@ function leerFaltante() {
   return totalMs;
 }
 
-function guardarSemanal() {
+function persistirSemanal() {
   const hora = selectorHora.selectedDates[0];
   try {
     if (campoDia.value !== '' && hora) {
       localStorage.setItem(claveSemanal, JSON.stringify({
         dia: campoDia.value,
         hora: hora.getHours(),
-        minutos: hora.getMinutes()
+        minutos: hora.getMinutes(),
+        consumido: campoConsumidoSemanal.value,
+        vigente: reinicioVigenteSemanal ? reinicioVigenteSemanal.toISOString() : null
       }));
     } else {
       localStorage.removeItem(claveSemanal);
@@ -567,22 +600,37 @@ function guardarSemanal() {
   } catch (error) {
     // Si el navegador no deja guardar, seguimos igual.
   }
-  calcularSemanal();
 }
 
-function guardarCincoHoras() {
-  const faltanteMs = leerFaltante();
-  reinicioCincoHoras = faltanteMs === null ? null : new Date(Date.now() + faltanteMs);
+function persistirCincoHoras() {
   try {
     if (reinicioCincoHoras) {
-      localStorage.setItem(claveCincoHoras, reinicioCincoHoras.toISOString());
+      localStorage.setItem(claveCincoHoras, JSON.stringify({
+        reinicio: reinicioCincoHoras.toISOString(),
+        consumido: campoConsumidoCincoHoras.value
+      }));
     } else {
       localStorage.removeItem(claveCincoHoras);
     }
   } catch (error) {
     // Si el navegador no deja guardar, seguimos igual.
   }
+}
+
+function guardarSemanal() {
+  calcularSemanal();
+  persistirSemanal();
+}
+
+function guardarCincoHoras() {
   calcularCincoHoras();
+  persistirCincoHoras();
+}
+
+function actualizarFaltanteCincoHoras() {
+  const faltanteMs = leerFaltante();
+  reinicioCincoHoras = faltanteMs === null ? null : new Date(Date.now() + faltanteMs);
+  guardarCincoHoras();
 }
 
 function recuperarSemanal() {
@@ -595,6 +643,14 @@ function recuperarSemanal() {
       String(datos.hora).padStart(2, '0') + ':' + String(datos.minutos).padStart(2, '0'),
       false
     );
+    // El consumo guardado sólo vale si todavía no llegamos a su reinicio.
+    const vigente = datos.vigente ? new Date(datos.vigente) : null;
+    if (vigente && !isNaN(vigente.getTime()) && vigente.getTime() > Date.now()) {
+      reinicioVigenteSemanal = vigente;
+      if (datos.consumido !== undefined) {
+        ponerConsumido(campoConsumidoSemanal, rangoSemanal, datos.consumido);
+      }
+    }
   } catch (error) {
     // Sin almacenamiento o con datos viejos, arranca vacío.
   }
@@ -604,17 +660,22 @@ function recuperarCincoHoras() {
   try {
     const guardado = localStorage.getItem(claveCincoHoras);
     if (!guardado) return;
-    const fecha = new Date(guardado);
+    const datos = JSON.parse(guardado);
+    const fecha = new Date(datos.reinicio);
     const faltanteMs = fecha.getTime() - Date.now();
     if (isNaN(fecha.getTime()) || faltanteMs <= 0) {
       localStorage.removeItem(claveCincoHoras);
       return;
     }
     reinicioCincoHoras = fecha;
-    campoHorasRestantes.value = Math.floor(faltanteMs / 3600000);
-    campoMinutosRestantes.value = Math.round((faltanteMs % 3600000) / 60000);
+    const totalMinutos = Math.round(faltanteMs / 60000);
+    campoHorasRestantes.value = Math.floor(totalMinutos / 60);
+    campoMinutosRestantes.value = totalMinutos % 60;
+    if (datos.consumido !== undefined) {
+      ponerConsumido(campoConsumidoCincoHoras, rangoCincoHoras, datos.consumido);
+    }
   } catch (error) {
-    // Sin almacenamiento, arranca vacío.
+    // Sin almacenamiento o con datos viejos, arranca vacío.
   }
 }
 
@@ -631,27 +692,27 @@ function cambiarPanel(panel) {
 
 campoConsumidoSemanal.addEventListener('input', function () {
   rangoSemanal.value = campoConsumidoSemanal.value;
-  calcularSemanal();
+  guardarSemanal();
 });
 
 rangoSemanal.addEventListener('input', function () {
   campoConsumidoSemanal.value = rangoSemanal.value;
-  calcularSemanal();
+  guardarSemanal();
 });
 
 campoConsumidoCincoHoras.addEventListener('input', function () {
   rangoCincoHoras.value = campoConsumidoCincoHoras.value;
-  calcularCincoHoras();
+  guardarCincoHoras();
 });
 
 rangoCincoHoras.addEventListener('input', function () {
   campoConsumidoCincoHoras.value = rangoCincoHoras.value;
-  calcularCincoHoras();
+  guardarCincoHoras();
 });
 
 campoDia.addEventListener('change', guardarSemanal);
-campoHorasRestantes.addEventListener('input', guardarCincoHoras);
-campoMinutosRestantes.addEventListener('input', guardarCincoHoras);
+campoHorasRestantes.addEventListener('input', actualizarFaltanteCincoHoras);
+campoMinutosRestantes.addEventListener('input', actualizarFaltanteCincoHoras);
 
 document.querySelectorAll('.pestania').forEach(function (boton) {
   boton.addEventListener('click', function () {
@@ -662,6 +723,9 @@ document.querySelectorAll('.pestania').forEach(function (boton) {
 recuperarSemanal();
 recuperarCincoHoras();
 calcular();
+// Deja asentado el estado ya normalizado (por ejemplo, un consumo que venció).
+persistirSemanal();
+persistirCincoHoras();
 setInterval(calcular, 30000);
 </script>
 </body>
