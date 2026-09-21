@@ -538,6 +538,17 @@ function calcularSemanal() {
   renderizarEstimacion(cajaResultadoSemanal, reinicio, consumido, msSemana, 'Semana transcurrida', 'semana');
 }
 
+// El faltante se muestra como cuenta regresiva viva: lo que vale es el
+// instante del reinicio, así que los campos se van poniendo al día solos.
+// Si estás escribiendo en alguno, no se toca hasta que salgas.
+function refrescarFaltanteCincoHoras() {
+  if (!reinicioCincoHoras) return;
+  if (document.activeElement === campoHorasRestantes || document.activeElement === campoMinutosRestantes) return;
+  const totalMinutos = Math.max(0, Math.round((reinicioCincoHoras.getTime() - Date.now()) / 60000));
+  campoHorasRestantes.value = Math.floor(totalMinutos / 60);
+  campoMinutosRestantes.value = totalMinutos % 60;
+}
+
 function calcularCincoHoras() {
   // La ventana ya venció: se limpia sola, porque el faltante que había
   // cargado no sirve más y el consumo arranca de cero.
@@ -557,6 +568,8 @@ function calcularCincoHoras() {
     mostrarAviso(cajaResultadoCincoHoras, 'Cargá cuánto falta para el reinicio para ver la estimación.');
     return;
   }
+
+  refrescarFaltanteCincoHoras();
 
   const consumido = Number(campoConsumidoCincoHoras.value);
   cajaProximoCincoHoras.textContent = 'Próximo reinicio: ' + formatearMomento(reinicioCincoHoras) + '.';
