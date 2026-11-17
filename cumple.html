@@ -4,170 +4,282 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invitación a mi Cumpleaños</title>
+    <meta name="description" content="Sábado 5 de diciembre, 19:30, en el Gran Caffe Vergnano.">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap');
+        :root {
+            --fondo: #0d0a1f;
+            --texto: #f4f1ff;
+            --texto-suave: #b9b3d6;
+            --acento: #ff6b8b;
+            --acento-2: #ffb86b;
+            --acento-3: #8b7bff;
+            --vidrio: rgba(255, 255, 255, 0.06);
+            --borde: rgba(255, 255, 255, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
 
         body {
-            font-family: 'Roboto', sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: #fff;
             margin: 0;
-            padding: 0;
+            min-height: 100vh;
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--fondo);
+            color: var(--texto);
+            overflow-x: hidden;
         }
-        .container {
-            max-width: 480px;
-            margin: auto;
-            padding: 20px;
+
+        .luces {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .luz {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.55;
+            animation: flotar 18s ease-in-out infinite alternate;
+        }
+        .luz.una {
+            width: 420px;
+            height: 420px;
+            background: var(--acento);
+            top: -140px;
+            left: -120px;
+        }
+        .luz.dos {
+            width: 380px;
+            height: 380px;
+            background: var(--acento-3);
+            bottom: -120px;
+            right: -120px;
+            animation-delay: -6s;
+        }
+        .luz.tres {
+            width: 260px;
+            height: 260px;
+            background: var(--acento-2);
+            top: 45%;
+            left: 60%;
+            opacity: 0.25;
+            animation-delay: -12s;
+        }
+        @keyframes flotar {
+            from { transform: translate(0, 0) scale(1); }
+            to { transform: translate(40px, 30px) scale(1.15); }
+        }
+
+        .contenedor {
+            position: relative;
+            z-index: 1;
+            max-width: 520px;
+            margin: 0 auto;
+            padding: 56px 16px 64px;
             text-align: center;
         }
-        h1 {
-            font-size: 2.2em;
-            margin-bottom: 0.5em;
-            color: #f0f0f0;
-        }
-        p {
-            font-size: 1em;
-            line-height: 1.5em;
-            margin: 0.5em 0;
-            color: #e0e0e0;
-        }
-        .buttons {
-            margin: 20px 0;
-        }
-        .button {
+
+        .etiqueta {
             display: inline-block;
-            margin: 5px;
-            padding: 10px 20px;
-            background-color: #ff6b6b;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 25px;
-            font-size: 0.9em;
-            transition: background 0.3s;
-        }
-        .button:hover {
-            background-color: #ff4757;
-        }
-        .list {
-            margin: 30px 0;
-        }
-        .list h3 {
-            margin-bottom: 15px;
-            font-size: 1.4em;
-            color: #f0f0f0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .list h3 .count {
+            padding: 6px 14px;
+            border: 1px solid var(--borde);
+            border-radius: 999px;
+            background: var(--vidrio);
             font-size: 0.8em;
-            color: #ff6b6b;
-            margin-left: 8px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--texto-suave);
         }
-        .list ul {
-            list-style: none;
-            padding: 0;
+
+        h1 {
+            font-family: 'Fraunces', Georgia, serif;
+            font-weight: 800;
+            font-size: clamp(2.6em, 11vw, 3.8em);
+            line-height: 1.02;
+            margin: 20px 0 12px;
+            background: linear-gradient(100deg, var(--acento-2), var(--acento) 45%, var(--acento-3));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .bajada {
+            font-size: 1.05em;
+            color: var(--texto-suave);
+            margin: 0 0 32px;
+        }
+
+        .tarjeta {
+            background: var(--vidrio);
+            border: 1px solid var(--borde);
+            border-radius: 22px;
+            padding: 22px;
+            margin: 16px 0;
+            text-align: left;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .datos {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .dato {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 14px 16px;
+        }
+        .dato.ancho {
+            grid-column: 1 / -1;
+        }
+        .dato .rotulo {
+            display: block;
+            font-size: 0.72em;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--texto-suave);
+            margin-bottom: 4px;
+        }
+        .dato .valor {
+            font-family: 'Fraunces', Georgia, serif;
+            font-weight: 600;
+            font-size: 1.35em;
+            line-height: 1.2;
+        }
+        .dato .detalle {
+            display: block;
+            margin-top: 4px;
+            font-size: 0.92em;
+            color: var(--texto-suave);
+        }
+
+        .boton {
             display: flex;
-            flex-wrap: wrap;
+            align-items: center;
             justify-content: center;
-            gap: 10px;
-        }
-        .list li {
-            background-color: rgba(255, 255, 255, 0.2);
-            padding: 8px 12px;
-            border-radius: 20px;
-            font-size: 0.9em;
+            gap: 8px;
+            margin-top: 14px;
+            padding: 13px 20px;
+            border-radius: 14px;
+            background: linear-gradient(100deg, var(--acento), var(--acento-3));
             color: #fff;
+            font-weight: 600;
+            text-decoration: none;
+            box-shadow: 0 10px 30px -10px rgba(255, 107, 139, 0.7);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        a {
-            color: inherit;
+        .boton:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 34px -10px rgba(255, 107, 139, 0.85);
         }
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 2em;
+
+        .tarjeta h2 {
+            font-family: 'Fraunces', Georgia, serif;
+            font-weight: 600;
+            font-size: 1.3em;
+            margin: 0 0 12px;
+        }
+        .lista {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: grid;
+            gap: 12px;
+        }
+        .lista li {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            line-height: 1.5;
+            color: #e6e2f7;
+        }
+        .lista .icono {
+            flex: none;
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            font-size: 1.05em;
+        }
+        .lista strong {
+            color: var(--texto);
+        }
+
+        .confirmar {
+            margin-top: 32px;
+            padding: 22px;
+            border-radius: 22px;
+            background: linear-gradient(135deg, rgba(255, 184, 107, 0.16), rgba(255, 107, 139, 0.16));
+            border: 1px solid rgba(255, 184, 107, 0.35);
+        }
+        .confirmar p {
+            margin: 0;
+            font-size: 1.15em;
+            font-weight: 600;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .luz {
+                animation: none;
             }
-            .button {
-                padding: 10px 15px;
-                font-size: 0.9em;
-            }
-            .list li {
-                font-size: 0.85em;
+            .boton {
+                transition: none;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>¡Estás Invitado a Mi Cumple! 🎉</h1>
-        <p>El día es <strong>sábado 7 de diciembre de 2024</strong> a las <strong>21:30 hs</strong>.</p>
-        <p>Tenemos reserva en <strong>Growlers</strong> - Av. Santa Fe 1430, Recoleta.</p>
-        <p>Por mi cumple tenemos todos <strong>50% OFF</strong> en cervezas Clásicas, Gin Tonic Tirado, Tintillo de Verano, Fernet, Agua Mineral y Vaso de Gaseosa.</p>
-        <div class="buttons">
-            <a href="https://maps.app.goo.gl/YwyfguKDhByogMug6" class="button">Ver en Maps</a>
-            <a href="https://growlerscc.com.ar/menu-growlers/" target="_blank" class="button">Ver Carta</a>
-        </div>
-        <p>Si alguien necesita o prefiere venir más temprano, avísenme y pueden pasar un rato por casa. Si somos muchos, nos vamos a merendar a un Starbucks cercano o a una plaza linda que hay cerca.</p>
-        <div class="buttons">
-            <a href="https://www.google.com/calendar/render?action=TEMPLATE&text=Cumple+de+Franco&dates=20241208T003000Z/20241208T023000Z&details=Más+información+en+FrancoRodriguez.com.ar%2Fcumple&location=Av.+Santa+Fe+1430%2C+Recoleta" class="button">Agendar Evento</a>
-        </div>
-        <div class="list">
-            <h3>Confirmados <span class="count">(22)</span></h3>
-            <ul>
-                <li>👑Fran</li>
-                <li>Nova</li>
-                <li>Juan Cruz</li>
-                <li>Rocío Velis</li>
-                <li>Juan Albala</li>
-                <li>Santi Bonoli</li>
-                <li>Mica</li>
-                <li>Sofi</li>
-                <li>Flor</li>
-                <li>Sophi</li>
-                <li>Antito</li>
-                <li>Pire</li>
-                <li>Ale</li>
-                <li>Anita</li>
-                <li>Ludmila</li>
-                <li>Cande</li>
-                <li>Tute</li>
-                <li>Nachito</li>
-                <li>Tobías</li>
-                <li>Lucas</li>
-                <li>Sofii</li>
-                <li>Kris (Sofii)</li>
-            </ul>
-            <a href="https://wa.me/5491133321196?text=Hola!%20Quería%20confirmarte%20que%20*voy*%20a%20tu%20cumple" class="button">Confirmar Asistencia</a>
-        </div>
-        
-        <div class="list">
-            <h3>No Asisten <span class="count">(13)</span></h3>
-            <ul>
-                <li>Pepi</li>
-                <li>Enzo</li>
-                <li>Cata</li>
-                <li>Trica</li>
-                <li>Naf</li>
-                <li>Nicole</li>
-                <li>Denise</li>
-                <li>Viole</li>
-                <li>Alex</li>
-                <li>Oto</li>
-                <li>Dani</li>
-                <li>Juli</li>
-                <li>Diame</li>
-            </ul>
-            <a href="https://wa.me/5491133321196?text=Hola!%20Quería%20confirmarte%20que%20*no*%20voy%20a%20tu%20cumple" class="button">No puedo ir</a>
-        </div>
-        
-        <div class="list">
-            <h3>No contestaron <span class="count">(3)</span></h3>
-            <ul>
-                <li>Lola</li>
-                <li>Daf</li>
-                <li>Malena</li>
-            </ul>
-        </div>
+    <div class="luces" aria-hidden="true">
+        <div class="luz una"></div>
+        <div class="luz dos"></div>
+        <div class="luz tres"></div>
     </div>
+
+    <main class="contenedor">
+        <span class="etiqueta">Estás invitado</span>
+        <h1>¡Festejo mi cumple! 🎉</h1>
+        <p class="bajada">Me encantaría que vengas.</p>
+
+        <section class="tarjeta">
+            <div class="datos">
+                <div class="dato">
+                    <span class="rotulo">Día</span>
+                    <span class="valor">Sábado 5/12</span>
+                </div>
+                <div class="dato">
+                    <span class="rotulo">Hora</span>
+                    <span class="valor">19:30</span>
+                </div>
+                <div class="dato ancho">
+                    <span class="rotulo">Lugar</span>
+                    <span class="valor">Gran Caffe Vergnano</span>
+                    <span class="detalle">Av. Córdoba 602 · piso de arriba, reservado solo para nosotros</span>
+                </div>
+            </div>
+            <a href="https://maps.app.goo.gl/rM8dbYrqGqF44jC27" target="_blank" rel="noopener" class="boton">📍 Ver en Maps</a>
+        </section>
+
+        <section class="tarjeta">
+            <h2>¿Cómo es?</h2>
+            <ul class="lista">
+                <li><span class="icono">🍕</span><span>Es un bar: cada uno pide lo que quiera de la carta y paga lo suyo. <strong>No hay entrada ni nada extra.</strong></span></li>
+                <li><span class="icono">🏷️</span><span>Por mi cumple <strong>nos hacen un descuento</strong>. Todavía no tengo la carta.</span></li>
+            </ul>
+        </section>
+
+        <div class="confirmar">
+            <p>Por favor, confirmame si venís 🙏</p>
+        </div>
+    </main>
 </body>
 </html>
