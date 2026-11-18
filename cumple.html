@@ -82,28 +82,16 @@
             z-index: 1;
             max-width: 520px;
             margin: 0 auto;
-            padding: 56px 16px 64px;
+            padding: 16px 16px 20px;
             text-align: center;
-        }
-
-        .etiqueta {
-            display: inline-block;
-            padding: 6px 14px;
-            border: 1px solid var(--borde);
-            border-radius: 999px;
-            background: var(--vidrio);
-            font-size: 0.8em;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: var(--texto-suave);
         }
 
         h1 {
             font-family: 'Fraunces', Georgia, serif;
             font-weight: 800;
-            font-size: clamp(2.6em, 11vw, 3.8em);
+            font-size: clamp(1.6em, 7.6vw, 3.2em);
             line-height: 1.02;
-            margin: 20px 0 12px;
+            margin: 12px 0 6px;
             background: linear-gradient(100deg, var(--acento-2), var(--acento) 45%, var(--acento-3));
             -webkit-background-clip: text;
             background-clip: text;
@@ -113,15 +101,15 @@
         .bajada {
             font-size: 1.05em;
             color: var(--texto-suave);
-            margin: 0 0 32px;
+            margin: 0 0 14px;
         }
 
         .tarjeta {
             background: var(--vidrio);
             border: 1px solid var(--borde);
             border-radius: 22px;
-            padding: 22px;
-            margin: 16px 0;
+            padding: 14px;
+            margin: 10px 0;
             text-align: left;
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
@@ -130,12 +118,12 @@
         .datos {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            gap: 10px;
         }
         .dato {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 16px;
-            padding: 14px 16px;
+            padding: 10px 12px;
         }
         .dato.ancho {
             grid-column: 1 / -1;
@@ -151,23 +139,37 @@
         .dato .valor {
             font-family: 'Fraunces', Georgia, serif;
             font-weight: 600;
-            font-size: 1.35em;
+            font-size: 1.2em;
             line-height: 1.2;
+        }
+        .dato .aclaracion {
+            font-family: 'Inter', system-ui, sans-serif;
+            font-weight: 400;
+            font-size: 0.64em;
+            color: var(--texto-suave);
+            white-space: nowrap;
         }
         .dato .detalle {
             display: block;
-            margin-top: 4px;
-            font-size: 0.92em;
+            margin-top: 2px;
+            font-size: 0.88em;
             color: var(--texto-suave);
         }
 
+        .botones {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 12px;
+        }
         .boton {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            margin-top: 14px;
-            padding: 13px 20px;
+            gap: 6px;
+            padding: 12px 10px;
+            font-size: 0.95em;
+            white-space: nowrap;
             border-radius: 14px;
             background: linear-gradient(100deg, var(--acento), var(--acento-3));
             color: #fff;
@@ -181,7 +183,6 @@
             box-shadow: 0 14px 34px -10px rgba(255, 107, 139, 0.85);
         }
         .boton.secundario {
-            margin-top: 10px;
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid var(--borde);
             box-shadow: none;
@@ -194,27 +195,28 @@
         .tarjeta h2 {
             font-family: 'Fraunces', Georgia, serif;
             font-weight: 600;
-            font-size: 1.3em;
-            margin: 0 0 12px;
+            font-size: 1.1em;
+            margin: 0 0 6px;
         }
         .lista {
             list-style: none;
             margin: 0;
             padding: 0;
             display: grid;
-            gap: 12px;
+            gap: 8px;
         }
         .lista li {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             align-items: flex-start;
-            line-height: 1.5;
+            font-size: 0.9em;
+            line-height: 1.4;
             color: #e6e2f7;
         }
         .lista .icono {
             flex: none;
-            width: 34px;
-            height: 34px;
+            width: 30px;
+            height: 30px;
             display: grid;
             place-items: center;
             border-radius: 10px;
@@ -226,15 +228,15 @@
         }
 
         .confirmar {
-            margin-top: 32px;
-            padding: 22px;
+            margin-top: 10px;
+            padding: 10px;
             border-radius: 22px;
             background: linear-gradient(135deg, rgba(255, 184, 107, 0.16), rgba(255, 107, 139, 0.16));
             border: 1px solid rgba(255, 184, 107, 0.35);
         }
         .confirmar p {
             margin: 0;
-            font-size: 1.15em;
+            font-size: 1.05em;
             font-weight: 600;
         }
 
@@ -256,7 +258,6 @@
     </div>
 
     <main class="contenedor">
-        <span class="etiqueta">Estás invitado</span>
         <h1>¡Festejo mi cumple! 🎉</h1>
         <p class="bajada">Me encantaría que vengas.</p>
 
@@ -268,7 +269,7 @@
                 </div>
                 <div class="dato">
                     <span class="rotulo">Hora</span>
-                    <span class="valor">19:30</span>
+                    <span class="valor">19:30 <span class="aclaracion">a 23 aprox.</span></span>
                 </div>
                 <div class="dato ancho">
                     <span class="rotulo">Lugar</span>
@@ -276,15 +277,18 @@
                     <span class="detalle">Av. Córdoba 602 · piso de arriba, reservado solo para nosotros</span>
                 </div>
             </div>
-            <a href="https://maps.app.goo.gl/rM8dbYrqGqF44jC27" target="_blank" rel="noopener" class="boton">📍 Ver en Maps</a>
-            <a href="https://www.google.com/calendar/render?action=TEMPLATE&amp;text=Cumple+de+Franco&amp;dates=20261205T223000Z/20261206T020000Z&amp;details=M%C3%A1s+informaci%C3%B3n+en+francorodriguez.com.ar%2Fcumple&amp;location=Gran+Caffe+Vergnano%2C+Av.+C%C3%B3rdoba+602" target="_blank" rel="noopener" class="boton secundario">📅 Agendar evento</a>
+            <div class="botones">
+                <a href="https://maps.app.goo.gl/rM8dbYrqGqF44jC27" target="_blank" rel="noopener" class="boton">📍 Ver en Maps</a>
+                <a href="https://www.google.com/calendar/render?action=TEMPLATE&amp;text=Cumple+de+Franco&amp;dates=20261205T223000Z/20261206T020000Z&amp;details=M%C3%A1s+informaci%C3%B3n+en+francorodriguez.com.ar%2Fcumple&amp;location=Gran+Caffe+Vergnano%2C+Av.+C%C3%B3rdoba+602" target="_blank" rel="noopener" class="boton secundario">📅 Agendar evento</a>
+            </div>
         </section>
 
         <section class="tarjeta">
             <h2>¿Cómo es?</h2>
             <ul class="lista">
-                <li><span class="icono">🍕</span><span>Es un bar: cada uno pide lo que quiera de la carta y paga lo suyo. <strong>No hay entrada ni nada extra.</strong></span></li>
-                <li><span class="icono">🏷️</span><span>Por mi cumple <strong>nos hacen un descuento</strong>. Todavía no tengo la carta.</span></li>
+                <li><span class="icono">👥</span><span>Somos aproximadamente 37 invitados y el piso de arriba del café está <strong>reservado solo para nosotros</strong>.</span></li>
+                <li><span class="icono">🍕</span><span>En la carta hay pizza, otras comidas y tragos con alcohol. Cada uno paga lo suyo.</span></li>
+                <li><span class="icono">🏷️</span><span>Por mi cumple <strong>nos hacen un descuento</strong>. Todavía no tengo la carta completa.</span></li>
             </ul>
         </section>
 
